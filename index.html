@@ -66,8 +66,11 @@
                             <select id="clienteServico" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors">
                                 <option value="Corte">Corte (R$ 45)</option>
                                 <option value="Barba">Barba (R$ 45)</option>
+                                <option value="Sobrancelha">Sobrancelha (R$ 20)</option>
                                 <option value="Combo">Combo (R$ 90)</option>
                             </select>
+                            <!-- Nota discreta sobre o combo -->
+                            <p class="text-[10px] text-slate-500 mt-1 pl-1">💡 Combo inclui: Corte, Barba e Sobrancelha</p>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">4. Profissional</label>
@@ -444,6 +447,7 @@
                           const d = doc.data();
                           if(d.servico === "Corte") totalFat += 45;
                           if(d.servico === "Barba") totalFat += 45;
+                          if(d.servico === "Sobrancelha") totalFat += 20;
                           if(d.servico === "Combo") totalFat += 90;
 
                           container.innerHTML += `
