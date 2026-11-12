@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4a1c24">
+<title>Agendamento de Barbearia</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+  .display{font-family:"Barlow Condensed",system-ui,sans-serif;letter-spacing:.01em}
+  input,select,textarea{font-size:16px}
+  nav{padding-bottom:env(safe-area-inset-bottom)}
+  .field{width:100%;border:1.5px solid #d4d2c8;border-radius:.75rem;padding:.7rem .85rem;background:#fff;outline:none}
+  .field:focus{border-color:#b8893a;box-shadow:0 0 0 3px #b8893a40}
+  .pole{height:7px;background:repeating-linear-gradient(135deg,#b3263a 0 10px,#fff 10px 20px,#2a4d8f 20px 30px,#fff 30px 40px)}
+  fieldset:disabled{opacity:.45}
+</style>
+</head>
+<body class="bg-[#eceae4] text-[#231a17] min-h-screen">
+
+<header class="bg-[#4a1c24] text-white">
+  <div class="max-w-xl mx-auto px-5 pt-7 pb-6">
+    <h1 class="display text-4xl font-bold leading-none">Barbearia</h1>
+    <p class="text-[#e6cfd3] mt-1">Escolha seu barbeiro, o dia e o horário.</p>
+    <p id="conn" class="mt-3 text-xs text-[#e6cfd3]">Conectando…</p>
+  </div>
+  <div class="pole"></div>
+</header>
+
+<main class="max-w-xl mx-auto px-4 pt-5 pb-32">
+
+  <!-- CLIENTE -->
+  <section id="tab-cliente" class="space-y-6">
+    <div id="aviso" class="hidden bg-[#b3263a] text-white rounded-2xl p-4 text-center font-semibold">
+      A barbearia está fechada para agendamentos agora. Volte mais tarde.
+    </div>
+    <form id="form" class="bg-white rounded-2xl p-5 shadow-sm">
+      <fieldset id="fs" class="space-y-4">
+        <h2 class="display text-2xl font-bold">Agendar horário</h2>
+        <input id="nome" class="field" placeholder="Seu nome" required autocomplete="name">
+        <input id="whats" class="field" placeholder="WhatsApp com DDD" inputmode="tel" required autocomplete="tel">
+        <div>
+          <p class="text-sm font-semibold mb-2">Serviço</p>
+          <div id="servicos" class="space-y-2"></div>
+        </div>
+        <div>
+          <p class="text-sm font-semibold mb-2">Profissional</p>
+          <div id="profs" class="grid grid-cols-2 gap-2"></div>
+        </div>
+        <div>
+          <label for="data" class="text-sm font-semibold block mb-2">Data</label>
+          <input id="data" type="date" class="field" required>
+        </div>
+        <div>
+          <p class="text-sm font-semibold mb-2">Horário</p>
+          <div id="horas" class="grid grid-cols-4 gap-2"></div>
+          <p id="semHoras" class="hidden text-sm text-slate-500 mt-2">Sem horários livres neste dia. Escolha outra data ou profissional.</p>
+        </div>
+        <button class="w-full bg-[#b8893a] text-white font-bold rounded-xl py-3.5 active:scale-[.98] transition">Confirmar agendamento</button>
+        <p id="msgForm" class="text-sm text-center text-[#1d7a5a] hidden">Horário reservado! Te esperamos na barbearia.</p>
+        <p id="erroForm" class="text-sm text-center text-[#b3263a] hidden"></p>
+      </fieldset>
+    </form>
+    <div>
+      <h2 class="display text-2xl font-bold mb-3 px-1">Meus horários</h2>
+      <div id="listaCliente" class="space-y-3"></div>
+    </div>
+  </section>
+
+  <!-- BARBEARIA -->
+  <section id="tab-barbearia" class="hidden space-y-4">
+    <div data-login="barbearia" class="bg-white rounded-2xl p-5 shadow-sm space-y-3">
+      <h2 class="display text-2xl font-bold">Entrar na agenda</h2>
+      <p class="text-sm text-slate-500">Digite a senha da barbearia.</p>
+      <input type="password" class="field" placeholder="Senha" data-pass>
+      <button data-act="login" data-role="barbearia" class="w-full bg-[#4a1c24] text-white font-bold rounded-xl py-3.5">Entrar</button>
+      <p class="text-sm text-[#b3263a] hidden" data-err>Senha incorreta. Tente de novo.</p>
+    </div>
+    <div data-panel="barbearia" class="hidden space-y-4">
+      <div class="flex items-center justify-between px-1">
+        <h2 class="display text-2xl font-bold">Agenda do dia</h2>
+        <button data-act="logout" data-role="barbearia" class="text-sm text-slate-500 underline">Sair</button>
+      </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between gap-3">
+        <div>
+          <p class="font-bold">Recebendo agendamentos</p>
+          <p id="abertoTxt" class="text-sm text-slate-500"></p>
+        </div>
+        <button id="chave" data-act="aberto" class="shrink-0 w-24 py-2.5 rounded-full font-bold text-white text-sm"></button>
+      </div>
+      <input id="dataAgenda" type="date" class="field">
+      <div id="agenda" class="space-y-5"></div>
+    </div>
+  </section>
+
+  <!-- MASTER -->
+  <section id="tab-master" class="hidden space-y-4">
+    <div data-login="master" class="bg-white rounded-2xl p-5 shadow-sm space-y-3">
+      <h2 class="display text-2xl font-bold">Acesso master</h2>
+      <p class="text-sm text-slate-500">Visão geral de agendamentos e faturamento.</p>
+      <input type="password" class="field" placeholder="Senha master" data-pass>
+      <button data-act="login" data-role="master" class="w-full bg-[#4a1c24] text-white font-bold rounded-xl py-3.5">Entrar</button>
+      <p class="text-sm text-[#b3263a] hidden" data-err>Senha incorreta. Tente de novo.</p>
+    </div>
+    <div data-panel="master" class="hidden space-y-4">
+      <div class="flex items-center justify-between px-1">
+        <h2 class="display text-2xl font-bold">Visão geral</h2>
+        <button data-act="logout" data-role="master" class="text-sm text-slate-500 underline">Sair</button>
+      </div>
+      <div id="stats" class="grid grid-cols-3 gap-2"></div>
+      <div id="porProf" class="bg-white rounded-2xl p-4 shadow-sm space-y-2"></div>
+      <select id="filtro" class="field">
+        <option value="">Todos os status</option>
+        <option>Agendado</option><option>Confirmado</option><option>Concluído</option><option>Cancelado</option>
+      </select>
+      <div id="listaMaster" class="space-y-3"></div>
+    </div>
+  </section>
+</main>
+
+<nav class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200">
+  <div class="max-w-xl mx-auto grid grid-cols-3">
+    <button data-tab="cliente" class="tabbtn py-3.5 text-sm font-semibold">Cliente</button>
+    <button data-tab="barbearia" class="tabbtn py-3.5 text-sm font-semibold">Barbearia</button>
+    <button data-tab="master" class="tabbtn py-3.5 text-sm font-semibold">Master</button>
+  </div>
+</nav>
+
+<script type="module">
+/* ========= 1) CONFIGURAÇÃO ========= */
+const firebaseConfig = {
+  apiKey: "AIzaSyBfGd4a0_b3soNJTxL1FCa8JAMLxIxJyYg",
+  authDomain: "tecnicos-de-bolso-c3417.firebaseapp.com",
+  projectId: "tecnicos-de-bolso-c3417",
+  storageBucket: "tecnicos-de-bolso-c3417.firebasestorage.app",
+  messagingSenderId: "473908989188",
+  appId: "1:473908989188:web:478db24c71bb4bf32dbt79"
+};
+const SENHAS = { barbearia: "1234", master: "master123" };
+const PROFISSIONAIS = ["Carica", "Barbeiro 2"];
+const SERVICOS = [
+  { nome: "Corte", preco: 45 },
+  { nome: "Barba", preco: 45 },
+  { nome: "Combo (Corte, Barba + Sobrancelha)", preco: 90 }
+];
+const ABRE = "09:00", FECHA = "20:00", PASSO = 30; // horários de 30 em 30 min; o último começa às 19:30
+const COLECAO = "agendamentos";
+
+/* ========= 2) BANCO ========= */
+let pedidos = [], aberto = true, db = null;
+
+async function iniciarBanco() {
+  try {
+    const base = "https://www.gstatic.com/firebasejs/10.12.2/";
+    const [{ initializeApp }, fs] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js")]);
+    const fire = fs.getFirestore(initializeApp(firebaseConfig));
+    const col = fs.collection(fire, COLECAO), cfg = fs.doc(fire, "config", "salao");
+    fs.onSnapshot(col, s => { pedidos = s.docs.map(d => ({ id: d.id, ...d.data() })); status(true); desenhar(); }, e => modoLocal(e));
+    fs.onSnapshot(cfg, s => { aberto = s.exists() ? s.data().aberto !== false : true; desenhar(); });
+    db = {
+      // transação: impede dois clientes de pegarem o mesmo horário ao mesmo tempo
+      add: async o => {
+        const ref = fs.doc(fire, COLECAO, o.chave);
+        await fs.runTransaction(fire, async tx => {
+          const s = await tx.get(ref);
+          if (s.exists() && s.data().status !== "Cancelado") throw new Error("ocupado");
+          tx.set(ref, { ...o, criadoEm: fs.serverTimestamp() });
+        });
+        return o.chave;
+      },
+      update: (id, d) => fs.updateDoc(fs.doc(fire, COLECAO, id), d),
+      setAberto: v => fs.setDoc(cfg, { aberto: v })
+    };
+  } catch (e) { modoLocal(e); }
+}
+
+function modoLocal(err) {
+  console.warn("Firestore indisponível, usando modo local:", err);
+  try { pedidos = JSON.parse(localStorage.getItem("bb_pedidos") || "[]"); aberto = localStorage.getItem("bb_aberto") !== "0"; } catch {}
+  const salvar = () => { try { localStorage.setItem("bb_pedidos", JSON.stringify(pedidos)); localStorage.setItem("bb_aberto", aberto ? "1" : "0"); } catch {} desenhar(); };
+  db = {
+    add: async o => {
+      if (pedidos.some(p => p.id === o.chave && p.status !== "Cancelado")) throw new Error("ocupado");
+      pedidos = pedidos.filter(p => p.id !== o.chave); pedidos.push({ id: o.chave, ...o, criadoEm: Date.now() }); salvar(); return o.chave;
+    },
+    update: async (id, d) => { pedidos = pedidos.map(p => p.id === id ? { ...p, ...d } : p); salvar(); },
+    setAberto: async v => { aberto = v; salvar(); }
+  };
+  status(false); desenhar();
+}
+
+function status(on) {
+  const el = $("#conn");
+  el.textContent = on ? "● Agenda sincronizada em tempo real" : "● Modo local (sem Firebase): dados só neste aparelho";
+  el.style.color = on ? "#9be7c2" : "#ffd0a6";
+}
+
+/* ========= 3) UTILIDADES ========= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const brl = v => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const dig = s => String(s || "").replace(/\D/g, "");
+const dBR = d => d.split("-").reverse().join("/");
+const hojeISO = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const mm = h => +h.slice(0, 2) * 60 + +h.slice(3);
+const hh = m => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+const SLOTS = []; for (let m = mm(ABRE); m < mm(FECHA); m += PASSO) SLOTS.push(hh(m));
+const COR = { Agendado: "bg-amber-100 text-amber-800", Confirmado: "bg-sky-100 text-sky-800", "Concluído": "bg-emerald-100 text-emerald-800", Cancelado: "bg-slate-200 text-slate-600" };
+const slug = s => s.toLowerCase().replace(/\W/g, "");
+const ativo = p => p.status !== "Cancelado";
+const meus = () => { try { return JSON.parse(localStorage.getItem("bb_meus") || "[]"); } catch { return []; } };
+const auth = { barbearia: false, master: false };
+let servSel = 0, profSel = 0, horaSel = null;
+
+/* ========= 4) CLIENTE ========= */
+function desenharForm() {
+  $("#servicos").innerHTML = SERVICOS.map((s, i) => `<button type="button" data-act="serv" data-i="${i}" class="w-full flex justify-between items-center border-2 rounded-xl px-4 py-3 text-left ${i === servSel ? "border-[#b8893a] bg-[#b8893a]/10" : "border-slate-200"}"><span class="font-semibold">${esc(s.nome)}</span><span class="display text-xl font-bold">${brl(s.preco)}</span></button>`).join("");
+  $("#profs").innerHTML = PROFISSIONAIS.map((n, i) => `<button type="button" data-act="prof" data-i="${i}" class="border-2 rounded-xl py-3 font-semibold ${i === profSel ? "border-[#b8893a] bg-[#b8893a]/10" : "border-slate-200"}">${esc(n)}</button>`).join("");
+}
+
+function ocupados(prof, data) { return new Set(pedidos.filter(p => p.profissional === prof && p.data === data && ativo(p)).map(p => p.hora)); }
+
+function desenharHoras() {
+  const data = $("#data").value, prof = PROFISSIONAIS[profSel];
+  if (!data) { $("#horas").innerHTML = ""; return; }
+  const oc = ocupados(prof, data), agora = new Date(), min = agora.getHours() * 60 + agora.getMinutes();
+  const livre = h => !oc.has(h) && !(data === hojeISO() && mm(h) <= min);
+  if (horaSel && !livre(horaSel)) horaSel = null;
+  $("#horas").innerHTML = SLOTS.map(h => livre(h)
+    ? `<button type="button" data-act="hora" data-h="${h}" class="py-2.5 rounded-lg text-sm font-semibold border-2 ${h === horaSel ? "bg-[#b8893a] border-[#b8893a] text-white" : "border-slate-200 bg-white"}">${h}</button>`
+    : `<span class="py-2.5 rounded-lg text-sm text-center border-2 border-transparent bg-slate-100 text-slate-400 line-through">${h}</span>`).join("");
+  $("#semHoras").classList.toggle("hidden", SLOTS.some(livre));
+}
+
+function cardAg(p, modo) {
+  const zap = dig(p.whatsapp), cliente = modo === "cliente";
+  const btn = (s, t, cls) => `<button data-act="st" data-id="${esc(p.id)}" data-s="${s}" class="flex-1 font-bold rounded-xl py-2.5 text-sm ${cls}">${t}</button>`;
+  let acoes = "";
+  if (!cliente) {
+    acoes = `<div class="flex gap-2 pt-1">
+      ${zap ? `<a href="https://wa.me/55${zap.replace(/^55/, "")}" target="_blank" rel="noopener" class="flex-1 text-center border-2 border-[#1d7a5a] text-[#1d7a5a] font-bold rounded-xl py-2.5 text-sm">WhatsApp</a>` : ""}
+      ${p.status === "Agendado" ? btn("Confirmado", "Confirmar", "bg-[#4a1c24] text-white") : ""}
+      ${p.status === "Confirmado" ? btn("Concluído", "Concluir", "bg-[#1d7a5a] text-white") : ""}
+      ${p.status === "Agendado" || p.status === "Confirmado" ? btn("Cancelado", "Cancelar", "border-2 border-[#b3263a] text-[#b3263a]") : ""}
+    </div>`;
+  }
+  return `<article class="bg-white rounded-2xl p-4 shadow-sm space-y-1.5">
+    <div class="flex items-center justify-between gap-2">
+      <p class="display text-2xl font-bold leading-none">${modo === "agenda" ? "" : dBR(p.data) + " · "}${esc(p.hora)}</p>
+      <span class="text-xs font-bold px-2.5 py-1 rounded-full ${COR[p.status] || ""}">${esc(p.status)}</span>
+    </div>
+    <p class="font-semibold">${esc(p.servico)} <span class="text-slate-500 font-normal">· ${brl(p.preco)}</span></p>
+    <p class="text-sm text-slate-500">${cliente || modo === "master" ? esc(p.profissional) + (cliente ? "" : " · ") : ""}${cliente ? "" : esc(p.nome) + " · " + esc(p.whatsapp)}</p>
+    ${acoes}
+  </article>`;
+}
+
+const vazio = t => `<p class="text-center text-slate-500 bg-white rounded-2xl p-5">${t}</p>`;
+
+/* ========= 5) TELAS ========= */
+function desenhar() {
+  // cliente
+  $("#aviso").classList.toggle("hidden", aberto);
+  $("#fs").disabled = !aberto;
+  desenharHoras();
+  const m = meus(), meusP = pedidos.filter(p => m.some(x => x.id === p.id && x.z === dig(p.whatsapp))).sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora));
+  $("#listaCliente").innerHTML = meusP.length ? meusP.map(p => cardAg(p, "cliente")).join("") : vazio("Você ainda não agendou nenhum horário.");
+
+  // barbearia
+  const ch = $("#chave");
+  ch.textContent = aberto ? "Aberto" : "Fechado";
+  ch.className = "shrink-0 w-24 py-2.5 rounded-full font-bold text-white text-sm " + (aberto ? "bg-[#1d7a5a]" : "bg-[#b3263a]");
+  $("#abertoTxt").textContent = aberto ? "Clientes podem agendar nos horários livres." : "Nenhum cliente consegue agendar.";
+  const dia = $("#dataAgenda").value;
+  $("#agenda").innerHTML = PROFISSIONAIS.map(n => {
+    const l = pedidos.filter(p => p.profissional === n && p.data === dia && ativo(p) || p.profissional === n && p.data === dia && p.status === "Cancelado").sort((a, b) => a.hora.localeCompare(b.hora));
+    const total = l.filter(p => ativo(p)).length;
+    return `<div class="space-y-2"><h3 class="display text-xl font-bold px-1">${esc(n)} <span class="text-slate-500 text-base font-semibold">${total} horário${total === 1 ? "" : "s"}</span></h3>${l.length ? l.map(p => cardAg(p, "agenda")).join("") : vazio("Agenda livre neste dia.")}</div>`;
+  }).join("");
+
+  // master
+  const validos = pedidos.filter(ativo), conc = pedidos.filter(p => p.status === "Concluído");
+  const soma = a => a.reduce((t, p) => t + Number(p.preco || 0), 0);
+  const box = (v, l) => `<div class="bg-white rounded-xl p-3 shadow-sm"><div class="display text-2xl font-bold leading-none">${v}</div><div class="text-[11px] leading-tight text-slate-500 mt-1">${l}</div></div>`;
+  $("#stats").innerHTML = box(validos.length, "Agendamentos") + box(brl(soma(conc)), "Faturamento (concluídos)") + box(brl(soma(validos.filter(p => p.status !== "Concluído"))), "A receber");
+  $("#porProf").innerHTML = `<p class="font-bold">Faturamento por profissional</p>` + PROFISSIONAIS.map(n => `<div class="flex justify-between text-sm"><span>${esc(n)}</span><span class="font-semibold">${brl(soma(conc.filter(p => p.profissional === n)))}</span></div>`).join("");
+  const f = $("#filtro").value, todos = pedidos.filter(p => !f || p.status === f).sort((a, b) => (b.data + b.hora).localeCompare(a.data + a.hora));
+  $("#listaMaster").innerHTML = todos.length ? todos.map(p => cardAg(p, "master")).join("") : vazio("Nenhum agendamento encontrado.");
+}
+
+function aba(nome) {
+  ["cliente", "barbearia", "master"].forEach(n => {
+    $("#tab-" + n).classList.toggle("hidden", n !== nome);
+    const b = document.querySelector(`[data-tab="${n}"]`);
+    b.classList.toggle("text-[#4a1c24]", n === nome); b.classList.toggle("text-slate-500", n !== nome);
+    b.style.borderTop = n === nome ? "3px solid #b8893a" : "3px solid transparent";
+  });
+  window.scrollTo({ top: 0 });
+}
+function sessao(r) {
+  document.querySelector(`[data-login="${r}"]`).classList.toggle("hidden", auth[r]);
+  document.querySelector(`[data-panel="${r}"]`).classList.toggle("hidden", !auth[r]);
+}
+
+/* ========= 6) EVENTOS ========= */
+document.addEventListener("click", async e => {
+  const t = e.target.closest("[data-tab],[data-act]"); if (!t) return;
+  if (t.dataset.tab) return aba(t.dataset.tab);
+  const { act, role, id, s, i, h } = t.dataset;
+  if (act === "serv") { servSel = +i; desenharForm(); }
+  if (act === "prof") { profSel = +i; horaSel = null; desenharForm(); desenharHoras(); }
+  if (act === "hora") { horaSel = h; desenharHoras(); }
+  if (act === "login") {
+    const box = document.querySelector(`[data-login="${role}"]`), ok = box.querySelector("[data-pass]").value === SENHAS[role];
+    box.querySelector("[data-err]").classList.toggle("hidden", ok);
+    if (ok) { auth[role] = true; box.querySelector("[data-pass]").value = ""; sessao(role); }
+  }
+  if (act === "logout") { auth[role] = false; sessao(role); }
+  if (act === "aberto" && db) await db.setAberto(!aberto);
+  if (act === "st" && db) { t.disabled = true; await db.update(id, { status: s }); }
+});
+
+$("#data").addEventListener("change", () => { horaSel = null; desenharHoras(); });
+$("#dataAgenda").addEventListener("change", desenhar);
+$("#filtro").addEventListener("change", desenhar);
+
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const erro = $("#erroForm"); erro.classList.add("hidden");
+  const falha = t => { erro.textContent = t; erro.classList.remove("hidden"); };
+  if (!db || !aberto) return;
+  if (dig($("#whats").value).length < 10) return falha("Digite o WhatsApp com DDD, por exemplo 11 91234-5678.");
+  if (!horaSel) return falha("Escolha um horário livre.");
+  const prof = PROFISSIONAIS[profSel], data = $("#data").value, sv = SERVICOS[servSel];
+  const btn = e.submitter; btn.disabled = true;
+  try {
+    const id = await db.add({
+      chave: `${slug(prof)}_${data}_${horaSel.replace(":", "")}`, nome: $("#nome").value.trim(), whatsapp: $("#whats").value.trim(),
+      profissional: prof, data, hora: horaSel, servico: sv.nome, preco: sv.preco, status: "Agendado"
+    });
+    try { localStorage.setItem("bb_meus", JSON.stringify([...meus(), { id, z: dig($("#whats").value) }])); } catch {}
+    horaSel = null; desenhar();
+    $("#msgForm").classList.remove("hidden"); setTimeout(() => $("#msgForm").classList.add("hidden"), 5000);
+  } catch (err) {
+    falha(err.message === "ocupado" ? "Esse horário acabou de ser reservado. Escolha outro." : "Não foi possível agendar. Verifique a conexão e tente de novo.");
+    horaSel = null; desenharHoras();
+  }
+  btn.disabled = false;
+});
+
+const hoje = hojeISO(), max = new Date(Date.now() + 30 * 864e5 - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+$("#data").min = hoje; $("#data").max = max; $("#data").value = hoje; $("#dataAgenda").value = hoje;
+desenharForm(); aba("cliente"); desenhar();
+iniciarBanco();
+</script>
+</body>
+</html>
