@@ -69,7 +69,6 @@
                                 <option value="Sobrancelha">Sobrancelha (R$ 20)</option>
                                 <option value="Combo">Combo (R$ 90)</option>
                             </select>
-                            <!-- Nota discreta sobre o combo -->
                             <p class="text-[10px] text-slate-500 mt-1 pl-1">💡 Combo inclui: Corte, Barba e Sobrancelha</p>
                         </div>
                         <div>
@@ -119,7 +118,7 @@
                 </div>
                 <h3 class="font-bold text-white text-base">Painel da Barbearia</h3>
                 <p class="text-xs text-slate-400 mb-4">Digite a senha de acesso do gestor.</p>
-                <input type="password" id="senhaBarbeariaInput" placeholder="Senha (ex: 1234)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-white mb-3 focus:outline-none focus:border-amber-500">
+                <input type="password" id="senhaBarbeariaInput" placeholder="Digite sua senha" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-white mb-3 focus:outline-none focus:border-amber-500">
                 <button onclick="fazerLoginBarbearia()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-sm transition-colors">Entrar no Painel</button>
             </div>
 
@@ -164,7 +163,7 @@
                 </div>
                 <h3 class="font-bold text-white text-base">Acesso Master Admin</h3>
                 <p class="text-xs text-slate-400 mb-4">Controle consolidado da plataforma.</p>
-                <input type="password" id="senhaMasterInput" placeholder="Senha Master (master123)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-white mb-3 focus:outline-none focus:border-indigo-500">
+                <input type="password" id="senhaMasterInput" placeholder="Digite a senha master" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-white mb-3 focus:outline-none focus:border-indigo-500">
                 <button onclick="fazerLoginMaster()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm transition-colors">Acessar Master</button>
             </div>
 
@@ -376,7 +375,7 @@
                 document.getElementById("barbeariaPainelContent").classList.remove("hidden");
                 carregarAgendamentosBarbearia();
             } else {
-                alert("Senha incorreta! Use 1234");
+                alert("Senha incorreta!");
             }
         }
 
@@ -422,7 +421,7 @@
                 document.getElementById("masterPainelContent").classList.remove("hidden");
                 carregarDadosMaster();
             } else {
-                alert("Senha Master incorreta! Use master123");
+                alert("Senha Master incorreta!");
             }
         }
 
