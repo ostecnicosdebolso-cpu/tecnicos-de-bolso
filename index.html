@@ -48,7 +48,7 @@
 
     <div id="comprovante" class="hidden bg-[#35393e] border border-[#454a50] rounded-2xl p-4 space-y-2">
       <div class="flex items-center justify-between gap-2">
-        <span class="text-xs font-bold text-[#8fd3ae]">Agendamento confirmado</span>
+        <span id="selo" class="text-xs font-bold text-[#8fd3ae]">Agendamento confirmado</span>
         <span id="protocolo" class="font-mono text-xs text-[#aeb4ba]"></span>
       </div>
       <p id="comprovanteTxt" class="text-sm"></p>
@@ -152,6 +152,11 @@
           <button id="btnTrava" data-act="trava" class="w-full font-extrabold rounded-xl py-3.5"></button>
         </div>
       </div>
+      <div class="flex items-center justify-between gap-3">
+        <h3 class="font-semibold text-sm">Agendamentos do dia</h3>
+        <input id="dataAdmin" type="date" class="field !w-auto !py-2">
+      </div>
+      <div id="listaAdmin" class="space-y-2"></div>
       <button data-act="logout" data-role="admin" class="text-sm text-[#9aa1a8] underline">Sair</button>
     </div>
   </section>
@@ -159,7 +164,7 @@
 
 <script type="module">
 /* ========= CONFIGURAÇÃO ========= */
-const VERSAO = "v1.1";                         // some 0.1 a cada alteração publicada (v1.2, v1.3...)
+const VERSAO = "v1.2";                         // some 0.1 a cada alteração publicada (v1.3, v1.4...)
 const firebaseConfig = {
   apiKey: "AIzaSyBfGd4a0_b3soNJTxL1FCa8JAMLxIxJyYg",
   authDomain: "tecnicos-de-bolso-c3417.firebaseapp.com",
@@ -192,6 +197,7 @@ const dBR = d => d.split("-").reverse().join("/");
 const mm = h => +h.slice(0, 2) * 60 + +h.slice(3);
 const hh = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
 const slug = s => s.toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
+const cancelado = p => p.status === "Cancelado"; // agendamentos antigos (sem status) contam como ativos
 const SLOTS = []; for (let m = mm(INICIO); m <= mm(FIM); m += PASSO) SLOTS.push(hh(m));
 
 /* ========= ESTADO ========= */
@@ -200,8 +206,9 @@ let sistemaTravado = false, barbeariaFechada = false;   // travado = Administrad
 const indisponivel = () => sistemaTravado || barbeariaFechada;
 let diaSel = hojeISO(), horaSel = null, servSel = 0;
 let mes = { y: new Date().getFullYear(), m: new Date().getMonth() };
-let agDia = [], unsubDia = null, unsubAgenda = null;
+let agDia = [], unsubDia = null, unsubMeu = null;
 const auth = { barbearia: false, admin: false };
+const AG = { barbearia: { data: "#dataAgenda", lista: "#listaAgenda", unsub: null }, admin: { data: "#dataAdmin", lista: "#listaAdmin", unsub: null } };
 
 /* ========= FIREBASE ========= */
 async function iniciar() {
@@ -217,7 +224,8 @@ async function iniciar() {
       desenharEstado();
     }, erroConexao);
     ouvirDia();
-    if (auth.barbearia) ouvirAgenda();
+    Object.keys(AG).forEach(r => { if (auth[r]) ouvirAgenda(r); });
+    const c = lerComprovante(); if (c) acompanharMeu(c);
   } catch (e) { erroConexao(e); }
 }
 function erroConexao(e) {
@@ -234,34 +242,58 @@ function ouvirDia() {
   }, erroConexao);
 }
 
-function ouvirAgenda() {
+function cardAgenda(p) {
+  const canc = cancelado(p);
+  return `<article class="bg-[#35393e] border border-[#454a50] rounded-xl p-3.5 space-y-1 ${canc ? "opacity-50" : ""}">
+    <div class="flex items-center justify-between">
+      <span class="text-lg font-extrabold ${canc ? "line-through" : ""}">${esc(p.horario)}</span>
+      ${canc ? `<span class="text-xs font-bold text-[#f3c9cd]">Cancelado</span>` : `<span class="font-mono text-xs text-[#9aa1a8]">${esc(p.protocolo)}</span>`}
+    </div>
+    <p class="font-semibold">${esc(p.nome)}</p>
+    <p class="text-sm"><a href="https://wa.me/55${dig(p.telefone).replace(/^55/, "")}" target="_blank" rel="noopener" class="text-[#8fd3ae] underline">${esc(p.telefone)}</a></p>
+    <p class="text-sm text-[#aeb4ba]">${esc(p.servico)} · ${brl(p.preco)} · ${esc(p.profissional)}</p>
+    ${canc ? "" : `<button data-act="cancelar" data-id="${esc(p.id)}" data-rotulo="${esc(p.nome)} às ${esc(p.horario)}" class="mt-1 w-full border border-[#7a3a41] text-[#f3c9cd] font-bold rounded-xl py-2 text-sm">Cancelar agendamento</button>`}
+  </article>`;
+}
+
+function ouvirAgenda(role) {
   if (!fs) return;
-  if (unsubAgenda) unsubAgenda();
-  unsubAgenda = fs.onSnapshot(fs.query(colecao(), fs.where("data", "==", $("#dataAgenda").value)), s => {
-    const l = s.docs.map(d => d.data()).sort((a, b) => a.horario.localeCompare(b.horario));
-    $("#listaAgenda").innerHTML = l.length ? l.map(p => `
-      <article class="bg-[#35393e] border border-[#454a50] rounded-xl p-3.5 space-y-1">
-        <div class="flex items-center justify-between">
-          <span class="text-lg font-extrabold">${esc(p.horario)}</span>
-          <span class="font-mono text-xs text-[#9aa1a8]">${esc(p.protocolo)}</span>
-        </div>
-        <p class="font-semibold">${esc(p.nome)}</p>
-        <p class="text-sm"><a href="https://wa.me/55${dig(p.telefone).replace(/^55/, "")}" target="_blank" rel="noopener" class="text-[#8fd3ae] underline">${esc(p.telefone)}</a></p>
-        <p class="text-sm text-[#aeb4ba]">${esc(p.servico)} · ${brl(p.preco)} · ${esc(p.profissional)}</p>
-      </article>`).join("") : `<p class="text-center text-sm text-[#9aa1a8] py-6">Nenhum agendamento nesta data.</p>`;
+  const a = AG[role]; if (a.unsub) a.unsub();
+  a.unsub = fs.onSnapshot(fs.query(colecao(), fs.where("data", "==", $(a.data).value)), s => {
+    const l = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((x, y) => x.horario.localeCompare(y.horario));
+    $(a.lista).innerHTML = l.length ? l.map(cardAgenda).join("") : `<p class="text-center text-sm text-[#9aa1a8] py-6">Nenhum agendamento nesta data.</p>`;
   }, erroConexao);
 }
 
-// Transação: dois clientes nunca conseguem o mesmo horário, mesmo ao mesmo tempo ou em aparelhos diferentes.
+// Transação: dois clientes nunca conseguem o mesmo horário. Horário cancelado volta a ficar livre.
 async function gravar(o) {
   const ref = fs.doc(fire, "saloes", SALAO, "agendamentos", o.chave);
   const cfg = fs.doc(fire, "saloes", SALAO);
   await fs.runTransaction(fire, async tx => {
     const c = await tx.get(cfg), s = await tx.get(ref);
     if (c.exists() && (c.data().sistemaBloqueado || c.data().barbeariaFechada)) throw new Error("bloqueado");
-    if (s.exists()) throw new Error("ocupado");
-    tx.set(ref, { ...o, criadoEm: fs.serverTimestamp() });
+    if (s.exists() && !cancelado(s.data())) throw new Error("ocupado");
+    tx.set(ref, { ...o, status: "Agendado", criadoEm: fs.serverTimestamp() });
   });
+}
+
+/* ========= COMPROVANTE DO CLIENTE ========= */
+const lerComprovante = () => { try { return JSON.parse(localStorage.getItem("tdb_comprovante") || "null"); } catch { return null; } };
+function mostrarComprovante(c, foiCancelado) {
+  $("#selo").textContent = foiCancelado ? "Agendamento cancelado" : "Agendamento confirmado";
+  $("#selo").className = "text-xs font-bold " + (foiCancelado ? "text-[#f3c9cd]" : "text-[#8fd3ae]");
+  $("#protocolo").textContent = c.protocolo;
+  $("#comprovanteTxt").textContent = `${c.servico} com ${c.profissional} em ${dBR(c.data)} às ${c.horario}.` + (foiCancelado ? " Este horário foi cancelado pela barbearia." : "");
+  $("#comprovante").classList.remove("hidden");
+}
+// Acompanha em tempo real: se a barbearia cancelar, o cliente vê o aviso no próprio aparelho.
+function acompanharMeu(c) {
+  if (!fs || !c.chave) return mostrarComprovante(c, false);
+  if (unsubMeu) unsubMeu();
+  unsubMeu = fs.onSnapshot(fs.doc(fire, "saloes", SALAO, "agendamentos", c.chave), s => {
+    const d = s.exists() ? s.data() : null;
+    mostrarComprovante(c, !d || d.protocolo !== c.protocolo || cancelado(d));
+  }, () => mostrarComprovante(c, false));
 }
 
 /* ========= TELAS ========= */
@@ -286,7 +318,7 @@ function desenharServicos() {
 }
 function desenharHoras() {
   const prof = $("#prof").value, agora = new Date(), min = agora.getHours() * 60 + agora.getMinutes();
-  const oc = new Set(agDia.filter(p => p.profissional === prof).map(p => p.horario));
+  const oc = new Set(agDia.filter(p => p.profissional === prof && !cancelado(p)).map(p => p.horario));
   const livre = h => !indisponivel() && !oc.has(h) && !(diaSel === hojeISO() && mm(h) <= min);
   if (horaSel && !livre(horaSel)) horaSel = null;
   $("#diaTxt").textContent = "· " + dBR(diaSel).slice(0, 5);
@@ -334,11 +366,6 @@ function sessao(r) {
   document.querySelector(`[data-panel="${r}"]`).classList.toggle("hidden", !auth[r]);
 }
 function aviso(t) { $("#modalTxt").textContent = t; $("#modal").classList.remove("hidden"); }
-function mostrarComprovante(c) {
-  $("#protocolo").textContent = c.protocolo;
-  $("#comprovanteTxt").textContent = `${c.servico} com ${c.profissional} em ${dBR(c.data)} às ${c.horario}.`;
-  $("#comprovante").classList.remove("hidden");
-}
 
 /* ========= EVENTOS ========= */
 document.addEventListener("click", async e => {
@@ -350,15 +377,19 @@ document.addEventListener("click", async e => {
   if (d.hora) { horaSel = d.hora; desenharHoras(); }
   if (d.serv) { servSel = +d.serv; desenharServicos(); }
   if (d.act === "fechar") $("#modal").classList.add("hidden");
-  if (d.act === "novo") { try { localStorage.removeItem("tdb_comprovante"); } catch {} $("#comprovante").classList.add("hidden"); }
+  if (d.act === "novo") { try { localStorage.removeItem("tdb_comprovante"); } catch {} if (unsubMeu) unsubMeu(); $("#comprovante").classList.add("hidden"); }
   if (d.act === "login") {
     const box = document.querySelector(`[data-login="${d.role}"]`), campo = box.querySelector("[data-pass]");
     if (campo.value === SENHAS[d.role]) {
-      auth[d.role] = true; campo.value = ""; sessao(d.role);
-      if (d.role === "barbearia") ouvirAgenda();
+      auth[d.role] = true; campo.value = ""; sessao(d.role); ouvirAgenda(d.role);
     } else aviso("Senha incorreta. Tente novamente.");
   }
   if (d.act === "logout") { auth[d.role] = false; sessao(d.role); }
+  if (d.act === "cancelar" && fs) {
+    if (!confirm(`Cancelar o agendamento de ${d.rotulo}? O horário volta a ficar disponível para novos clientes.`)) return;
+    try { await fs.updateDoc(fs.doc(fire, "saloes", SALAO, "agendamentos", d.id), { status: "Cancelado", canceladoEm: fs.serverTimestamp() }); }
+    catch (err) { console.error(err); aviso("Não foi possível cancelar. Verifique a conexão e as regras do Firestore."); }
+  }
   if (d.act === "barb" && fs && !sistemaTravado) {
     try { await fs.setDoc(fs.doc(fire, "saloes", SALAO), { barbeariaFechada: !barbeariaFechada }, { merge: true }); }
     catch (err) { console.error(err); aviso("Não foi possível alterar. Verifique a conexão e as regras do Firestore."); }
@@ -371,7 +402,8 @@ document.addEventListener("click", async e => {
   }
 });
 
-$("#dataAgenda").addEventListener("change", ouvirAgenda);
+$("#dataAgenda").addEventListener("change", () => ouvirAgenda("barbearia"));
+$("#dataAdmin").addEventListener("change", () => ouvirAgenda("admin"));
 
 $("#form").addEventListener("submit", async e => {
   e.preventDefault();
@@ -389,9 +421,9 @@ $("#form").addEventListener("submit", async e => {
   btn.disabled = true; btn.textContent = "Agendando…";
   try {
     await Promise.race([gravar(o), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]);
-    const c = { protocolo, servico: o.servico, profissional: prof, data: diaSel, horario: o.horario };
+    const c = { chave: o.chave, protocolo, servico: o.servico, profissional: prof, data: diaSel, horario: o.horario };
     try { localStorage.setItem("tdb_comprovante", JSON.stringify(c)); } catch {}
-    mostrarComprovante(c); horaSel = null; desenharHoras(); window.scrollTo({ top: 0, behavior: "smooth" });
+    acompanharMeu(c); horaSel = null; desenharHoras(); window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (err) {
     console.error(err);
     aviso(err.message === "ocupado" ? "Horário Indisponível"
@@ -405,9 +437,9 @@ $("#form").addEventListener("submit", async e => {
 /* ========= INÍCIO ========= */
 document.querySelectorAll(".ver").forEach(el => el.textContent = VERSAO);
 $("#prof").innerHTML = PROFISSIONAIS.map(p => `<option>${esc(p)}</option>`).join("");
-$("#dataAgenda").value = hojeISO();
+$("#dataAgenda").value = hojeISO(); $("#dataAdmin").value = hojeISO();
 desenharCalendario(); desenharServicos(); desenharEstado(); aba("cliente");
-try { const c = JSON.parse(localStorage.getItem("tdb_comprovante") || "null"); if (c && c.protocolo) mostrarComprovante(c); } catch {}
+{ const c = lerComprovante(); if (c && c.protocolo) mostrarComprovante(c, false); }
 iniciar();
 </script>
 </body>
