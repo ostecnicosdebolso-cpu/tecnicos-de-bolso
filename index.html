@@ -37,7 +37,7 @@
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.5</span>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.9</span>
                     </div>
                 </div>
             </div>
@@ -139,7 +139,7 @@
 
                     <div class="pt-1">
                         <span class="block text-[11px] font-medium text-slate-500 mb-2">Horários Disponíveis</span>
-                        <input type="hidden" id="clienteHorario" required>
+                        <input type="hidden" id="clienteHorario">
                         <div id="gridHorarios" class="grid grid-cols-4 gap-1.5 max-h-36 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
@@ -162,7 +162,7 @@
             <div id="barbeariaLoginBox" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80">
                 <h3 class="font-bold text-slate-900 text-sm">Painel do Gestor</h3>
                 <p class="text-xs text-slate-400 mb-4">Acesso exclusivo da barbearia.</p>
-                <input type="password" id="senhaBarbeariaInput" placeholder="Digite sua senha (1234)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
+                <input type="password" id="senhaBarbeariaInput" placeholder="Digite sua senha" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
                 <button onclick="fazerLoginBarbearia()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Entrar</button>
             </div>
 
@@ -182,7 +182,8 @@
             <div id="masterLoginBox" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80">
                 <h3 class="font-bold text-slate-900 text-sm">Técnicos de Bolso</h3>
                 <p class="text-xs text-slate-400 mb-4">Painel Administrativo Geral</p>
-                <input type="password" id="senhaMasterInput" placeholder="Senha administrativa (master123)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
+                <!-- CAMPO DE SENHA LIMPO E OCULTO -->
+                <input type="password" id="senhaMasterInput" placeholder="Digite a senha administrativa" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
                 <button onclick="fazerLoginMaster()" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Acessar Painel</button>
             </div>
 
@@ -212,7 +213,7 @@
     </nav>
 
     <script>
-        const VERSAO_ATUAL = "v2.5";
+        const VERSAO_ATUAL = "v2.9";
 
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
@@ -435,27 +436,25 @@
             }
 
             try {
-                const docId = `${data}_${horario}`;
-                const docRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos").doc(docId);
-
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
+                if (horariosOcupadosCache.includes(horario)) {
                     if(btnSubmit) {
                         btnSubmit.disabled = false;
                         btnSubmit.textContent = "Confirmar Agendamento";
                     }
-                    mostrarErro(`Ops! O horário das ${horario} do dia ${data.split('-').reverse().join('/')} já foi reservado por outro cliente.`);
+                    mostrarErro(`O horário das ${horario} acabou de ser ocupado. Escolha outro horário.`);
                     iniciarEscutaTempoReal();
                     return;
                 }
 
+                const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
                 const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
+                
                 const dados = {
                     nome, whatsapp, servico, barbeiro, data, horario, protocolo,
                     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                await docRef.set(dados);
+                await salaoRef.add(dados);
 
                 if(btnSubmit) {
                     btnSubmit.disabled = false;
@@ -467,6 +466,7 @@
 
                 document.getElementById("agendamentoForm").reset();
                 document.getElementById("clienteData").value = data;
+                document.getElementById("clienteHorario").value = "";
                 iniciarEscutaTempoReal();
 
             } catch (err) {
@@ -474,7 +474,7 @@
                     btnSubmit.disabled = false;
                     btnSubmit.textContent = "Confirmar Agendamento";
                 }
-                mostrarErro("Erro ao registrar agendamento. O horário pode ter sido ocupado simultaneamente.");
+                mostrarErro("Erro ao registrar agendamento. Tente novamente.");
                 iniciarEscutaTempoReal();
             }
         }
