@@ -34,7 +34,10 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h1 class="font-extrabold text-sm tracking-tight text-white">Carica Barber Shop</h1>
-                    <p class="text-[10px] text-zinc-400 font-medium tracking-wide uppercase">Técnicos de Bolso</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <p class="text-[10px] text-zinc-400 font-medium tracking-wide uppercase">Técnicos de Bolso</p>
+                        <span id="badgeVersaoApp" class="bg-zinc-800 text-zinc-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-zinc-700">v3.1</span>
+                    </div>
                 </div>
                 <div id="statusSistemaBadge" class="px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -100,7 +103,7 @@
                     <input type="hidden" id="inputServico" value="Corte" required>
                     
                     <div class="space-y-2">
-                        <div onclick="selecionarServico('Corte', this)" class="servico-item cursor-pointer bg-zinc-950 border-2 border-zinc-700 rounded-xl p-3 transition-all flex justify-between items-center">
+                        <div onclick="selecionarServico('Corte', this)" class="servico-item cursor-pointer bg-zinc-950 border-2 border-zinc-200 rounded-xl p-3 transition-all flex justify-between items-center">
                             <div>
                                 <span class="font-bold text-xs text-zinc-200">Corte</span>
                             </div>
@@ -193,6 +196,7 @@
 
     <!-- SCRIPT DE CONTROLE E FIREBASE -->
     <script>
+        const VERSAO_APP = "v3.1";
         const CONFIG_FIREBASE = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
         try {
@@ -204,15 +208,20 @@
         let cacheOcupados = [];
         let escutaCliente = null;
         let escutaBarbearia = null;
-        let escutaStatus = null;
         let sistemaBloqueadoGlobal = false;
 
         document.addEventListener("DOMContentLoaded", () => {
+            const badgeVersao = document.getElementById("badgeVersaoApp");
+            if(badgeVersao) badgeVersao.textContent = VERSAO_APP;
+
             const hoje = new Date().toISOString().split('T')[0];
             const inputData = document.getElementById("inputData");
             const filtroBarbearia = document.getElementById("filtroDataBarbearia");
             
-            if(inputData) inputData.value = hoje;
+            if(inputData) {
+                inputData.value = hoje;
+                inputData.min = hoje; // Impede selecionar datas passadas
+            }
             if(filtroBarbearia) filtroBarbearia.value = hoje;
             
             escutarStatusSistema();
@@ -288,21 +297,31 @@
             const horarioAtual = document.getElementById("inputHorario").value;
             grid.innerHTML = "";
 
+            const dataSelecionada = document.getElementById("inputData").value;
+            const hojeStr = new Date().toISOString().split('T')[0];
+            const agora = new Date();
+            const horaAtualMinutos = agora.getHours() * 60 + agora.getMinutes();
+            const ehHoje = (dataSelecionada === hojeStr);
+
             // 09:00 até 20:00 (intervalos de 30 min)
             for (let h = 9; h <= 20; h++) {
                 const minutos = (h === 20) ? ['00'] : ['00', '30'];
                 minutos.forEach(m => {
-                    if (h === 20 && m === '30') return; // Encerra às 20:00 em ponto
+                    if (h === 20 && m === '30') return;
+                    
+                    const horaMinutos = h * 60 + parseInt(m);
                     const horaStr = `${String(h).padStart(2, '0')}:${m}`;
                     const btn = document.createElement("button");
                     btn.type = "button";
                     btn.textContent = horaStr;
 
-                    const ocupado = cacheOcupados.includes(horaStr) || sistemaBloqueadoGlobal;
+                    // Validação: Ocupado no banco, sistema travado globalmente, ou horário passado no dia de hoje
+                    const passadoNoDia = ehHoje && (horaMinutos <= horaAtualMinutos);
+                    const ocupado = cacheOcupados.includes(horaStr) || sistemaBloqueadoGlobal || passadoNoDia;
 
                     if (ocupado) {
                         btn.disabled = true;
-                        btn.className = "py-2 rounded-xl text-xs font-semibold bg-zinc-950 border border-zinc-800 text-zinc-600 cursor-not-allowed line-through";
+                        btn.className = "py-2 rounded-xl text-xs font-semibold bg-zinc-950 border border-zinc-800 text-zinc-600 cursor-not-allowed line-through opacity-60";
                         if (horarioAtual === horaStr) document.getElementById("inputHorario").value = "";
                     } else {
                         const selecionado = (horarioAtual === horaStr);
