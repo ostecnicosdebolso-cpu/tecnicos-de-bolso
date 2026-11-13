@@ -246,6 +246,7 @@
         } catch (e) {}
 
         const SALAO_ID = "carica";
+        const WHATSAPP_BARBEARIA = "5511958073012"; // Número oficial do Carica
 
         document.addEventListener("DOMContentLoaded", () => {
             const hoje = new Date().toISOString().split('T')[0];
@@ -350,21 +351,31 @@
             const horario = document.getElementById("clienteHorario").value;
             if (!horario) { alert("Por favor, toque em um horário disponível."); return; }
 
+            const nome = document.getElementById("clienteNome").value.trim();
+            const whatsapp = document.getElementById("clienteWhatsapp").value.trim();
+            const servico = document.getElementById("clienteServico").value;
+            const barbeiro = document.getElementById("clienteBarbeiro").value;
+            const data = document.getElementById("clienteData").value;
+
             const dados = {
-                nome: document.getElementById("clienteNome").value.trim(),
-                whatsapp: document.getElementById("clienteWhatsapp").value.trim(),
-                servico: document.getElementById("clienteServico").value,
-                barbeiro: document.getElementById("clienteBarbeiro").value,
-                data: document.getElementById("clienteData").value,
-                horario,
+                nome, whatsapp, servico, barbeiro, data, horario,
                 criadoEm: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             if (db) {
                 await db.collection("saloes").doc(SALAO_ID).collection("agendamentos").add(dados);
-                alert("Agendamento confirmado com sucesso!");
+                
+                // Monta a mensagem de pop-up via WhatsApp para o Barbeiro
+                const mensagem = `🔔 *NOVO AGENDAMENTO!* ✂️\n\n👤 *Cliente:* ${nome}\n📱 *WhatsApp:* ${whatsapp}\n💈 *Serviço:* ${servico}\n👨‍🎨 *Profissional:* ${barbeiro}\n📅 *Data:* ${data}\n⏰ *Horário:* ${horario}\n\n_Gerenciado via Técnicos de Bolso_`;
+                const linkWhatsApp = `https://wa.me/${WHATSAPP_BARBEARIA}?text=${encodeURIComponent(mensagem)}`;
+
+                alert("Agendamento confirmado com sucesso! Você será redirecionado para enviar o aviso no WhatsApp do salão.");
+                
+                // Abre o WhatsApp com o pop-up da mensagem pronta para o barbeiro
+                window.open(linkWhatsApp, '_blank');
+
                 document.getElementById("agendamentoForm").reset();
-                document.getElementById("clienteData").value = dados.data;
+                document.getElementById("clienteData").value = data;
                 gerarGradeHorarios();
             }
         }
