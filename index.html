@@ -2,470 +2,423 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Carica Barber Shop</title>
-    <!-- Tailwind CSS para estilização moderna e responsiva -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Carica Barber Shop - Técnicos de Bolso</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <!-- Biblioteca para gerar QR Code -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- CABEÇALHO PRINCIPAL -->
-    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 px-4 py-3.5">
+    <!-- CABEÇALHO UNIFICADO COM A MARCA TÉCNICOS DE BOLSO -->
+    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-50 px-4 py-3.5">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-2.5">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.121 14.121L19 19m-7-7l-7-7m7 7l-2.828 2.828m0 0L4.172 9.172M14.121 14.121L9.172 9.172m0 0l4.243-4.243m-4.243 4.243L4.172 4.172"/></svg>
+            <div class="flex items-center space-x-3">
+                <!-- SÍMBOLO DA TÉCNICOS DE BOLSO -->
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-sm shadow-blue-600/25 text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                 </div>
                 <div>
-                    <h1 class="font-bold text-base leading-tight tracking-tight text-white">Carica Barber Shop</h1>
-                    <p class="text-xs text-amber-500 font-medium tracking-wide">Agendamento Inteligente</p>
+                    <h1 class="font-bold text-base leading-tight text-slate-900">Carica Barber Shop</h1>
+                    <p class="text-[11px] text-blue-600 font-semibold tracking-wide uppercase">Powered by Técnicos de Bolso</p>
                 </div>
             </div>
-            <!-- INDICADOR DE STATUS DO SALÃO -->
-            <div id="statusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide border flex items-center gap-1.5 shadow-sm">
-                <span class="w-2 h-2 rounded-full animate-pulse" id="statusDot"></span>
-                <span id="statusText">Verificando...</span>
+            <div id="statusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" id="statusDot"></span>
+                <span id="statusText">Aberto</span>
             </div>
         </div>
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL (ABAS) -->
+    <!-- CONTEÚDO PRINCIPAL -->
     <main class="max-w-md w-full mx-auto p-4 flex-1 pb-24">
         
         <!-- ABA 1: CLIENTE (AGENDAMENTO) -->
-        <section id="tab-cliente" class="space-y-4">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <section id="tab-cliente" class="space-y-5">
+            <form id="agendamentoForm" class="space-y-5">
                 
-                <h2 class="text-lg font-bold text-white mb-1">Agende seu Horário</h2>
-                <p class="text-xs text-slate-400 mb-5">Escolha o serviço, profissional e o melhor momento.</p>
+                <!-- PASSO 1: SERVIÇOS EM CARDS VISUAIS (INCLUINDO CORTE CRIANÇA) -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">1. Escolha o Serviço</label>
+                    <input type="hidden" id="clienteServico" value="Corte" required>
+                    
+                    <div class="grid grid-cols-2 gap-2.5" id="gridServicos">
+                        <div onclick="selecionarServico('Corte', this)" class="servico-card cursor-pointer bg-white border-2 border-blue-600 rounded-2xl p-3.5 shadow-sm transition-all">
+                            <div class="flex justify-between items-start">
+                                <span class="font-bold text-sm text-slate-900">Corte</span>
+                                <span class="w-4 h-4 rounded-full border-4 border-blue-600 check-dot"></span>
+                            </div>
+                            <p class="text-blue-600 font-bold text-base mt-1">R$ 45</p>
+                        </div>
 
-                <form id="agendamentoForm" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">1. Seu Nome</label>
-                        <input type="text" id="clienteNome" required placeholder="Ex: Fernando Melo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-colors">
+                        <div onclick="selecionarServico('Barba', this)" class="servico-card cursor-pointer bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-all">
+                            <div class="flex justify-between items-start">
+                                <span class="font-bold text-sm text-slate-900">Barba</span>
+                                <span class="w-4 h-4 rounded-full border border-slate-300 check-dot"></span>
+                            </div>
+                            <p class="text-slate-700 font-bold text-base mt-1">R$ 45</p>
+                        </div>
+
+                        <div onclick="selecionarServico('Corte Criança', this)" class="servico-card cursor-pointer bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-all">
+                            <div class="flex justify-between items-start">
+                                <span class="font-bold text-sm text-slate-900">Corte Criança</span>
+                                <span class="w-4 h-4 rounded-full border border-slate-300 check-dot"></span>
+                            </div>
+                            <p class="text-slate-700 font-bold text-base mt-1">R$ 40</p>
+                        </div>
+
+                        <div onclick="selecionarServico('Sobrancelha', this)" class="servico-card cursor-pointer bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-all">
+                            <div class="flex justify-between items-start">
+                                <span class="font-bold text-sm text-slate-900">Sobrancelha</span>
+                                <span class="w-4 h-4 rounded-full border border-slate-300 check-dot"></span>
+                            </div>
+                            <p class="text-slate-700 font-bold text-base mt-1">R$ 20</p>
+                        </div>
+
+                        <div onclick="selecionarServico('Combo', this)" class="servico-card col-span-2 cursor-pointer bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-all">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-sm text-slate-900">Combo (Corte + Barba + Sobrancelha)</span>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Atendimento completo com desconto especial</p>
+                                </div>
+                                <div class="text-right flex items-center gap-3">
+                                    <p class="text-slate-700 font-bold text-base">R$ 90</p>
+                                    <span class="w-4 h-4 rounded-full border border-slate-300 check-dot"></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">2. WhatsApp (com DDD)</label>
-                        <input type="tel" id="clienteWhatsapp" required placeholder="Ex: 11 99999-9999" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-colors">
-                    </div>
-
+                <!-- PASSO 2: PROFISSIONAL E DATA -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm space-y-3.5">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">2. Profissional e Data</label>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">3. Serviço</label>
-                            <select id="clienteServico" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors">
-                                <option value="Corte">Corte (R$ 45)</option>
-                                <option value="Barba">Barba (R$ 45)</option>
-                                <option value="Sobrancelha">Sobrancelha (R$ 20)</option>
-                                <option value="Combo">Combo (R$ 90)</option>
-                            </select>
-                            <p class="text-[10px] text-slate-500 mt-1 pl-1">💡 Combo inclui: Corte, Barba e Sobrancelha</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">4. Profissional</label>
-                            <select id="clienteBarbeiro" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors">
+                            <span class="block text-[11px] font-medium text-slate-500 mb-1">Barbeiro</span>
+                            <select id="clienteBarbeiro" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:border-blue-600">
                                 <option value="Carica">Carica</option>
-                                <option value="Profissional 2">Outro Barbeiro</option>
                             </select>
+                        </div>
+                        <div>
+                            <span class="block text-[11px] font-medium text-slate-500 mb-1">Data</span>
+                            <input type="date" id="clienteData" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:border-blue-600">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">5. Data</label>
-                            <input type="date" id="clienteData" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">6. Horário</label>
-                            <select id="clienteHorario" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors">
-                                <option value="">Selecione a data...</option>
-                            </select>
-                        </div>
+                    <!-- HORÁRIOS EM PÍLULAS CLICÁVEIS -->
+                    <div class="pt-1">
+                        <span class="block text-[11px] font-medium text-slate-500 mb-2">Horários Disponíveis</span>
+                        <input type="hidden" id="clienteHorario" required>
+                        <div id="gridHorarios" class="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto pr-1"></div>
                     </div>
+                </div>
 
-                    <button type="submit" id="btnAgendar" class="w-full mt-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-amber-500/25 transition-all transform active:scale-[0.99]">
-                        Confirmar Agendamento
-                    </button>
-                </form>
-            </div>
+                <!-- PASSO 3: DADOS DO CLIENTE -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm space-y-3">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">3. Seus Dados</label>
+                    <input type="text" id="clienteNome" required placeholder="Seu Nome Completo" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors">
+                    <input type="tel" id="clienteWhatsapp" required placeholder="WhatsApp (com DDD)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors">
+                </div>
 
-            <!-- BOTÃO DE AVALIAÇÃO NO GOOGLE -->
-            <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 text-center">
-                <p class="text-xs text-slate-400 mb-2">Já cortou com a gente? Deixe sua nota!</p>
-                <a href="https://g.page/r/exemplo-link-google-avaliacoes" target="_blank" class="inline-flex items-center justify-center gap-2 w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-semibold py-2.5 px-4 rounded-xl text-xs border border-slate-700 transition-colors">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                    Avaliar o Carica Barber Shop no Google
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-2xl shadow-md shadow-blue-600/25 transition-all active:scale-[0.99] text-sm">
+                    Confirmar Agendamento
+                </button>
+            </form>
+
+            <div class="text-center pt-1">
+                <a href="https://g.page/r/exemplo-link-google-avaliacoes" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors">
+                    <span>⭐ Já cortou com a gente? Avalie no Google</span>
                 </a>
             </div>
         </section>
 
-        <!-- ABA 2: BARBEARIA (GESTÃO DO SALÃO) -->
+        <!-- ABA 2: GESTÃO DA BARBEARIA -->
         <section id="tab-barbearia" class="hidden space-y-4">
-            <!-- TELA DE LOGIN DA BARBEARIA -->
-            <div id="barbeariaLoginBox" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center shadow-xl">
-                <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-3 text-amber-400">
+            <div id="barbeariaLoginBox" class="bg-white border border-slate-200 rounded-2xl p-6 text-center shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                 </div>
-                <h3 class="font-bold text-white text-base">Painel da Barbearia</h3>
-                <p class="text-xs text-slate-400 mb-4">Digite a senha de acesso do gestor.</p>
-                <input type="password" id="senhaBarbeariaInput" placeholder="Digite sua senha" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-white mb-3 focus:outline-none focus:border-amber-500">
-                <button onclick="fazerLoginBarbearia()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-sm transition-colors">Entrar no Painel</button>
+                <h3 class="font-bold text-slate-900 text-base">Painel do Gestor</h3>
+                <p class="text-xs text-slate-500 mb-4">Acesso exclusivo da barbearia.</p>
+                <input type="password" id="senhaBarbeariaInput" placeholder="Digite sua senha" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
+                <button onclick="fazerLoginBarbearia()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-colors">Entrar</button>
             </div>
 
-            <!-- PAINEL DE GESTÃO (APÓS LOGIN) -->
             <div id="barbeariaPainelContent" class="hidden space-y-4">
-                <!-- CONTROLE DE ABERTURA -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
                     <div>
-                        <h4 class="font-bold text-white text-sm">Status do Estabelecimento</h4>
-                        <p class="text-xs text-slate-400">Controla se novos clientes podem agendar.</p>
+                        <h4 class="font-bold text-slate-900 text-sm">Status do Salão</h4>
+                        <p class="text-xs text-slate-500">Liberar ou pausar novos agendamentos</p>
                     </div>
-                    <button id="toggleSalaoBtn" onclick="alternarStatusSalao()" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm">Carregando...</button>
+                    <button id="toggleSalaoBtn" onclick="alternarStatusSalao()" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Carregando...</button>
                 </div>
 
-                <!-- QR CODE PARA WHATSAPP / BALCÃO -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center">
-                    <h4 class="font-bold text-white text-sm mb-1">QR Code de Agendamento</h4>
-                    <p class="text-xs text-slate-400 mb-4">Compartilhe no WhatsApp ou imprima para o balcão.</p>
-                    <div id="qrcode" class="bg-white p-3 rounded-xl inline-block mx-auto mb-3 shadow-inner"></div>
-                    <p id="urlCompartilhamento" class="text-[11px] text-amber-400 font-mono break-all bg-slate-950 p-2 rounded-lg border border-slate-800 select-all"></p>
-                </div>
-
-                <!-- LISTA DE AGENDAMENTOS DO DIA -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
                     <div class="flex justify-between items-center mb-3">
-                        <h4 class="font-bold text-white text-sm">Agenda de Hoje</h4>
-                        <input type="date" id="filtroDataBarbearia" onchange="carregarAgendamentosBarbearia()" class="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                        <h4 class="font-bold text-slate-900 text-sm">Agenda do Dia</h4>
+                        <input type="date" id="filtroDataBarbearia" onchange="carregarAgendamentosBarbearia()" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700">
                     </div>
-                    <div id="listaAgendamentosBarbearia" class="space-y-2.5">
-                        <p class="text-xs text-slate-500 text-center py-4">Nenhum agendamento encontrado.</p>
-                    </div>
+                    <div id="listaAgendamentosBarbearia" class="space-y-2"></div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center shadow-sm">
+                    <h4 class="font-bold text-slate-900 text-sm mb-1">QR Code do Balcão</h4>
+                    <p class="text-xs text-slate-500 mb-3">Aponte a câmera para agendar</p>
+                    <div id="qrcode" class="bg-white p-2 rounded-xl inline-block mx-auto border border-slate-100"></div>
                 </div>
             </div>
         </section>
 
-        <!-- ABA 3: MASTER (ADMINISTRAÇÃO GERAL) -->
+        <!-- ABA 3: MASTER ADM (DESENVOLVEDOR) -->
         <section id="tab-master" class="hidden space-y-4">
-            <!-- TELA DE LOGIN MASTER -->
-            <div id="masterLoginBox" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center shadow-xl">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mx-auto mb-3 text-indigo-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <div id="masterLoginBox" class="bg-white border border-slate-200 rounded-2xl p-6 text-center shadow-sm">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                 </div>
-                <h3 class="font-bold text-white text-base">Acesso Master Admin</h3>
-                <p class="text-xs text-slate-400 mb-4">Controle consolidado da plataforma.</p>
-                <input type="password" id="senhaMasterInput" placeholder="Digite a senha master" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-center text-white mb-3 focus:outline-none focus:border-indigo-500">
-                <button onclick="fazerLoginMaster()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm transition-colors">Acessar Master</button>
+                <h3 class="font-bold text-slate-900 text-base">Técnicos de Bolso (Master)</h3>
+                <p class="text-xs text-slate-500 mb-4">Painel do Desenvolvedor</p>
+                <input type="password" id="senhaMasterInput" placeholder="Senha administrativa" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
+                <button onclick="fazerLoginMaster()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-sm transition-colors">Acessar Painel</button>
             </div>
 
-            <!-- PAINEL MASTER CONSOLIDADO -->
             <div id="masterPainelContent" class="hidden space-y-4">
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                        <p class="text-xs text-slate-400 mb-1">Faturamento Estimado</p>
-                        <h4 id="masterFaturamento" class="text-xl font-bold text-amber-400">R$ 0</h4>
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                        <p class="text-xs text-slate-500 mb-1">Faturamento Estimado</p>
+                        <h4 id="masterFaturamento" class="text-xl font-bold text-blue-600">R$ 0</h4>
                     </div>
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                        <p class="text-xs text-slate-400 mb-1">Total de Agendamentos</p>
-                        <h4 id="masterTotalAgendamentos" class="text-xl font-bold text-white">0</h4>
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                        <p class="text-xs text-slate-500 mb-1">Total Agendamentos</p>
+                        <h4 id="masterTotalAgendamentos" class="text-xl font-bold text-slate-900">0</h4>
                     </div>
                 </div>
-
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                    <h4 class="font-bold text-white text-sm mb-3">Histórico Geral de Clientes e Agendamentos</h4>
-                    <div id="listaMasterHistorico" class="space-y-2.5 max-h-96 overflow-y-auto">
-                        <p class="text-xs text-slate-500 text-center py-4">Carregando dados consolidados...</p>
-                    </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                    <h4 class="font-bold text-slate-900 text-sm mb-3">Histórico Global</h4>
+                    <div id="listaMasterHistorico" class="space-y-2 max-h-96 overflow-y-auto"></div>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- BARRA DE NAVEGAÇÃO INFERIOR (FOOTER TABS) -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-lg border-t border-slate-800 py-2.5 px-6 z-50">
+    <!-- NAVEGAÇÃO INFERIOR -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 z-50">
         <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
-            <button onclick="mudarAba('cliente')" id="nav-cliente" class="flex flex-col items-center justify-center py-1 text-amber-400 transition-colors">
-                <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                <span class="text-[10px] font-semibold tracking-wide">Cliente</span>
+            <button onclick="mudarAba('cliente')" id="nav-cliente" class="flex flex-col items-center justify-center py-1 text-blue-600">
+                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span class="text-[10px] font-bold">Agendar</span>
             </button>
-            <button onclick="mudarAba('barbearia')" id="nav-barbearia" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 transition-colors">
-                <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.121 14.121L19 19m-7-7l-7-7m7 7l-2.828 2.828m0 0L4.172 9.172M14.121 14.121L9.172 9.172m0 0l4.243-4.243m-4.243 4.243L4.172 4.172"/></svg>
-                <span class="text-[10px] font-semibold tracking-wide">Barbearia</span>
+            <button onclick="mudarAba('barbearia')" id="nav-barbearia" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600">
+                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.121 14.121L19 19m-7-7l-7-7m7 7l-2.828 2.828m0 0L4.172 9.172M14.121 14.121L9.172 9.172m0 0l4.243-4.243m-4.243 4.243L4.172 4.172"/></svg>
+                <span class="text-[10px] font-semibold">Barbearia</span>
             </button>
-            <button onclick="mudarAba('master')" id="nav-master" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 transition-colors">
-                <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                <span class="text-[10px] font-semibold tracking-wide">Master ADM</span>
+            <button onclick="mudarAba('master')" id="nav-master" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600">
+                <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                <span class="text-[10px] font-semibold">Técnicos ADM</span>
             </button>
         </div>
     </nav>
 
-    <!-- SCRIPT DE CONFIGURAÇÃO E LÓGICA -->
     <script>
-        // CONFIGURAÇÃO FIREBASE (Centralizada do MVP)
-        const firebaseConfig = {
-            projectId: "tecnicos-de-bolso-db" 
-        };
+        const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
         try {
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
-        } catch (e) {
-            console.warn("Modo Local Ativo (Firebase simulado).");
-        }
+        } catch (e) {}
 
-        // VARIÁVEIS DE ESTADO
-        const SALAO_ID = "carica"; 
-        let horarioSelecionado = "";
+        const SALAO_ID = "carica";
 
-        // INICIALIZAÇÃO DO APP
         document.addEventListener("DOMContentLoaded", () => {
             const hoje = new Date().toISOString().split('T')[0];
             document.getElementById("clienteData").value = hoje;
             document.getElementById("filtroDataBarbearia").value = hoje;
             
-            atualizarHorariosDisponiveis();
+            gerarGradeHorarios();
             verificarStatusSalaoTempoReal();
 
-            document.getElementById("clienteData").addEventListener("change", atualizarHorariosDisponiveis);
+            document.getElementById("clienteData").addEventListener("change", gerarGradeHorarios);
             document.getElementById("agendamentoForm").addEventListener("submit", salvarAgendamento);
 
-            // Gerar QR Code com o link atual
-            const urlAtual = window.location.href;
-            document.getElementById("urlCompartilhamento").innerText = urlAtual;
             try {
-                document.getElementById("qrcode").innerHTML = "";
                 new QRCode(document.getElementById("qrcode"), {
-                    text: urlAtual,
-                    width: 128,
-                    height: 128,
-                    colorDark: "#020617",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
+                    text: window.location.href, width: 120, height: 120,
+                    colorDark: "#0f172a", colorLight: "#ffffff"
                 });
-            } catch (err) { console.log("QR Code gerado via fallback"); }
+            } catch (err) {}
         });
 
-        // NAVEGAÇÃO ENTRE ABAS
+        function selecionarServico(nome, elemento) {
+            document.getElementById("clienteServico").value = nome;
+            document.querySelectorAll(".servico-card").forEach(card => {
+                card.className = "servico-card cursor-pointer bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-all";
+                const check = card.querySelector(".check-dot");
+                if(check) check.className = "w-4 h-4 rounded-full border border-slate-300 check-dot";
+                const p = card.querySelector("p");
+                if(p && !p.classList.contains("text-[11px]")) p.className = "text-slate-700 font-bold text-base mt-1";
+            });
+            elemento.className = "servico-card cursor-pointer bg-white border-2 border-blue-600 rounded-2xl p-3.5 shadow-sm transition-all";
+            const activeCheck = elemento.querySelector(".check-dot");
+            if(activeCheck) activeCheck.className = "w-4 h-4 rounded-full border-4 border-blue-600 check-dot";
+            const activeP = elemento.querySelector("p");
+            if(activeP && !activeP.classList.contains("text-[11px]")) activeP.className = "text-blue-600 font-bold text-base mt-1";
+        }
+
+        function gerarGradeHorarios() {
+            const grid = document.getElementById("gridHorarios");
+            grid.innerHTML = "";
+            document.getElementById("clienteHorario").value = "";
+
+            for (let h = 9; h < 20; h++) {
+                ['00', '30'].forEach(m => {
+                    const hora = `${String(h).padStart(2, '0')}:${m}`;
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.textContent = hora;
+                    btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all";
+                    btn.onclick = () => {
+                        document.querySelectorAll(".hora-btn").forEach(b => {
+                            b.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all";
+                        });
+                        btn.className = "hora-btn py-2 rounded-xl text-xs font-bold bg-blue-600 border border-blue-600 text-white shadow-sm transition-all";
+                        document.getElementById("clienteHorario").value = hora;
+                    };
+                    grid.appendChild(btn);
+                });
+            }
+        }
+
         function mudarAba(aba) {
             ['cliente', 'barbearia', 'master'].forEach(a => {
                 document.getElementById(`tab-${a}`).classList.add('hidden');
-                document.getElementById(`nav-${a}`).className = "flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 transition-colors";
+                document.getElementById(`nav-${a}`).className = "flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600";
             });
             document.getElementById(`tab-${aba}`).classList.remove('hidden');
-            document.getElementById(`nav-${aba}`).className = "flex flex-col items-center justify-center py-1 text-amber-400 transition-colors";
+            document.getElementById(`nav-${aba}`).className = "flex flex-col items-center justify-center py-1 text-blue-600";
         }
 
-        // GERAÇÃO DE HORÁRIOS (09:00 às 20:00 de 30 em 30 min)
-        function atualizarHorariosDisponiveis() {
-            const select = document.getElementById("clienteHorario");
-            select.innerHTML = '<option value="">Selecione um horário...</option>';
-            
-            let horaInicio = 9;
-            let horaFim = 20;
-            
-            for (let h = horaInicio; h < horaFim; h++) {
-                ['00', '30'].forEach(m => {
-                    let horarioStr = `${String(h).padStart(2, '0')}:${m}`;
-                    let opt = document.createElement("option");
-                    opt.value = horarioStr;
-                    opt.textContent = horarioStr;
-                    select.appendChild(opt);
-                });
-            }
-        }
-
-        // STATUS DO SALÃO (ABERTO / FECHADO)
         function verificarStatusSalaoTempoReal() {
-            const badgeDot = document.getElementById("statusDot");
-            const badgeText = document.getElementById("statusText");
-            const badgeContainer = document.getElementById("statusBadge");
+            if (!db) return;
+            db.collection("saloes").doc(SALAO_ID).onSnapshot(doc => {
+                const aberto = doc.exists ? doc.data().aberto : true;
+                const badge = document.getElementById("statusBadge");
+                const dot = document.getElementById("statusDot");
+                const text = document.getElementById("statusText");
+                const btn = document.getElementById("toggleSalaoBtn");
 
-            if (db) {
-                db.collection("saloes").doc(SALAO_ID).onSnapshot(doc => {
-                    const aberto = doc.exists ? doc.data().aberto : true;
-                    atualizarVisualStatus(aberto);
-                }, () => atualizarVisualStatus(true));
-            } else {
-                atualizarVisualStatus(true);
-            }
-        }
-
-        function atualizarVisualStatus(aberto) {
-            const badgeDot = document.getElementById("statusDot");
-            const badgeText = document.getElementById("statusText");
-            const badgeContainer = document.getElementById("statusBadge");
-            const toggleBtn = document.getElementById("toggleSalaoBtn");
-
-            if (aberto) {
-                badgeContainer.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide border flex items-center gap-1.5 bg-emerald-500/10 border-emerald-500/30 text-emerald-400";
-                badgeDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-                badgeText.textContent = "Aberto";
-                if(toggleBtn) {
-                    toggleBtn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 hover:bg-rose-500/30 transition-all";
-                    toggleBtn.textContent = "Fechar Salão";
+                if (aberto) {
+                    badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200";
+                    dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                    text.textContent = "Aberto";
+                    if (btn) { btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200"; btn.textContent = "Fechar Salão"; }
+                } else {
+                    badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-rose-50 text-rose-700 border border-rose-200";
+                    dot.className = "w-2 h-2 rounded-full bg-rose-500";
+                    text.textContent = "Fechado";
+                    if (btn) { btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200"; btn.textContent = "Abrir Salão"; }
                 }
-            } else {
-                badgeContainer.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide border flex items-center gap-1.5 bg-rose-500/10 border-rose-500/30 text-rose-400";
-                badgeDot.className = "w-2 h-2 rounded-full bg-rose-400";
-                badgeText.textContent = "Fechado";
-                if(toggleBtn) {
-                    toggleBtn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all";
-                    toggleBtn.textContent = "Abrir Salão";
-                }
-            }
+            });
         }
 
         async function alternarStatusSalao() {
-            if(!db) { alert("Modo local: alteração simulada."); return; }
-            const docRef = db.collection("saloes").doc(SALAO_ID);
-            const doc = await docRef.get();
-            const atual = doc.exists ? doc.data().aberto : true;
-            await docRef.set({ aberto: !atual }, { merge: true });
+            if (!db) return;
+            const ref = db.collection("saloes").doc(SALAO_ID);
+            const doc = await ref.get();
+            await ref.set({ aberto: !(doc.exists ? doc.data().aberto : true) }, { merge: true });
         }
 
-        // SALVAR AGENDAMENTO
         async function salvarAgendamento(e) {
             e.preventDefault();
-            const nome = document.getElementById("clienteNome").value.trim();
-            const whatsapp = document.getElementById("clienteWhatsapp").value.trim();
-            const servico = document.getElementById("clienteServico").value;
-            const barbeiro = document.getElementById("clienteBarbeiro").value;
-            const data = document.getElementById("clienteData").value;
             const horario = document.getElementById("clienteHorario").value;
+            if (!horario) { alert("Por favor, toque em um horário disponível."); return; }
 
-            if(!horario) { alert("Selecione um horário válido."); return; }
-
-            const dadosAgendamento = {
-                nome, whatsapp, servico, barbeiro, data, horario,
+            const dados = {
+                nome: document.getElementById("clienteNome").value.trim(),
+                whatsapp: document.getElementById("clienteWhatsapp").value.trim(),
+                servico: document.getElementById("clienteServico").value,
+                barbeiro: document.getElementById("clienteBarbeiro").value,
+                data: document.getElementById("clienteData").value,
+                horario,
                 criadoEm: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             if (db) {
-                try {
-                    await db.collection("saloes").doc(SALAO_ID).collection("agendamentos").add(dadosAgendamento);
-                    alert("Agendamento confirmado com sucesso!");
-                    document.getElementById("agendamentoForm").reset();
-                    document.getElementById("clienteData").value = data;
-                    atualizarHorariosDisponiveis();
-                } catch(err) {
-                    alert("Erro ao salvar agendamento. Tente novamente.");
-                }
-            } else {
-                alert("[Modo Local] Agendamento simulado com sucesso para " + nome + "!");
+                await db.collection("saloes").doc(SALAO_ID).collection("agendamentos").add(dados);
+                alert("Agendamento confirmado com sucesso!");
+                document.getElementById("agendamentoForm").reset();
+                document.getElementById("clienteData").value = dados.data;
+                gerarGradeHorarios();
             }
         }
 
-        // LOGIN DA BARBEARIA
         function fazerLoginBarbearia() {
-            const senha = document.getElementById("senhaBarbeariaInput").value;
-            if (senha === "1234") {
+            if (document.getElementById("senhaBarbeariaInput").value === "1234") {
                 document.getElementById("barbeariaLoginBox").classList.add("hidden");
                 document.getElementById("barbeariaPainelContent").classList.remove("hidden");
                 carregarAgendamentosBarbearia();
-            } else {
-                alert("Senha incorreta!");
-            }
+            } else { alert("Senha incorreta!"); }
         }
 
         function carregarAgendamentosBarbearia() {
             const dataFiltro = document.getElementById("filtroDataBarbearia").value;
             const container = document.getElementById("listaAgendamentosBarbearia");
-            container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Carregando agenda...</p>';
-
-            if (db) {
-                db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
-                  .where("data", "==", dataFiltro)
-                  .orderBy("horario", "asc")
-                  .onSnapshot(snapshot => {
-                      container.innerHTML = "";
-                      if (snapshot.empty) {
-                          container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhum agendamento para esta data.</p>';
-                          return;
-                      }
-                      snapshot.forEach(doc => {
-                          const d = doc.data();
-                          container.innerHTML += `
-                              <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex justify-between items-center">
-                                  <div>
-                                      <span class="text-amber-400 font-bold text-xs">${d.horario}</span>
-                                      <h5 class="text-white font-semibold text-sm mt-0.5">${d.nome}</h5>
-                                      <p class="text-[11px] text-slate-400">${d.servico} • <span class="text-slate-300">${d.whatsapp}</span></p>
-                                  </div>
-                                  <span class="text-[10px] bg-slate-900 border border-slate-800 text-slate-300 px-2 py-1 rounded-lg">${d.barbeiro}</span>
+            if (!db) return;
+            db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
+              .where("data", "==", dataFiltro).orderBy("horario", "asc")
+              .onSnapshot(snap => {
+                  container.innerHTML = snap.empty ? '<p class="text-xs text-slate-400 text-center py-4">Nenhum horário agendado.</p>' : '';
+                  snap.forEach(doc => {
+                      const d = doc.data();
+                      container.innerHTML += `
+                          <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex justify-between items-center">
+                              <div>
+                                  <span class="text-blue-600 font-bold text-xs">${d.horario}</span>
+                                  <h5 class="text-slate-900 font-bold text-sm">${d.nome}</h5>
+                                  <p class="text-[11px] text-slate-500">${d.servico} • ${d.whatsapp}</p>
                               </div>
-                          `;
-                      });
+                              <span class="text-[10px] font-semibold bg-white border border-slate-200 text-slate-600 px-2.5 py-1 rounded-lg">${d.barbeiro}</span>
+                          </div>`;
                   });
-            } else {
-                container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Modo local: sem dados em nuvem.</p>';
-            }
+              });
         }
 
-        // LOGIN MASTER
         function fazerLoginMaster() {
-            const senha = document.getElementById("senhaMasterInput").value;
-            if (senha === "master123") {
+            if (document.getElementById("senhaMasterInput").value === "master123") {
                 document.getElementById("masterLoginBox").classList.add("hidden");
                 document.getElementById("masterPainelContent").classList.remove("hidden");
                 carregarDadosMaster();
-            } else {
-                alert("Senha Master incorreta!");
-            }
+            } else { alert("Senha incorreta!"); }
         }
 
         function carregarDadosMaster() {
             const container = document.getElementById("listaMasterHistorico");
-            if (db) {
-                db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
-                  .orderBy("criadoEm", "desc")
-                  .onSnapshot(snapshot => {
-                      container.innerHTML = "";
-                      let totalFat = 0;
-                      let totalQtd = snapshot.size;
-
-                      if (snapshot.empty) {
-                          container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nenhum histórico registrado.</p>';
-                          document.getElementById("masterFaturamento").innerText = "R$ 0";
-                          document.getElementById("masterTotalAgendamentos").innerText = "0";
-                          return;
-                      }
-
-                      snapshot.forEach(doc => {
-                          const d = doc.data();
-                          if(d.servico === "Corte") totalFat += 45;
-                          if(d.servico === "Barba") totalFat += 45;
-                          if(d.servico === "Sobrancelha") totalFat += 20;
-                          if(d.servico === "Combo") totalFat += 90;
-
-                          container.innerHTML += `
-                              <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex justify-between items-center text-xs">
-                                  <div>
-                                      <span class="text-indigo-400 font-mono">${d.data} às ${d.horario}</span>
-                                      <p class="text-white font-semibold mt-0.5">${d.nome} (${d.whatsapp})</p>
-                                      <p class="text-slate-400 text-[11px]">${d.servico} com ${d.barbeiro}</p>
-                                  </div>
-                              </div>
-                          `;
-                      });
-
-                      document.getElementById("masterFaturamento").innerText = `R$ ${totalFat}`;
-                      document.getElementById("masterTotalAgendamentos").innerText = totalQtd;
+            if (!db) return;
+            db.collection("saloes").doc(SALAO_ID).collection("agendamentos").orderBy("criadoEm", "desc")
+              .onSnapshot(snap => {
+                  container.innerHTML = "";
+                  let fat = 0;
+                  snap.forEach(doc => {
+                      const d = doc.data();
+                      if (d.servico === "Corte" || d.servico === "Barba") fat += 45;
+                      if (d.servico === "Corte Criança") fat += 40;
+                      if (d.servico === "Sobrancelha") fat += 20;
+                      if (d.servico === "Combo") fat += 90;
+                      container.innerHTML += `
+                          <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 text-xs">
+                              <span class="text-blue-600 font-semibold">${d.data} às ${d.horario}</span>
+                              <p class="text-slate-900 font-bold mt-0.5">${d.nome} (${d.whatsapp})</p>
+                              <p class="text-slate-500">${d.servico} • ${d.barbeiro}</p>
+                          </div>`;
                   });
-            } else {
-                container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Modo local ativo.</p>';
-            }
+                  document.getElementById("masterFaturamento").innerText = `R$ ${fat}`;
+                  document.getElementById("masterTotalAgendamentos").innerText = snap.size;
+              });
         }
     </script>
 </body>
