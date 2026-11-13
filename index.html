@@ -37,7 +37,7 @@
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.0</span>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.1</span>
                     </div>
                 </div>
             </div>
@@ -151,14 +151,6 @@
                     <input type="tel" id="clienteWhatsapp" required placeholder="WhatsApp (com DDD)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600">
                 </div>
 
-                <!-- PASSO 4: AGENDAMENTOS CONFIRMADOS -->
-                <div class="bg-blue-50/80 border border-blue-200 rounded-2xl p-3.5 text-blue-900 flex items-start gap-2.5">
-                    <div class="text-[11px] leading-relaxed">
-                        <span class="font-bold block mb-0.5">4. Agendamentos Confirmados</span>
-                        O sistema verifica a disponibilidade instantaneamente e "crava" o seu agendamento de forma automática e garantida.
-                    </div>
-                </div>
-
                 <button type="submit" id="btnSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/30 transition-all active:scale-[0.99] text-xs cursor-pointer">
                     Confirmar Agendamento
                 </button>
@@ -220,7 +212,7 @@
     </nav>
 
     <script>
-        const VERSAO_ATUAL = "v2.0";
+        const VERSAO_ATUAL = "v2.1";
 
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
@@ -231,6 +223,7 @@
 
         const SALAO_ID = "carica"; 
         let masterLogado = false;
+        let horariosOcupadosCache = [];
 
         document.addEventListener("DOMContentLoaded", () => {
             const badgeVersao = document.getElementById("badgeVersaoApp");
@@ -243,7 +236,7 @@
             if(dataEl) dataEl.value = hoje;
             if(filtroBarbeariaEl) filtroBarbeariaEl.value = hoje;
             
-            gerarGradeHorarios();
+            escutarAgendamentosTempoReal();
             verificarComprovanteSalvo();
 
             if(dataEl) dataEl.addEventListener("change", gerarGradeHorarios);
@@ -266,11 +259,31 @@
             if(activeCheck) activeCheck.className = "w-3.5 h-3.5 rounded-full border-4 border-blue-600 check-dot";
         }
 
+        function escutarAgendamentosTempoReal() {
+            if (!db) {
+                gerarGradeHorarios();
+                return;
+            }
+            const dataSelecionada = document.getElementById("clienteData").value;
+            db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
+              .where("data", "==", dataSelecionada)
+              .onSnapshot(snapshot => {
+                  horariosOcupadosCache = [];
+                  snapshot.forEach(doc => {
+                      horariosOcupadosCache.push(doc.data().horario);
+                  });
+                  gerarGradeHorarios();
+              }, err => {
+                  gerarGradeHorarios();
+              });
+        }
+
         function gerarGradeHorarios() {
             const grid = document.getElementById("gridHorarios");
             if(!grid) return;
+            
+            const horarioSelecionadoAtual = document.getElementById("clienteHorario").value;
             grid.innerHTML = "";
-            document.getElementById("clienteHorario").value = "";
 
             const dataSelecionada = document.getElementById("clienteData").value;
             const hojeStr = new Date().toISOString().split('T')[0];
@@ -287,11 +300,22 @@
                     btn.type = "button";
                     btn.textContent = horaStr;
 
-                    if (ehHoje && horaMinutos <= horaAtualMinutos) {
+                    const jaOcupado = horariosOcupadosCache.includes(horaStr);
+
+                    if (jaOcupado) {
+                        btn.disabled = true;
+                        btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-400 cursor-not-allowed opacity-75 line-through";
+                    } else if (ehHoje && horaMinutos <= horaAtualMinutos) {
                         btn.disabled = true;
                         btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-100 border border-slate-200 text-slate-300 cursor-not-allowed opacity-50";
                     } else {
-                        btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all cursor-pointer";
+                        const isSelected = (horarioSelecionadoAtual === horaStr);
+                        if (isSelected) {
+                            btn.className = "hora-btn py-2 rounded-xl text-xs font-bold bg-blue-600 border border-blue-600 text-white shadow-sm transition-all cursor-pointer";
+                        } else {
+                            btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all cursor-pointer";
+                        }
+
                         btn.onclick = () => {
                             document.querySelectorAll(".hora-btn").forEach(b => {
                                 if(!b.disabled) {
@@ -318,6 +342,10 @@
             const navAtiva = document.getElementById(`nav-${aba}`);
             if(tabAtiva) tabAtiva.classList.remove('hidden');
             if(navAtiva) navAtiva.className = "flex flex-col items-center justify-center py-1 text-blue-600 cursor-pointer";
+
+            if(aba === 'cliente') {
+                escutarAgendamentosTempoReal();
+            }
         }
 
         function exibirComprovanteCliente(servico, horario, protocolo) {
@@ -389,16 +417,6 @@
                 btnSubmit.textContent = "Processando...";
             }
 
-            let concluido = false;
-            const timerSeguranca = setTimeout(() => {
-                if (!concluido && btnSubmit) {
-                    concluido = true;
-                    btnSubmit.disabled = false;
-                    btnSubmit.textContent = "Confirmar Agendamento";
-                    mostrarErro("A operação demorou muito. Verifique sua conexão e tente novamente.");
-                }
-            }, 4000);
-
             try {
                 const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
                 
@@ -409,8 +427,6 @@
                 };
 
                 await salaoRef.add(dados);
-                concluido = true;
-                clearTimeout(timerSeguranca);
 
                 if(btnSubmit) {
                     btnSubmit.disabled = false;
@@ -422,11 +438,9 @@
 
                 document.getElementById("agendamentoForm").reset();
                 document.getElementById("clienteData").value = data;
-                gerarGradeHorarios();
+                escutarAgendamentosTempoReal();
 
             } catch (err) {
-                concluido = true;
-                clearTimeout(timerSeguranca);
                 if(btnSubmit) {
                     btnSubmit.disabled = false;
                     btnSubmit.textContent = "Confirmar Agendamento";
