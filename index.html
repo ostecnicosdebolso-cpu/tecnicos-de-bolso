@@ -14,7 +14,6 @@
   .field:focus{border-color:#aeb4ba}
   .field::placeholder{color:#7d848b}
   fieldset:disabled{opacity:.4}
-  #dias{scrollbar-width:none}#dias::-webkit-scrollbar{display:none}
   header{padding-top:env(safe-area-inset-top)}
 </style>
 </head>
@@ -29,7 +28,7 @@
 </div>
 
 <header class="sticky top-0 z-50 bg-[#1f2225] border-b border-[#3a3f44]">
-  <div class="max-w-md mx-auto px-4 py-3 grid grid-cols-3 gap-1 bg-transparent">
+  <div class="max-w-md mx-auto px-4 py-3 grid grid-cols-3 gap-1">
     <button data-tab="cliente" class="tabbtn py-2.5 rounded-lg text-sm">Cliente</button>
     <button data-tab="barbearia" class="tabbtn py-2.5 rounded-lg text-sm">Barbearia</button>
     <button data-tab="admin" class="tabbtn py-2.5 rounded-lg text-sm">Administrador</button>
@@ -42,12 +41,10 @@
   <section id="tab-cliente" class="space-y-5">
     <div>
       <h1 class="text-2xl font-extrabold leading-tight">Carica Barber Shop</h1>
-      <p class="text-xs text-[#9aa1a8] mt-0.5">Técnicos de Bolso</p>
+      <p class="text-xs text-[#9aa1a8] mt-0.5">Técnicos de Bolso · <span class="ver"></span></p>
     </div>
 
-    <div id="aviso" class="hidden bg-[#4a2a2e] border border-[#7a3a41] text-[#f3c9cd] rounded-xl p-3 text-sm text-center">
-      Os agendamentos estão temporariamente indisponíveis.
-    </div>
+    <div id="aviso" class="hidden bg-[#4a2a2e] border border-[#7a3a41] text-[#f3c9cd] rounded-xl p-3 text-sm text-center"></div>
 
     <div id="comprovante" class="hidden bg-[#35393e] border border-[#454a50] rounded-2xl p-4 space-y-2">
       <div class="flex items-center justify-between gap-2">
@@ -62,11 +59,21 @@
       <fieldset id="fs" class="space-y-5">
         <div>
           <p class="text-sm font-semibold mb-2">Data</p>
-          <div id="dias" class="flex gap-2 overflow-x-auto -mx-4 px-4"></div>
+          <div class="bg-[#35393e] border border-[#454a50] rounded-2xl p-3">
+            <div class="flex items-center justify-between mb-2">
+              <button type="button" id="mesAnt" data-mes="-1" class="w-10 h-10 rounded-lg text-xl disabled:opacity-25" aria-label="Mês anterior">‹</button>
+              <p id="mesNome" class="text-sm font-bold capitalize"></p>
+              <button type="button" id="mesProx" data-mes="1" class="w-10 h-10 rounded-lg text-xl disabled:opacity-25" aria-label="Próximo mês">›</button>
+            </div>
+            <div class="grid grid-cols-7 gap-1 text-center text-[11px] text-[#9aa1a8] mb-1">
+              <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+            </div>
+            <div id="calendario" class="grid grid-cols-7 gap-1"></div>
+          </div>
         </div>
 
         <div>
-          <p class="text-sm font-semibold mb-2">Horário</p>
+          <p class="text-sm font-semibold mb-2">Horário <span id="diaTxt" class="text-[#9aa1a8] font-normal"></span></p>
           <div id="horas" class="grid grid-cols-4 gap-2"></div>
           <p id="semHoras" class="hidden text-sm text-[#9aa1a8] mt-2">Sem horários livres neste dia. Escolha outra data.</p>
         </div>
@@ -99,10 +106,22 @@
       <p class="text-sm text-[#9aa1a8]">Acesso restrito. Digite a senha.</p>
       <input type="password" class="field text-center" placeholder="Senha" data-pass>
       <button data-act="login" data-role="barbearia" class="w-full bg-[#e8eaec] text-[#1f2225] font-bold rounded-xl py-3">Entrar</button>
+      <p class="text-[11px] text-[#7d848b]"><span class="ver"></span></p>
     </div>
     <div data-panel="barbearia" class="hidden space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="font-bold">Agenda da barbearia</h2>
+        <span class="ver text-[11px] text-[#7d848b]"></span>
+      </div>
+      <div class="bg-[#35393e] border border-[#454a50] rounded-2xl p-4 flex items-center justify-between gap-3">
+        <div>
+          <p class="font-bold text-sm">Receber agendamentos</p>
+          <p id="barbStatus" class="text-xs text-[#9aa1a8]"></p>
+        </div>
+        <button id="btnBarb" data-act="barb" class="shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold"></button>
+      </div>
       <div class="flex items-center justify-between gap-3">
-        <h2 class="font-bold">Agendamentos</h2>
+        <h3 class="font-semibold text-sm">Agendamentos do dia</h3>
         <input id="dataAgenda" type="date" class="field !w-auto !py-2">
       </div>
       <div id="listaAgenda" class="space-y-2"></div>
@@ -116,6 +135,7 @@
       <p class="text-sm text-[#9aa1a8]">Acesso restrito. Digite a senha.</p>
       <input type="password" class="field text-center" placeholder="Senha" data-pass>
       <button data-act="login" data-role="admin" class="w-full bg-[#e8eaec] text-[#1f2225] font-bold rounded-xl py-3">Entrar</button>
+      <p class="text-[11px] text-[#7d848b]"><span class="ver"></span></p>
     </div>
     <div data-panel="admin" class="hidden space-y-4">
       <div class="bg-[#35393e] border border-[#454a50] rounded-2xl p-5 space-y-4">
@@ -123,11 +143,13 @@
           <span id="ponto" class="w-3 h-3 rounded-full bg-[#5fd39a]"></span>
           <p id="statusSistema" class="font-bold">Sistema em operação</p>
         </div>
+        <p id="statusBarb" class="text-sm text-[#aeb4ba]"></p>
         <p id="statusConexao" class="text-xs text-[#9aa1a8]">Conectando ao banco de dados…</p>
+        <p class="text-xs text-[#9aa1a8]">Versão do app: <span class="ver"></span></p>
         <div class="pt-4 border-t border-[#454a50] space-y-2">
           <p class="text-sm font-semibold">Travamento integral</p>
-          <p class="text-xs text-[#9aa1a8]">Bloqueia novos agendamentos em todos os aparelhos.</p>
-          <button id="btnTrava" data-act="trava" class="w-full font-bold rounded-xl py-3 border border-[#7a3a41] text-[#f3c9cd]">Travar sistema</button>
+          <p class="text-xs text-[#9aa1a8]">Bloqueia novos agendamentos em todos os aparelhos e se sobrepõe ao Aberto/Fechado da barbearia.</p>
+          <button id="btnTrava" data-act="trava" class="w-full font-extrabold rounded-xl py-3.5"></button>
         </div>
       </div>
       <button data-act="logout" data-role="admin" class="text-sm text-[#9aa1a8] underline">Sair</button>
@@ -137,6 +159,7 @@
 
 <script type="module">
 /* ========= CONFIGURAÇÃO ========= */
+const VERSAO = "v1.1";                         // some 0.1 a cada alteração publicada (v1.2, v1.3...)
 const firebaseConfig = {
   apiKey: "AIzaSyBfGd4a0_b3soNJTxL1FCa8JAMLxIxJyYg",
   authDomain: "tecnicos-de-bolso-c3417.firebaseapp.com",
@@ -154,7 +177,7 @@ const SERVICOS = [
   { nome: "Corte criança", preco: 40 },
   { nome: "Combo", preco: 90, nota: "Inclui Corte, Barba + Sobrancelha" }
 ];
-const INICIO = "09:00", FIM = "20:00", PASSO = 30, DIAS = 14;
+const INICIO = "09:00", FIM = "20:00", PASSO = 30, MAX_DIAS = 90; // até 90 dias à frente
 
 /* ========= UTILIDADES ========= */
 const $ = s => document.querySelector(s);
@@ -164,17 +187,19 @@ const dig = s => String(s || "").replace(/\D/g, "");
 const pad = n => String(n).padStart(2, "0");
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; // data local, não UTC
 const hojeISO = () => iso(new Date());
+const maxISO = () => { const d = new Date(); d.setDate(d.getDate() + MAX_DIAS); return iso(d); };
 const dBR = d => d.split("-").reverse().join("/");
 const mm = h => +h.slice(0, 2) * 60 + +h.slice(3);
 const hh = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
 const slug = s => s.toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
 const SLOTS = []; for (let m = mm(INICIO); m <= mm(FIM); m += PASSO) SLOTS.push(hh(m));
-const DIASLISTA = Array.from({ length: DIAS }, (_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return iso(d); });
-const rotuloDia = s => { const [y, m, d] = s.split("-"); return new Date(y, m - 1, d).toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", ""); };
 
 /* ========= ESTADO ========= */
-let fs = null, fire = null, bloqueado = false;
+let fs = null, fire = null;
+let sistemaTravado = false, barbeariaFechada = false;   // travado = Administrador (soberano); fechado = Barbearia
+const indisponivel = () => sistemaTravado || barbeariaFechada;
 let diaSel = hojeISO(), horaSel = null, servSel = 0;
+let mes = { y: new Date().getFullYear(), m: new Date().getMonth() };
 let agDia = [], unsubDia = null, unsubAgenda = null;
 const auth = { barbearia: false, admin: false };
 
@@ -185,7 +210,9 @@ async function iniciar() {
     const [{ initializeApp }, f] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js")]);
     fs = f; fire = fs.getFirestore(initializeApp(firebaseConfig));
     fs.onSnapshot(fs.doc(fire, "saloes", SALAO), s => {
-      bloqueado = s.exists() && s.data().sistemaBloqueado === true;
+      const d = s.exists() ? s.data() : {};
+      sistemaTravado = d.sistemaBloqueado === true;
+      barbeariaFechada = d.barbeariaFechada === true;
       $("#statusConexao").textContent = "Conectado ao banco de dados em tempo real.";
       desenharEstado();
     }, erroConexao);
@@ -231,15 +258,28 @@ async function gravar(o) {
   const cfg = fs.doc(fire, "saloes", SALAO);
   await fs.runTransaction(fire, async tx => {
     const c = await tx.get(cfg), s = await tx.get(ref);
-    if (c.exists() && c.data().sistemaBloqueado) throw new Error("bloqueado");
+    if (c.exists() && (c.data().sistemaBloqueado || c.data().barbeariaFechada)) throw new Error("bloqueado");
     if (s.exists()) throw new Error("ocupado");
     tx.set(ref, { ...o, criadoEm: fs.serverTimestamp() });
   });
 }
 
 /* ========= TELAS ========= */
-function desenharDias() {
-  $("#dias").innerHTML = DIASLISTA.map(d => `<button type="button" data-dia="${d}" class="shrink-0 w-16 py-2 rounded-xl border text-center ${d === diaSel ? "bg-[#e8eaec] text-[#1f2225] border-[#e8eaec]" : "border-[#454a50] bg-[#35393e]"}"><span class="block text-[11px] capitalize opacity-70">${rotuloDia(d)}</span><span class="block text-sm font-bold">${d.slice(8)}/${d.slice(5, 7)}</span></button>`).join("");
+function desenharCalendario() {
+  const { y, m } = mes, hoje = hojeISO(), max = maxISO();
+  const primeiro = new Date(y, m, 1), total = new Date(y, m + 1, 0).getDate();
+  const chaveMes = `${y}-${pad(m + 1)}`;
+  $("#mesNome").textContent = primeiro.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  $("#mesAnt").disabled = chaveMes <= hoje.slice(0, 7);
+  $("#mesProx").disabled = chaveMes >= max.slice(0, 7);
+  let cel = "<span></span>".repeat(primeiro.getDay());
+  for (let d = 1; d <= total; d++) {
+    const s = `${chaveMes}-${pad(d)}`, fora = s < hoje || s > max;
+    const cls = s === diaSel ? "bg-[#e8eaec] text-[#1f2225] font-extrabold"
+      : fora ? "text-[#5b6168]" : (s === hoje ? "border border-[#8a9097] font-semibold" : "font-semibold");
+    cel += `<button type="button" data-dia="${s}" ${fora ? "disabled" : ""} class="h-10 rounded-lg text-sm ${cls}">${d}</button>`;
+  }
+  $("#calendario").innerHTML = cel;
 }
 function desenharServicos() {
   $("#servicos").innerHTML = SERVICOS.map((s, i) => `<button type="button" data-serv="${i}" class="w-full flex items-center justify-between gap-3 px-3.5 py-3 text-left ${i === servSel ? "bg-[#454a50]" : "bg-[#35393e]"}"><span><span class="text-sm font-semibold">${esc(s.nome)}</span>${s.nota ? `<span class="block text-[11px] text-[#9aa1a8]">${esc(s.nota)}</span>` : ""}</span><span class="text-sm font-bold">${brl(s.preco)}</span></button>`).join("");
@@ -247,19 +287,39 @@ function desenharServicos() {
 function desenharHoras() {
   const prof = $("#prof").value, agora = new Date(), min = agora.getHours() * 60 + agora.getMinutes();
   const oc = new Set(agDia.filter(p => p.profissional === prof).map(p => p.horario));
-  const livre = h => !bloqueado && !oc.has(h) && !(diaSel === hojeISO() && mm(h) <= min);
+  const livre = h => !indisponivel() && !oc.has(h) && !(diaSel === hojeISO() && mm(h) <= min);
   if (horaSel && !livre(horaSel)) horaSel = null;
+  $("#diaTxt").textContent = "· " + dBR(diaSel).slice(0, 5);
   $("#horas").innerHTML = SLOTS.map(h => livre(h)
     ? `<button type="button" data-hora="${h}" class="py-2.5 rounded-lg text-sm font-semibold border ${h === horaSel ? "bg-[#e8eaec] text-[#1f2225] border-[#e8eaec]" : "bg-[#35393e] border-[#454a50]"}">${h}</button>`
     : `<span class="py-2.5 rounded-lg text-sm text-center bg-[#2f3337] text-[#6b7279] line-through">${h}</span>`).join("");
   $("#semHoras").classList.toggle("hidden", SLOTS.some(livre));
 }
 function desenharEstado() {
-  $("#aviso").classList.toggle("hidden", !bloqueado);
-  $("#fs").disabled = bloqueado;
-  $("#ponto").className = "w-3 h-3 rounded-full " + (bloqueado ? "bg-[#e0707a]" : "bg-[#5fd39a]");
-  $("#statusSistema").textContent = bloqueado ? "Sistema travado" : "Sistema em operação";
-  $("#btnTrava").textContent = bloqueado ? "Reabrir sistema" : "Travar sistema";
+  // Cliente
+  const av = $("#aviso");
+  av.classList.toggle("hidden", !indisponivel());
+  av.textContent = sistemaTravado ? "Os agendamentos estão temporariamente indisponíveis." : "A barbearia não está recebendo agendamentos no momento.";
+  $("#fs").disabled = indisponivel();
+  // Barbearia (o Administrador é soberano: se travou, a barbearia não consegue reabrir)
+  const b = $("#btnBarb");
+  if (sistemaTravado) {
+    $("#barbStatus").textContent = "Travado pelo administrador";
+    b.textContent = "Travado"; b.disabled = true; b.className = "shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold bg-[#454a50] text-[#9aa1a8] opacity-60";
+  } else if (barbeariaFechada) {
+    $("#barbStatus").textContent = "Fechado: clientes não conseguem agendar";
+    b.textContent = "Abrir"; b.disabled = false; b.className = "shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold bg-[#5fd39a] text-[#10261b]";
+  } else {
+    $("#barbStatus").textContent = "Aberto: clientes podem agendar";
+    b.textContent = "Fechar"; b.disabled = false; b.className = "shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold border border-[#7a3a41] text-[#f3c9cd]";
+  }
+  // Administrador
+  $("#ponto").className = "w-3 h-3 rounded-full " + (sistemaTravado ? "bg-[#e0707a]" : "bg-[#5fd39a]");
+  $("#statusSistema").textContent = sistemaTravado ? "Sistema travado" : "Sistema em operação";
+  $("#statusBarb").textContent = "Agendamentos da barbearia: " + (barbeariaFechada ? "fechados" : "abertos");
+  const t = $("#btnTrava");
+  t.textContent = sistemaTravado ? "Reabrir sistema" : "TRAVAR SISTEMA";
+  t.className = "w-full font-extrabold rounded-xl py-3.5 " + (sistemaTravado ? "bg-[#e8eaec] text-[#1f2225]" : "bg-[#c0392b] text-white");
   desenharHoras();
 }
 function aba(n) {
@@ -282,10 +342,11 @@ function mostrarComprovante(c) {
 
 /* ========= EVENTOS ========= */
 document.addEventListener("click", async e => {
-  const t = e.target.closest("[data-tab],[data-dia],[data-hora],[data-serv],[data-act]"); if (!t) return;
+  const t = e.target.closest("[data-tab],[data-dia],[data-mes],[data-hora],[data-serv],[data-act]"); if (!t) return;
   const d = t.dataset;
   if (d.tab) return aba(d.tab);
-  if (d.dia) { diaSel = d.dia; horaSel = null; desenharDias(); ouvirDia(); }
+  if (d.mes) { const x = new Date(mes.y, mes.m + +d.mes, 1); mes = { y: x.getFullYear(), m: x.getMonth() }; desenharCalendario(); }
+  if (d.dia) { diaSel = d.dia; horaSel = null; desenharCalendario(); desenharHoras(); ouvirDia(); }
   if (d.hora) { horaSel = d.hora; desenharHoras(); }
   if (d.serv) { servSel = +d.serv; desenharServicos(); }
   if (d.act === "fechar") $("#modal").classList.add("hidden");
@@ -298,9 +359,13 @@ document.addEventListener("click", async e => {
     } else aviso("Senha incorreta. Tente novamente.");
   }
   if (d.act === "logout") { auth[d.role] = false; sessao(d.role); }
+  if (d.act === "barb" && fs && !sistemaTravado) {
+    try { await fs.setDoc(fs.doc(fire, "saloes", SALAO), { barbeariaFechada: !barbeariaFechada }, { merge: true }); }
+    catch (err) { console.error(err); aviso("Não foi possível alterar. Verifique a conexão e as regras do Firestore."); }
+  }
   if (d.act === "trava" && fs) {
-    const novo = !bloqueado;
-    if (!confirm(novo ? "Travar o sistema? Ninguém conseguirá agendar até você reabrir." : "Reabrir o sistema para novos agendamentos?")) return;
+    const novo = !sistemaTravado;
+    if (!confirm(novo ? "Travar o sistema? Ninguém conseguirá agendar até você reabrir." : "Reabrir o sistema?")) return;
     try { await fs.setDoc(fs.doc(fire, "saloes", SALAO), { sistemaBloqueado: novo }, { merge: true }); }
     catch (err) { console.error(err); aviso("Não foi possível alterar o sistema. Verifique a conexão e as regras do Firestore."); }
   }
@@ -311,7 +376,7 @@ $("#dataAgenda").addEventListener("change", ouvirAgenda);
 $("#form").addEventListener("submit", async e => {
   e.preventDefault();
   if (!fs) return aviso("Sem conexão com o banco de dados. Tente novamente em instantes.");
-  if (bloqueado) return aviso("Os agendamentos estão temporariamente indisponíveis.");
+  if (indisponivel()) return aviso("Os agendamentos estão temporariamente indisponíveis.");
   if (!horaSel) return aviso("Escolha um horário disponível.");
   if (dig($("#fone").value).length < 10) return aviso("Digite o telefone com DDD, por exemplo 11 91234-5678.");
   const prof = $("#prof").value, sv = SERVICOS[servSel], btn = e.submitter;
@@ -329,7 +394,7 @@ $("#form").addEventListener("submit", async e => {
     mostrarComprovante(c); horaSel = null; desenharHoras(); window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (err) {
     console.error(err);
-    aviso(err.message === "ocupado" ? "Esse horário acabou de ser reservado por outra pessoa. Escolha outro."
+    aviso(err.message === "ocupado" ? "Horário Indisponível"
         : err.message === "bloqueado" ? "Os agendamentos estão temporariamente indisponíveis."
         : "Não foi possível agendar. Verifique a internet e tente novamente.");
     horaSel = null; desenharHoras();
@@ -338,9 +403,10 @@ $("#form").addEventListener("submit", async e => {
 });
 
 /* ========= INÍCIO ========= */
+document.querySelectorAll(".ver").forEach(el => el.textContent = VERSAO);
 $("#prof").innerHTML = PROFISSIONAIS.map(p => `<option>${esc(p)}</option>`).join("");
 $("#dataAgenda").value = hojeISO();
-desenharDias(); desenharServicos(); desenharHoras(); aba("cliente");
+desenharCalendario(); desenharServicos(); desenharEstado(); aba("cliente");
 try { const c = JSON.parse(localStorage.getItem("tdb_comprovante") || "null"); if (c && c.protocolo) mostrarComprovante(c); } catch {}
 iniciar();
 </script>
