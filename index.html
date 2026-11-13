@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -37,11 +36,11 @@
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.9</span>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.11</span>
                     </div>
                 </div>
             </div>
-            <div id="statusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30">
+            <div class="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>Aberto</span>
             </div>
@@ -151,7 +150,7 @@
                     <input type="tel" id="clienteWhatsapp" required placeholder="WhatsApp (com DDD)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600">
                 </div>
 
-                <button type="submit" id="btnSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/30 transition-all active:scale-[0.99] text-xs cursor-pointer">
+                <button type="submit" id="btnSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/35 transition-all active:scale-[0.99] text-xs cursor-pointer">
                     Confirmar Agendamento
                 </button>
             </form>
@@ -162,7 +161,7 @@
             <div id="barbeariaLoginBox" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80">
                 <h3 class="font-bold text-slate-900 text-sm">Painel do Gestor</h3>
                 <p class="text-xs text-slate-400 mb-4">Acesso exclusivo da barbearia.</p>
-                <input type="password" id="senhaBarbeariaInput" placeholder="Digite sua senha" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
+                <input type="password" id="senhaBarbeariaInput" placeholder="Digite a senha da barbearia" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
                 <button onclick="fazerLoginBarbearia()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Entrar</button>
             </div>
 
@@ -182,7 +181,6 @@
             <div id="masterLoginBox" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80">
                 <h3 class="font-bold text-slate-900 text-sm">Técnicos de Bolso</h3>
                 <p class="text-xs text-slate-400 mb-4">Painel Administrativo Geral</p>
-                <!-- CAMPO DE SENHA LIMPO E OCULTO -->
                 <input type="password" id="senhaMasterInput" placeholder="Digite a senha administrativa" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
                 <button onclick="fazerLoginMaster()" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Acessar Painel</button>
             </div>
@@ -213,7 +211,7 @@
     </nav>
 
     <script>
-        const VERSAO_ATUAL = "v2.9";
+        const VERSAO_ATUAL = "v2.11";
 
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
@@ -226,6 +224,7 @@
         let masterLogado = false;
         let horariosOcupadosCache = [];
         let unsubscribeListener = null;
+        let unsubscribeBarbearia = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             const badgeVersao = document.getElementById("badgeVersaoApp");
@@ -363,6 +362,8 @@
 
             if(aba === 'cliente') {
                 iniciarEscutaTempoReal();
+            } else if(aba === 'barbearia' && !document.getElementById('barbeariaPainelContent').classList.contains('hidden')) {
+                carregarAgendamentosBarbearia();
             }
         }
 
@@ -493,7 +494,11 @@
             const container = document.getElementById("listaAgendamentosBarbearia");
             if (!db || !container) return;
             
-            db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
+            if (unsubscribeBarbearia) {
+                unsubscribeBarbearia();
+            }
+
+            unsubscribeBarbearia = db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
               .where("data", "==", dataFiltro)
               .onSnapshot(snap => {
                   container.innerHTML = snap.empty ? '<p class="text-xs text-slate-400 text-center py-4">Nenhum horário agendado para esta data.</p>' : '';
