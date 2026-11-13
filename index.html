@@ -65,7 +65,7 @@
             <!-- COMPROVANTE ATIVO DO CLIENTE -->
             <div id="cardComprovanteCliente" class="hidden bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-4 text-white shadow-lg space-y-2 border border-blue-400/30">
                 <div class="flex items-center justify-between">
-                    <span id="statusConfirmacaoBadge" class="px-2 py-0.5 rounded-full bg-amber-400/30 text-amber-100 text-[10px] font-extrabold uppercase tracking-wider border border-amber-300/30">Aguardando Confirmação do Barbeiro</span>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-400/30 text-emerald-100 text-[10px] font-extrabold uppercase tracking-wider border border-emerald-300/30">✓ Agendado / Confirmado</span>
                     <span id="clienteProtocoloBadge" class="font-mono text-xs font-bold bg-white/10 px-2 py-0.5 rounded"></span>
                 </div>
                 <p id="clienteFraseEvidencia" class="text-xs font-semibold text-blue-50 leading-relaxed"></p>
@@ -163,7 +163,7 @@
                 <div class="bg-blue-50/80 border border-blue-200 rounded-2xl p-3.5 text-blue-900 flex items-start gap-2.5">
                     <div class="text-[11px] leading-relaxed">
                         <span class="font-bold block mb-0.5">4. Agendamentos Confirmados</span>
-                        O seu horário cadastrado passará por validação e validação oficial na aba de agendamentos confirmados do estabelecimento.
+                        O sistema verifica a disponibilidade instantaneamente e "crava" o seu agendamento de forma automática e garantida.
                     </div>
                 </div>
 
@@ -193,7 +193,7 @@
 
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
                     <div class="flex justify-between items-center mb-3">
-                        <h4 class="font-bold text-slate-900 text-xs">Agenda do Dia & Confirmações</h4>
+                        <h4 class="font-bold text-slate-900 text-xs">Agenda do Dia & Contatos</h4>
                         <input type="date" id="filtroDataBarbearia" onchange="carregarAgendamentosBarbearia()" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-700">
                     </div>
                     <div id="listaAgendamentosBarbearia" class="space-y-2"></div>
@@ -339,9 +339,27 @@
                 }
 
                 const text = document.getElementById("statusText");
+                const badge = document.getElementById("statusBadge");
+                const dot = document.getElementById("statusDot");
                 const btn = document.getElementById("toggleSalaoBtn");
-                if (text) text.textContent = aberto ? "Aberto" : "Fechado";
-                if (btn) btn.textContent = aberto ? "Fechar Salão" : "Abrir Salão";
+
+                if (aberto) {
+                    if(text) text.textContent = "Aberto";
+                    if(badge) badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30";
+                    if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+                    if(btn) { 
+                        btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200 transition-all"; 
+                        btn.textContent = "Fechar Salão"; 
+                    }
+                } else {
+                    if(text) text.textContent = "Fechado";
+                    if(badge) badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-rose-500/20 text-rose-100 border border-rose-400/30";
+                    if(dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
+                    if(btn) { 
+                        btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200 transition-all"; 
+                        btn.textContent = "Abrir Salão"; 
+                    }
+                }
             });
         }
 
@@ -361,25 +379,14 @@
             await ref.set({ bloqueadoMaster: !atual }, { merge: true });
         }
 
-        function exibirComprovanteCliente(servico, horario, protocolo, confirmado) {
+        function exibirComprovanteCliente(servico, horario, protocolo) {
             const frase = `Você tem um agendamento de ${servico} as ${horario}.`;
             const fraseEl = document.getElementById("clienteFraseEvidencia");
             const protoEl = document.getElementById("clienteProtocoloBadge");
             const cardEl = document.getElementById("cardComprovanteCliente");
-            const badgeStatus = document.getElementById("statusConfirmacaoBadge");
 
             if(fraseEl) fraseEl.textContent = frase;
             if(protoEl) protoEl.textContent = protocolo;
-            
-            if (badgeStatus) {
-                if (confirmado) {
-                    badgeStatus.className = "px-2 py-0.5 rounded-full bg-emerald-400/30 text-emerald-100 text-[10px] font-extrabold uppercase tracking-wider border border-emerald-300/30";
-                    badgeStatus.textContent = "✓ Agendamento Confirmado pelo Barbeiro";
-                } else {
-                    badgeStatus.className = "px-2 py-0.5 rounded-full bg-amber-400/30 text-amber-100 text-[10px] font-extrabold uppercase tracking-wider border border-amber-300/30";
-                    badgeStatus.textContent = "Aguardando Confirmação do Barbeiro";
-                }
-            }
             if(cardEl) cardEl.classList.remove("hidden");
         }
 
@@ -392,9 +399,9 @@
                   .onSnapshot(snap => {
                       if (!snap.empty) {
                           const docData = snap.docs[0].data();
-                          exibirComprovanteCliente(docData.servico, docData.horario, docData.protocolo, docData.confirmadoBarbeiro);
+                          exibirComprovanteCliente(docData.servico, docData.horario, docData.protocolo);
                       } else {
-                          exibirComprovanteCliente(dados.servico, dados.horario, dados.protocolo, false);
+                          exibirComprovanteCliente(dados.servico, dados.horario, dados.protocolo);
                       }
                   });
             }
@@ -465,7 +472,6 @@
 
                     const dados = {
                         nome, whatsapp, servico, barbeiro, data, horario, protocolo,
-                        confirmadoBarbeiro: false,
                         criadoEm: firebase.firestore.FieldValue.serverTimestamp()
                     };
 
@@ -477,7 +483,7 @@
                     }
 
                     localStorage.setItem("tdb_agendamento", JSON.stringify({ servico, horario, protocolo }));
-                    exibirComprovanteCliente(servico, horario, protocolo, false);
+                    exibirComprovanteCliente(servico, horario, protocolo);
 
                     document.getElementById("agendamentoForm").reset();
                     document.getElementById("clienteData").value = data;
@@ -502,13 +508,6 @@
             } else { alert("Senha incorreta!"); }
         }
 
-        async function confirmarAgendamentoBarbearia(docId) {
-            if (!db) return;
-            await db.collection("saloes").doc(SALAO_ID).collection("agendamentos").doc(docId).update({
-                confirmadoBarbeiro: true
-            });
-        }
-
         function carregarAgendamentosBarbearia() {
             const dataFiltro = document.getElementById("filtroDataBarbearia").value;
             const container = document.getElementById("listaAgendamentosBarbearia");
@@ -517,19 +516,9 @@
             db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
               .where("data", "==", dataFiltro).orderBy("horario", "asc")
               .onSnapshot(snap => {
-                  container.innerHTML = snap.empty ? '<p class="text-xs text-slate-400 text-center py-4">Nenhum horário agendado.</p>' : '';
+                  container.innerHTML = snap.empty ? '<p class="text-xs text-slate-400 text-center py-4">Nenhum horário agendado para esta data.</p>' : '';
                   snap.forEach(doc => {
                       const d = doc.data();
-                      const id = doc.id;
-                      const confirmado = d.confirmadoBarbeiro === true;
-
-                      const statusTag = confirmado 
-                          ? '<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓ Confirmado</span>' 
-                          : '<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-700 font-bold text-[10px]">Pendente</span>';
-
-                      const btnAcao = confirmado 
-                          ? '' 
-                          : `<button onclick="confirmarAgendamentoBarbearia('${id}')" class="mt-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3 rounded-lg text-[11px] transition-colors">Confirmar Agendamento</button>`;
 
                       container.innerHTML += `
                           <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 space-y-2">
@@ -537,14 +526,14 @@
                                   <div>
                                       <span class="text-blue-600 font-bold text-xs">${d.horario} - <span class="text-slate-500 font-mono">${d.protocolo || 'N/A'}</span></span>
                                       <h5 class="text-slate-900 font-bold text-xs">${d.nome}</h5>
-                                      <p class="text-[10px] text-slate-500">${d.servico} • ${d.whatsapp}</p>
+                                      <p class="text-[11px] text-emerald-600 font-semibold mt-0.5">WhatsApp: ${d.whatsapp}</p>
+                                      <p class="text-[10px] text-slate-500 mt-0.5">${d.servico}</p>
                                   </div>
                                   <div class="text-right">
                                       <span class="text-[10px] font-semibold bg-white border border-slate-200 text-slate-600 px-2 py-0.5 rounded-lg block mb-1">${d.barbeiro}</span>
-                                      ${statusTag}
+                                      <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓ Agendado</span>
                                   </div>
                               </div>
-                              ${btnAcao}
                           </div>`;
                   });
               });
