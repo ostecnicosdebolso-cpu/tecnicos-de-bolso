@@ -12,37 +12,41 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
+<body class="bg-zinc-900 text-zinc-100 min-h-screen flex flex-col justify-between selection:bg-zinc-700">
 
-    <!-- MODAL DE ERRO -->
-    <div id="modalErro" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-slate-100">
-            <div class="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold bg-rose-100 text-rose-600">✕</div>
+    <!-- MODAL DE ALERTA -->
+    <div id="modalAlerta" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+            <div id="modalIcone" class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl font-bold bg-zinc-800 text-zinc-300">!</div>
             <div>
-                <h3 class="font-extrabold text-slate-900 text-base">Atenção</h3>
-                <p id="erroMensagemTxt" class="text-xs text-slate-600 mt-2 leading-relaxed font-medium"></p>
+                <h3 id="modalTitulo" class="font-bold text-zinc-100 text-sm">Atenção</h3>
+                <p id="modalMensagemTxt" class="text-xs text-zinc-400 mt-2 leading-relaxed"></p>
             </div>
-            <button onclick="fecharModalErro()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">
+            <button onclick="fecharModalAlerta()" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">
                 Entendido
             </button>
         </div>
     </div>
 
-    <!-- CABEÇALHO -->
-    <header class="bg-blue-700 text-white sticky top-0 z-50 px-4 py-3 shadow-md">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
+    <!-- CABEÇALHO / NAVEGAÇÃO SUPERIOR -->
+    <header class="bg-zinc-950 border-b border-zinc-800 sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-md mx-auto space-y-3">
+            <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
-                    <div class="flex items-center gap-2 mt-0.5">
-                        <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.11</span>
-                    </div>
+                    <h1 class="font-extrabold text-sm tracking-tight text-white">Carica Barber Shop</h1>
+                    <p class="text-[10px] text-zinc-400 font-medium tracking-wide uppercase">Técnicos de Bolso</p>
+                </div>
+                <div id="statusSistemaBadge" class="px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="txtStatusSistema">Sistema Operacional</span>
                 </div>
             </div>
-            <div class="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Aberto</span>
+
+            <!-- OPÇÕES SUPERIORES: Cliente | Barbearia | Administrador -->
+            <div class="grid grid-cols-3 gap-1 bg-zinc-900 p-1 rounded-xl border border-zinc-800">
+                <button onclick="mudarAba('cliente')" id="nav-cliente" class="py-2 text-center text-xs font-bold rounded-lg transition-all bg-zinc-800 text-white shadow-sm cursor-pointer">Cliente</button>
+                <button onclick="mudarAba('barbearia')" id="nav-barbearia" class="py-2 text-center text-xs font-medium rounded-lg transition-all text-zinc-400 hover:text-zinc-200 cursor-pointer">Barbearia</button>
+                <button onclick="mudarAba('master')" id="nav-master" class="py-2 text-center text-xs font-medium rounded-lg transition-all text-zinc-400 hover:text-zinc-200 cursor-pointer">Administrador</button>
             </div>
         </div>
     </header>
@@ -50,297 +54,268 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="max-w-md w-full mx-auto p-4 flex-1 pb-24 space-y-4">
         
-        <!-- ABA 1: CLIENTE (AGENDAMENTO) -->
+        <!-- ================= ABA CLIENTE ================= -->
         <section id="tab-cliente" class="space-y-4">
             
-            <!-- COMPROVANTE ATIVO DO CLIENTE -->
-            <div id="cardComprovanteCliente" class="hidden bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-4 text-white shadow-lg space-y-2 border border-blue-400/30">
+            <!-- COMPROVANTE DO CLIENTE -->
+            <div id="cardComprovante" class="hidden bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-zinc-100 shadow-xl space-y-3">
                 <div class="flex items-center justify-between">
-                    <span class="px-2 py-0.5 rounded-full bg-emerald-400/30 text-emerald-100 text-[10px] font-extrabold uppercase tracking-wider border border-emerald-300/30">✓ Agendado / Confirmado</span>
-                    <span id="clienteProtocoloBadge" class="font-mono text-xs font-bold bg-white/10 px-2 py-0.5 rounded"></span>
+                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-extrabold uppercase tracking-wider border border-emerald-500/20">✓ Agendado com Sucesso</span>
+                    <span id="badgeProtocolo" class="font-mono text-xs font-bold text-zinc-400 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800"></span>
                 </div>
-                <p id="clienteFraseEvidencia" class="text-xs font-semibold text-blue-50 leading-relaxed"></p>
-                <div class="pt-2 border-t border-blue-500/40 flex justify-between items-center text-[11px] text-blue-200">
-                    <span id="clienteBarbeiroInfo">Profissional: Carica</span>
-                    <button onclick="limparComprovanteLocal()" class="text-white underline hover:text-blue-100 text-[10px] cursor-pointer">Novo Agendamento</button>
+                <p id="textoComprovante" class="text-xs font-medium text-zinc-300 leading-relaxed"></p>
+                <div class="pt-2 border-t border-zinc-800 flex justify-between items-center text-[11px] text-zinc-400">
+                    <span>Profissional: <b>Carica</b></span>
+                    <button onclick="limparComprovante()" class="text-zinc-200 underline hover:text-white text-[10px] cursor-pointer">Novo Agendamento</button>
                 </div>
             </div>
 
-            <form id="agendamentoForm" class="space-y-4">
+            <form id="formAgendamento" class="space-y-4">
                 
-                <!-- PASSO 1: SERVIÇOS -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">1. Escolha o Serviço</label>
-                    <input type="hidden" id="clienteServico" value="Corte" required>
-                    
-                    <div class="grid grid-cols-2 gap-2.5" id="gridServicos">
-                        <div onclick="selecionarServico('Corte', this)" class="servico-card cursor-pointer bg-slate-50 border-2 border-blue-600 rounded-xl p-3 transition-all">
-                            <div class="flex justify-between items-start">
-                                <span class="font-bold text-xs text-slate-900">Corte</span>
-                                <span class="w-3.5 h-3.5 rounded-full border-4 border-blue-600 check-dot"></span>
-                            </div>
-                            <p class="text-blue-600 font-extrabold text-sm mt-1">R$ 45</p>
-                        </div>
-
-                        <div onclick="selecionarServico('Barba', this)" class="servico-card cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all hover:border-slate-300">
-                            <div class="flex justify-between items-start">
-                                <span class="font-bold text-xs text-slate-900">Barba</span>
-                                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 check-dot"></span>
-                            </div>
-                            <p class="text-slate-700 font-extrabold text-sm mt-1">R$ 45</p>
-                        </div>
-
-                        <div onclick="selecionarServico('Corte Criança', this)" class="servico-card cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all hover:border-slate-300">
-                            <div class="flex justify-between items-start">
-                                <span class="font-bold text-xs text-slate-900">Corte Criança</span>
-                                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 check-dot"></span>
-                            </div>
-                            <p class="text-slate-700 font-extrabold text-sm mt-1">R$ 40</p>
-                        </div>
-
-                        <div onclick="selecionarServico('Sobrancelha', this)" class="servico-card cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all hover:border-slate-300">
-                            <div class="flex justify-between items-start">
-                                <span class="font-bold text-xs text-slate-900">Sobrancelha</span>
-                                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 check-dot"></span>
-                            </div>
-                            <p class="text-slate-700 font-extrabold text-sm mt-1">R$ 20</p>
-                        </div>
-
-                        <div onclick="selecionarServico('Combo', this)" class="servico-card col-span-2 cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all hover:border-slate-300">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <span class="font-bold text-xs text-slate-900">Combo (Corte + Barba + Sobrancelha)</span>
-                                </div>
-                                <div class="text-right flex items-center gap-2">
-                                    <p class="text-slate-700 font-extrabold text-sm">R$ 90</p>
-                                    <span class="w-3.5 h-3.5 rounded-full border border-slate-300 check-dot"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PASSO 2: PROFISSIONAL E DATA -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">2. Profissional e Data</label>
+                <!-- DATA E HORA -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-sm">
                     <div class="grid grid-cols-2 gap-2.5">
                         <div>
-                            <span class="block text-[11px] font-medium text-slate-500 mb-1">Barbeiro</span>
-                            <select id="clienteBarbeiro" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-blue-600">
+                            <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Profissional</label>
+                            <select id="inputBarbeiro" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs font-medium text-zinc-200 focus:outline-none focus:border-zinc-600">
                                 <option value="Carica">Carica</option>
                             </select>
                         </div>
                         <div>
-                            <span class="block text-[11px] font-medium text-slate-500 mb-1">Data</span>
-                            <input type="date" id="clienteData" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-blue-600">
+                            <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Data</label>
+                            <input type="date" id="inputData" onchange="escutarHorarios()" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs font-medium text-zinc-200 focus:outline-none focus:border-zinc-600">
                         </div>
                     </div>
 
-                    <div class="pt-1">
-                        <span class="block text-[11px] font-medium text-slate-500 mb-2">Horários Disponíveis</span>
-                        <input type="hidden" id="clienteHorario">
-                        <div id="gridHorarios" class="grid grid-cols-4 gap-1.5 max-h-36 overflow-y-auto pr-1"></div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-zinc-400 mb-2">Horários Disponíveis (09:00 às 20:00)</label>
+                        <input type="hidden" id="inputHorario" required>
+                        <div id="gridHorarios" class="grid grid-cols-4 gap-1.5 max-h-44 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
 
-                <!-- PASSO 3: DADOS DO CLIENTE -->
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-2.5">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">3. Seus Dados</label>
-                    <input type="text" id="clienteNome" required placeholder="Seu Nome Completo" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600">
-                    <input type="tel" id="clienteWhatsapp" required placeholder="WhatsApp (com DDD)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600">
+                <!-- SERVIÇOS -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-sm">
+                    <label class="block text-xs font-bold text-zinc-400 uppercase tracking-wider">Serviços</label>
+                    <input type="hidden" id="inputServico" value="Corte" required>
+                    
+                    <div class="space-y-2">
+                        <div onclick="selecionarServico('Corte', this)" class="servico-item cursor-pointer bg-zinc-950 border-2 border-zinc-700 rounded-xl p-3 transition-all flex justify-between items-center">
+                            <div>
+                                <span class="font-bold text-xs text-zinc-200">Corte</span>
+                            </div>
+                            <span class="text-zinc-100 font-extrabold text-xs">R$ 45</span>
+                        </div>
+
+                        <div onclick="selecionarServico('Barba', this)" class="servico-item cursor-pointer bg-zinc-950 border border-zinc-800 rounded-xl p-3 transition-all flex justify-between items-center hover:border-zinc-700">
+                            <div>
+                                <span class="font-bold text-xs text-zinc-200">Barba</span>
+                            </div>
+                            <span class="text-zinc-100 font-extrabold text-xs">R$ 45</span>
+                        </div>
+
+                        <div onclick="selecionarServico('Corte Criança', this)" class="servico-item cursor-pointer bg-zinc-950 border border-zinc-800 rounded-xl p-3 transition-all flex justify-between items-center hover:border-zinc-700">
+                            <div>
+                                <span class="font-bold text-xs text-zinc-200">Corte Criança</span>
+                            </div>
+                            <span class="text-zinc-100 font-extrabold text-xs">R$ 40</span>
+                        </div>
+
+                        <div onclick="selecionarServico('Combo', this)" class="servico-item cursor-pointer bg-zinc-950 border border-zinc-800 rounded-xl p-3 transition-all flex justify-between items-center hover:border-zinc-700">
+                            <div>
+                                <span class="font-bold text-xs text-zinc-200 block">Combo</span>
+                                <span class="text-[10px] text-zinc-400 font-medium">Inclui: Corte, Barba + Sobrancelha</span>
+                            </div>
+                            <span class="text-zinc-100 font-extrabold text-xs">R$ 90</span>
+                        </div>
+                    </div>
                 </div>
 
-                <button type="submit" id="btnSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/35 transition-all active:scale-[0.99] text-xs cursor-pointer">
+                <!-- SEUS DADOS -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-2.5 shadow-sm">
+                    <label class="block text-xs font-bold text-zinc-400 uppercase tracking-wider">Seus Dados</label>
+                    <input type="text" id="inputNome" required placeholder="Seu Nome Completo" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-3 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600">
+                    <input type="tel" id="inputWhatsapp" required placeholder="WhatsApp (com DDD)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-3 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600">
+                </div>
+
+                <button type="submit" id="btnSalvar" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-extrabold py-3.5 px-4 rounded-xl shadow-lg transition-all active:scale-[0.99] text-xs cursor-pointer">
                     Confirmar Agendamento
                 </button>
             </form>
         </section>
 
-        <!-- ABA 2: GESTÃO DA BARBEARIA -->
+        <!-- ================= ABA BARBEARIA ================= -->
         <section id="tab-barbearia" class="hidden space-y-3">
-            <div id="barbeariaLoginBox" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80">
-                <h3 class="font-bold text-slate-900 text-sm">Painel do Gestor</h3>
-                <p class="text-xs text-slate-400 mb-4">Acesso exclusivo da barbearia.</p>
-                <input type="password" id="senhaBarbeariaInput" placeholder="Digite a senha da barbearia" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
-                <button onclick="fazerLoginBarbearia()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Entrar</button>
+            <div id="boxLoginBarbearia" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center shadow-sm space-y-3">
+                <h3 class="font-bold text-zinc-100 text-sm">Painel da Barbearia</h3>
+                <p class="text-xs text-zinc-400">Acesso restrito ao gestor.</p>
+                <input type="password" id="senhaBarbearia" placeholder="Digite a senha" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-center text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600">
+                <button onclick="loginBarbearia()" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Entrar</button>
             </div>
 
-            <div id="barbeariaPainelContent" class="hidden space-y-3">
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
-                    <div class="flex justify-between items-center mb-3">
-                        <h4 class="font-bold text-slate-900 text-xs">Agenda do Dia & Contatos</h4>
-                        <input type="date" id="filtroDataBarbearia" onchange="carregarAgendamentosBarbearia()" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-700">
+            <div id="painelBarbearia" class="hidden space-y-3">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-sm space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-zinc-100 text-xs">Agenda & Contatos</h4>
+                        <input type="date" id="filtroDataBarbearia" onchange="carregarAgendaBarbearia()" class="bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1 text-[11px] font-medium text-zinc-200">
                     </div>
-                    <div id="listaAgendamentosBarbearia" class="space-y-2"></div>
+                    <div id="listaAgendaBarbearia" class="space-y-2"></div>
                 </div>
             </div>
         </section>
 
-        <!-- ABA 3: MASTER ADM (TÉCNICOS DE BOLSO) -->
+        <!-- ================= ABA ADMINISTRADOR ================= -->
         <section id="tab-master" class="hidden space-y-3">
-            <div id="masterLoginBox" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80">
-                <h3 class="font-bold text-slate-900 text-sm">Técnicos de Bolso</h3>
-                <p class="text-xs text-slate-400 mb-4">Painel Administrativo Geral</p>
-                <input type="password" id="senhaMasterInput" placeholder="Digite a senha administrativa" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
-                <button onclick="fazerLoginMaster()" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Acessar Painel</button>
+            <div id="boxLoginMaster" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center shadow-sm space-y-3">
+                <h3 class="font-bold text-zinc-100 text-sm">Administrador Técnico</h3>
+                <p class="text-xs text-zinc-400">Painel Master de Operações</p>
+                <input type="password" id="senhaMaster" placeholder="Digite a senha administrativa" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-center text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600">
+                <button onclick="loginMaster()" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Acessar Painel</button>
             </div>
 
-            <div id="masterPainelContent" class="hidden space-y-3">
-                <div class="bg-white rounded-2xl p-4 text-center shadow-sm border-2 border-slate-800">
-                    <h4 class="font-bold text-slate-900 text-xs mb-1">Painel Master Operacional</h4>
-                    <p class="text-[11px] text-slate-500">Unidade Carica Barber Shop ativa e operando normalmente.</p>
+            <div id="painelMaster" class="hidden space-y-3">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-sm space-y-4">
+                    <h4 class="font-bold text-zinc-100 text-xs">Status do Sistema</h4>
+                    <p class="text-[11px] text-zinc-400 leading-relaxed">O sistema está em operação contínua para a unidade Carica Barber Shop.</p>
+                    
+                    <div class="pt-3 border-t border-zinc-800 flex items-center justify-between">
+                        <div>
+                            <span class="block text-xs font-bold text-zinc-200">Travamento Integral</span>
+                            <span class="text-[10px] text-zinc-400">Interrompe novos agendamentos globalmente</span>
+                        </div>
+                        <button id="btnToggleSistema" onclick="alternarTravamentoSistema()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-pointer">Sistema Aberto</button>
+                    </div>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- NAVEGAÇÃO INFERIOR -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 z-50 shadow-lg">
-        <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
-            <button onclick="mudarAba('cliente')" id="nav-cliente" class="flex flex-col items-center justify-center py-1 text-blue-600 cursor-pointer">
-                <span class="text-[10px] font-bold">Agendar</span>
-            </button>
-            <button onclick="mudarAba('barbearia')" id="nav-barbearia" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer">
-                <span class="text-[10px] font-semibold">Barbearia</span>
-            </button>
-            <button onclick="mudarAba('master')" id="nav-master" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer">
-                <span class="text-[10px] font-semibold">Técnicos ADM</span>
-            </button>
-        </div>
-    </nav>
-
+    <!-- SCRIPT DE CONTROLE E FIREBASE -->
     <script>
-        const VERSAO_ATUAL = "v2.11";
-
-        const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
+        const CONFIG_FIREBASE = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
         try {
-            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            if (!firebase.apps.length) firebase.initializeApp(CONFIG_FIREBASE);
             db = firebase.firestore();
         } catch (e) {}
 
-        const SALAO_ID = "carica"; 
-        let masterLogado = false;
-        let horariosOcupadosCache = [];
-        let unsubscribeListener = null;
-        let unsubscribeBarbearia = null;
+        const ID_SALAO = "carica"; 
+        let cacheOcupados = [];
+        let escutaCliente = null;
+        let escutaBarbearia = null;
+        let escutaStatus = null;
+        let sistemaBloqueadoGlobal = false;
 
         document.addEventListener("DOMContentLoaded", () => {
-            const badgeVersao = document.getElementById("badgeVersaoApp");
-            if(badgeVersao) badgeVersao.textContent = VERSAO_ATUAL;
-
             const hoje = new Date().toISOString().split('T')[0];
-            const dataEl = document.getElementById("clienteData");
-            const filtroBarbeariaEl = document.getElementById("filtroDataBarbearia");
+            const inputData = document.getElementById("inputData");
+            const filtroBarbearia = document.getElementById("filtroDataBarbearia");
             
-            if(dataEl) dataEl.value = hoje;
-            if(filtroBarbeariaEl) filtroBarbeariaEl.value = hoje;
+            if(inputData) inputData.value = hoje;
+            if(filtroBarbearia) filtroBarbearia.value = hoje;
             
-            iniciarEscutaTempoReal();
-            verificarComprovanteSalvo();
+            escutarStatusSistema();
+            escutarHorarios();
+            checarComprovanteSalvo();
 
-            if(dataEl) {
-                dataEl.addEventListener("change", () => {
-                    iniciarEscutaTempoReal();
-                });
-            }
-            
-            const form = document.getElementById("agendamentoForm");
-            if(form) {
-                form.addEventListener("submit", salvarAgendamento);
-            }
+            document.getElementById("formAgendamento").addEventListener("submit", processarAgendamento);
         });
 
         function selecionarServico(nome, elemento) {
-            document.getElementById("clienteServico").value = nome;
-            document.querySelectorAll(".servico-card").forEach(card => {
-                card.className = "servico-card cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all hover:border-slate-300";
-                const check = card.querySelector(".check-dot");
-                if(check) check.className = "w-3.5 h-3.5 rounded-full border border-slate-300 check-dot";
+            document.getElementById("inputServico").value = nome;
+            document.querySelectorAll(".servico-item").forEach(card => {
+                card.className = "servico-item cursor-pointer bg-zinc-950 border border-zinc-800 rounded-xl p-3 transition-all flex justify-between items-center hover:border-zinc-700";
             });
-            elemento.className = "servico-card cursor-pointer bg-slate-50 border-2 border-blue-600 rounded-xl p-3 transition-all";
-            const activeCheck = elemento.querySelector(".check-dot");
-            if(activeCheck) activeCheck.className = "w-3.5 h-3.5 rounded-full border-4 border-blue-600 check-dot";
+            elemento.className = "servico-item cursor-pointer bg-zinc-950 border-2 border-zinc-200 rounded-xl p-3 transition-all flex justify-between items-center";
         }
 
-        function iniciarEscutaTempoReal() {
-            if (!db) {
-                gerarGradeHorarios();
-                return;
-            }
-
-            const dataSelecionada = document.getElementById("clienteData").value;
-
-            if (unsubscribeListener) {
-                unsubscribeListener();
-            }
-
-            unsubscribeListener = db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
-              .where("data", "==", dataSelecionada)
-              .onSnapshot(snapshot => {
-                  horariosOcupadosCache = [];
-                  snapshot.forEach(doc => {
-                      const d = doc.data();
-                      if (d && d.horario) {
-                          horariosOcupadosCache.push(d.horario);
-                      }
-                  });
-                  gerarGradeHorarios();
-              }, err => {
-                  gerarGradeHorarios();
-              });
+        function escutarStatusSistema() {
+            if (!db) return;
+            db.collection("saloes").doc(ID_SALAO).onSnapshot(doc => {
+                if (doc.exists) {
+                    const dados = doc.data();
+                    sistemaBloqueadoGlobal = dados.sistemaBloqueado || false;
+                    atualizarBadgeStatusGlobal();
+                }
+            });
         }
 
-        function gerarGradeHorarios() {
+        function atualizarBadgeStatusGlobal() {
+            const badge = document.getElementById("statusSistemaBadge");
+            const txt = document.getElementById("txtStatusSistema");
+            const btn = document.getElementById("btnToggleSistema");
+
+            if (sistemaBloqueadoGlobal) {
+                badge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                txt.textContent = "Sistema Fechado / Travado";
+                if(btn) {
+                    btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 cursor-pointer";
+                    btn.textContent = "Sistema Travado";
+                }
+            } else {
+                badge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                txt.textContent = "Sistema Operacional";
+                if(btn) {
+                    btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-pointer";
+                    btn.textContent = "Sistema Aberto";
+                }
+            }
+        }
+
+        function escutarHorarios() {
+            if (!db) { gerarGrade(); return; }
+
+            const dataSelecionada = document.getElementById("inputData").value;
+            if (escutaCliente) escutaCliente();
+
+            escutaCliente = db.collection("saloes").doc(ID_SALAO).collection("agendamentos")
+                .where("data", "==", dataSelecionada)
+                .onSnapshot(snapshot => {
+                    cacheOcupados = [];
+                    snapshot.forEach(doc => {
+                        const d = doc.data();
+                        if (d && d.horario) cacheOcupados.push(d.horario);
+                    });
+                    gerarGrade();
+                }, () => { gerarGrade(); });
+        }
+
+        function gerarGrade() {
             const grid = document.getElementById("gridHorarios");
             if(!grid) return;
             
-            const horarioSelecionadoAtual = document.getElementById("clienteHorario").value;
+            const horarioAtual = document.getElementById("inputHorario").value;
             grid.innerHTML = "";
 
-            const dataSelecionada = document.getElementById("clienteData").value;
-            const hojeStr = new Date().toISOString().split('T')[0];
-            const agora = new Date();
-            const horaAtualMinutos = agora.getHours() * 60 + agora.getMinutes();
-            const ehHoje = (dataSelecionada === hojeStr);
-
-            for (let h = 9; h < 20; h++) {
-                ['00', '30'].forEach(m => {
-                    const horaMinutos = h * 60 + parseInt(m);
+            // 09:00 até 20:00 (intervalos de 30 min)
+            for (let h = 9; h <= 20; h++) {
+                const minutos = (h === 20) ? ['00'] : ['00', '30'];
+                minutos.forEach(m => {
+                    if (h === 20 && m === '30') return; // Encerra às 20:00 em ponto
                     const horaStr = `${String(h).padStart(2, '0')}:${m}`;
-                    
                     const btn = document.createElement("button");
                     btn.type = "button";
                     btn.textContent = horaStr;
 
-                    const jaOcupado = horariosOcupadosCache.includes(horaStr);
+                    const ocupado = cacheOcupados.includes(horaStr) || sistemaBloqueadoGlobal;
 
-                    if (jaOcupado) {
+                    if (ocupado) {
                         btn.disabled = true;
-                        btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-400 cursor-not-allowed opacity-75 line-through";
-                        if (horarioSelecionadoAtual === horaStr) {
-                            document.getElementById("clienteHorario").value = "";
-                        }
-                    } else if (ehHoje && horaMinutos <= horaAtualMinutos) {
-                        btn.disabled = true;
-                        btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-100 border border-slate-200 text-slate-300 cursor-not-allowed opacity-50";
+                        btn.className = "py-2 rounded-xl text-xs font-semibold bg-zinc-950 border border-zinc-800 text-zinc-600 cursor-not-allowed line-through";
+                        if (horarioAtual === horaStr) document.getElementById("inputHorario").value = "";
                     } else {
-                        const isSelected = (horarioSelecionadoAtual === horaStr);
-                        if (isSelected) {
-                            btn.className = "hora-btn py-2 rounded-xl text-xs font-bold bg-blue-600 border border-blue-600 text-white shadow-sm transition-all cursor-pointer";
-                        } else {
-                            btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all cursor-pointer";
-                        }
+                        const selecionado = (horarioAtual === horaStr);
+                        btn.className = selecionado 
+                            ? "py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-900 border border-white shadow-sm transition-all cursor-pointer"
+                            : "py-2 rounded-xl text-xs font-semibold bg-zinc-950 border border-zinc-800 text-zinc-300 hover:border-zinc-600 transition-all cursor-pointer";
 
                         btn.onclick = () => {
-                            document.querySelectorAll(".hora-btn").forEach(b => {
-                                if(!b.disabled) {
-                                    b.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all cursor-pointer";
-                                }
+                            document.querySelectorAll("#gridHorarios button").forEach(b => {
+                                if(!b.disabled) b.className = "py-2 rounded-xl text-xs font-semibold bg-zinc-950 border border-zinc-800 text-zinc-300 hover:border-zinc-600 transition-all cursor-pointer";
                             });
-                            btn.className = "hora-btn py-2 rounded-xl text-xs font-bold bg-blue-600 border border-blue-600 text-white shadow-sm transition-all cursor-pointer";
-                            document.getElementById("clienteHorario").value = horaStr;
+                            btn.className = "py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-900 border border-white shadow-sm transition-all cursor-pointer";
+                            document.getElementById("inputHorario").value = horaStr;
                         };
                     }
                     grid.appendChild(btn);
@@ -350,190 +325,174 @@
 
         function mudarAba(aba) {
             ['cliente', 'barbearia', 'master'].forEach(a => {
-                const el = document.getElementById(`tab-${a}`);
-                const nav = document.getElementById(`nav-${a}`);
-                if(el) el.classList.add('hidden');
-                if(nav) nav.className = "flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer";
+                document.getElementById(`tab-${a}`).classList.add('hidden');
+                document.getElementById(`nav-${a}`).className = "py-2 text-center text-xs font-medium rounded-lg transition-all text-zinc-400 hover:text-zinc-200 cursor-pointer";
             });
-            const tabAtiva = document.getElementById(`tab-${aba}`);
-            const navAtiva = document.getElementById(`nav-${aba}`);
-            if(tabAtiva) tabAtiva.classList.remove('hidden');
-            if(navAtiva) navAtiva.className = "flex flex-col items-center justify-center py-1 text-blue-600 cursor-pointer";
+            document.getElementById(`tab-${aba}`).classList.remove('hidden');
+            document.getElementById(`nav-${aba}`).className = "py-2 text-center text-xs font-bold rounded-lg transition-all bg-zinc-800 text-white shadow-sm cursor-pointer";
 
-            if(aba === 'cliente') {
-                iniciarEscutaTempoReal();
-            } else if(aba === 'barbearia' && !document.getElementById('barbeariaPainelContent').classList.contains('hidden')) {
-                carregarAgendamentosBarbearia();
+            if (aba === 'cliente') escutarHorarios();
+            if (aba === 'barbearia' && !document.getElementById('painelBarbearia').classList.contains('hidden')) {
+                carregarAgendaBarbearia();
             }
         }
 
-        function exibirComprovanteCliente(servico, horario, protocolo) {
-            const frase = `Você tem um agendamento de ${servico} as ${horario}.`;
-            const fraseEl = document.getElementById("clienteFraseEvidencia");
-            const protoEl = document.getElementById("clienteProtocoloBadge");
-            const cardEl = document.getElementById("cardComprovanteCliente");
-
-            if(fraseEl) fraseEl.textContent = frase;
-            if(protoEl) protoEl.textContent = protocolo;
-            if(cardEl) cardEl.classList.remove("hidden");
+        function mostrarAlerta(mensagem) {
+            document.getElementById("modalMensagemTxt").textContent = mensagem;
+            document.getElementById("modalAlerta").classList.remove("hidden");
         }
 
-        function verificarComprovanteSalvo() {
-            const salvo = localStorage.getItem("tdb_agendamento");
-            if (salvo) {
-                try {
-                    const dados = JSON.parse(salvo);
-                    if(dados && dados.horario) {
-                        exibirComprovanteCliente(dados.servico, dados.horario, dados.protocolo);
-                    }
-                } catch(e) {
-                    localStorage.removeItem("tdb_agendamento");
-                }
-            }
+        function fecharModalAlerta() {
+            document.getElementById("modalAlerta").classList.add("hidden");
         }
 
-        function limparComprovanteLocal() {
-            localStorage.removeItem("tdb_agendamento");
-            const cardEl = document.getElementById("cardComprovanteCliente");
-            if(cardEl) cardEl.classList.add("hidden");
-        }
-
-        function mostrarErro(mensagem) {
-            const msgEl = document.getElementById("erroMensagemTxt");
-            const modalEl = document.getElementById("modalErro");
-            if(msgEl) msgEl.textContent = mensagem;
-            if(modalEl) modalEl.classList.remove("hidden");
-        }
-
-        function fecharModalErro() {
-            const modalEl = document.getElementById("modalErro");
-            if(modalEl) modalEl.classList.add("hidden");
-        }
-
-        async function salvarAgendamento(e) {
+        async function processarAgendamento(e) {
             e.preventDefault();
-            const btnSubmit = document.getElementById("btnSubmit");
-            const horario = document.getElementById("clienteHorario").value;
-            const data = document.getElementById("clienteData").value;
-            
-            if (!horario) {
-                mostrarErro("Por favor, selecione um horário disponível na lista antes de continuar.");
+            if (sistemaBloqueadoGlobal) {
+                mostrarAlerta("O sistema está temporariamente travado para novos agendamentos.");
                 return;
             }
 
-            const nome = document.getElementById("clienteNome").value.trim();
-            const whatsapp = document.getElementById("clienteWhatsapp").value.trim();
-            const servico = document.getElementById("clienteServico").value;
-            const barbeiro = document.getElementById("clienteBarbeiro").value;
+            const btn = document.getElementById("btnSalvar");
+            const horario = document.getElementById("inputHorario").value;
+            const data = document.getElementById("inputData").value;
+
+            if (!horario) {
+                mostrarAlerta("Por favor, selecione um horário disponível na lista.");
+                return;
+            }
+
+            const nome = document.getElementById("inputNome").value.trim();
+            const whatsapp = document.getElementById("inputWhatsapp").value.trim();
+            const servico = document.getElementById("inputServico").value;
+            const barbeiro = document.getElementById("inputBarbeiro").value;
 
             if (!db) {
-                mostrarErro("Banco de dados indisponível no momento.");
+                mostrarAlerta("Banco de dados indisponível.");
                 return;
             }
 
-            if(btnSubmit) {
-                btnSubmit.disabled = true;
-                btnSubmit.textContent = "Agendado!";
-            }
+            btn.disabled = true;
+            btn.textContent = "Processando...";
 
             try {
-                if (horariosOcupadosCache.includes(horario)) {
-                    if(btnSubmit) {
-                        btnSubmit.disabled = false;
-                        btnSubmit.textContent = "Confirmar Agendamento";
-                    }
-                    mostrarErro(`O horário das ${horario} acabou de ser ocupado. Escolha outro horário.`);
-                    iniciarEscutaTempoReal();
+                if (cacheOcupados.includes(horario)) {
+                    btn.disabled = false;
+                    btn.textContent = "Confirmar Agendamento";
+                    mostrarAlerta(`O horário das ${horario} acabou de ser ocupado. Escolha outro.`);
+                    escutarHorarios();
                     return;
                 }
 
-                const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
+                const ref = db.collection("saloes").doc(ID_SALAO).collection("agendamentos");
                 const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
-                
-                const dados = {
+
+                await ref.add({
                     nome, whatsapp, servico, barbeiro, data, horario, protocolo,
                     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-                };
+                });
 
-                await salaoRef.add(dados);
+                btn.disabled = false;
+                btn.textContent = "Confirmar Agendamento";
 
-                if(btnSubmit) {
-                    btnSubmit.disabled = false;
-                    btnSubmit.textContent = "Confirmar Agendamento";
-                }
+                localStorage.setItem("tdb_comprovante", JSON.stringify({ servico, horario, protocolo }));
+                exibirComprovante(servico, horario, protocolo);
 
-                localStorage.setItem("tdb_agendamento", JSON.stringify({ servico, horario, protocolo }));
-                exibirComprovanteCliente(servico, horario, protocolo);
-
-                document.getElementById("agendamentoForm").reset();
-                document.getElementById("clienteData").value = data;
-                document.getElementById("clienteHorario").value = "";
-                iniciarEscutaTempoReal();
+                document.getElementById("formAgendamento").reset();
+                document.getElementById("inputData").value = data;
+                document.getElementById("inputHorario").value = "";
+                escutarHorarios();
 
             } catch (err) {
-                if(btnSubmit) {
-                    btnSubmit.disabled = false;
-                    btnSubmit.textContent = "Confirmar Agendamento";
-                }
-                mostrarErro("Erro ao registrar agendamento. Tente novamente.");
-                iniciarEscutaTempoReal();
+                btn.disabled = false;
+                btn.textContent = "Confirmar Agendamento";
+                mostrarAlerta("Erro ao salvar agendamento. Tente novamente.");
+                escutarHorarios();
             }
         }
 
-        function fazerLoginBarbearia() {
-            const senha = document.getElementById("senhaBarbeariaInput").value;
+        function exibirComprovante(servico, horario, protocolo) {
+            document.getElementById("textoComprovante").textContent = `Agendamento confirmado para ${servico} às ${horario}.`;
+            document.getElementById("badgeProtocolo").textContent = protocolo;
+            document.getElementById("cardComprovante").classList.remove("hidden");
+        }
+
+        function checarComprovanteSalvo() {
+            const salvo = localStorage.getItem("tdb_comprovante");
+            if (salvo) {
+                try {
+                    const d = JSON.parse(salvo);
+                    if (d && d.horario) exibirComprovante(d.servico, d.horario, d.protocolo);
+                } catch(e) { localStorage.removeItem("tdb_comprovante"); }
+            }
+        }
+
+        function limparComprovante() {
+            localStorage.removeItem("tdb_comprovante");
+            document.getElementById("cardComprovante").classList.add("hidden");
+            escutarHorarios();
+        }
+
+        function loginBarbearia() {
+            const senha = document.getElementById("senhaBarbearia").value;
             if (senha === "1234") {
-                document.getElementById("barbeariaLoginBox").classList.add("hidden");
-                document.getElementById("barbeariaPainelContent").classList.remove("hidden");
-                carregarAgendamentosBarbearia();
+                document.getElementById("boxLoginBarbearia").classList.add("hidden");
+                document.getElementById("painelBarbearia").classList.remove("hidden");
+                carregarAgendaBarbearia();
             } else { alert("Senha incorreta!"); }
         }
 
-        function carregarAgendamentosBarbearia() {
+        function carregarAgendaBarbearia() {
             const dataFiltro = document.getElementById("filtroDataBarbearia").value;
-            const container = document.getElementById("listaAgendamentosBarbearia");
+            const container = document.getElementById("listaAgendaBarbearia");
             if (!db || !container) return;
-            
-            if (unsubscribeBarbearia) {
-                unsubscribeBarbearia();
-            }
 
-            unsubscribeBarbearia = db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
-              .where("data", "==", dataFiltro)
-              .onSnapshot(snap => {
-                  container.innerHTML = snap.empty ? '<p class="text-xs text-slate-400 text-center py-4">Nenhum horário agendado para esta data.</p>' : '';
-                  
-                  const docsOrdenados = [];
-                  snap.forEach(doc => docsOrdenados.push(doc.data()));
-                  docsOrdenados.sort((a, b) => a.horario.localeCompare(b.horario));
+            if (escutaBarbearia) escutaBarbearia();
 
-                  docsOrdenados.forEach(d => {
-                      container.innerHTML += `
-                          <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 space-y-2">
-                              <div class="flex justify-between items-center">
-                                  <div>
-                                      <span class="text-blue-600 font-bold text-xs">${d.horario} - <span class="text-slate-500 font-mono">${d.protocolo || 'N/A'}</span></span>
-                                      <h5 class="text-slate-900 font-bold text-xs">${d.nome}</h5>
-                                      <p class="text-[11px] text-emerald-600 font-semibold mt-0.5">WhatsApp: ${d.whatsapp}</p>
-                                      <p class="text-[10px] text-slate-500 mt-0.5">${d.servico}</p>
-                                  </div>
-                                  <div class="text-right">
-                                      <span class="text-[10px] font-semibold bg-white border border-slate-200 text-slate-600 px-2 py-0.5 rounded-lg block mb-1">${d.barbeiro}</span>
-                                      <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓ Agendado / Confirmado</span>
-                                  </div>
-                              </div>
-                          </div>`;
-                  });
-              });
+            escutaBarbearia = db.collection("saloes").doc(ID_SALAO).collection("agendamentos")
+                .where("data", "==", dataFiltro)
+                .onSnapshot(snap => {
+                    container.innerHTML = snap.empty ? '<p class="text-xs text-zinc-500 text-center py-4">Nenhum agendamento para esta data.</p>' : '';
+                    
+                    const lista = [];
+                    snap.forEach(doc => lista.push(doc.data()));
+                    lista.sort((a, b) => a.horario.localeCompare(b.horario));
+
+                    lista.forEach(d => {
+                        container.innerHTML += `
+                            <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-zinc-200 font-bold text-xs">${d.horario} - <span class="font-mono text-zinc-400">${d.protocolo}</span></span>
+                                    <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold text-[10px] border border-emerald-500/20">Confirmado</span>
+                                </div>
+                                <h5 class="text-zinc-100 font-bold text-xs">${d.nome}</h5>
+                                <p class="text-[11px] text-emerald-400 font-semibold">WhatsApp: ${d.whatsapp}</p>
+                                <p class="text-[10px] text-zinc-400">${d.servico} (Profissional: ${d.barbeiro})</p>
+                            </div>`;
+                    });
+                });
         }
 
-        function fazerLoginMaster() {
-            const senha = document.getElementById("senhaMasterInput").value;
+        function loginMaster() {
+            const senha = document.getElementById("senhaMaster").value;
             if (senha === "master123") {
-                masterLogado = true;
-                document.getElementById("masterLoginBox").classList.add("hidden");
-                document.getElementById("masterPainelContent").classList.remove("hidden");
+                document.getElementById("boxLoginMaster").classList.add("hidden");
+                document.getElementById("painelMaster").classList.remove("hidden");
             } else { alert("Senha incorreta!"); }
+        }
+
+        async function alternarTravamentoSistema() {
+            if (!db) return;
+            sistemaBloqueadoGlobal = !sistemaBloqueadoGlobal;
+            try {
+                await db.collection("saloes").doc(ID_SALAO).set({
+                    sistemaBloqueado: sistemaBloqueadoGlobal
+                }, { merge: true });
+                atualizarBadgeStatusGlobal();
+                escutarHorarios();
+            } catch (e) {
+                alert("Erro ao alterar o status do sistema.");
+            }
         }
     </script>
 </body>
