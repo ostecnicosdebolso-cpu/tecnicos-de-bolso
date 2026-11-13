@@ -36,7 +36,7 @@
                     <h1 class="font-extrabold text-sm tracking-tight text-white">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-zinc-400 font-medium tracking-wide uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-zinc-800 text-zinc-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-zinc-700">v3.1</span>
+                        <span id="badgeVersaoApp" class="bg-zinc-800 text-zinc-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-zinc-700">v3.2</span>
                     </div>
                 </div>
                 <div id="statusSistemaBadge" class="px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -196,13 +196,15 @@
 
     <!-- SCRIPT DE CONTROLE E FIREBASE -->
     <script>
-        const VERSAO_APP = "v3.1";
+        const VERSAO_APP = "v3.2";
         const CONFIG_FIREBASE = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
         try {
             if (!firebase.apps.length) firebase.initializeApp(CONFIG_FIREBASE);
             db = firebase.firestore();
-        } catch (e) {}
+        } catch (e) {
+            console.error("Erro ao iniciar Firebase:", e);
+        }
 
         const ID_SALAO = "carica"; 
         let cacheOcupados = [];
@@ -220,7 +222,7 @@
             
             if(inputData) {
                 inputData.value = hoje;
-                inputData.min = hoje; // Impede selecionar datas passadas
+                inputData.min = hoje;
             }
             if(filtroBarbearia) filtroBarbearia.value = hoje;
             
@@ -247,6 +249,8 @@
                     sistemaBloqueadoGlobal = dados.sistemaBloqueado || false;
                     atualizarBadgeStatusGlobal();
                 }
+            }, err => {
+                console.error("Erro no status:", err);
             });
         }
 
@@ -287,7 +291,10 @@
                         if (d && d.horario) cacheOcupados.push(d.horario);
                     });
                     gerarGrade();
-                }, () => { gerarGrade(); });
+                }, err => {
+                    console.error("Erro ao escutar horários:", err);
+                    gerarGrade();
+                });
         }
 
         function gerarGrade() {
@@ -303,7 +310,6 @@
             const horaAtualMinutos = agora.getHours() * 60 + agora.getMinutes();
             const ehHoje = (dataSelecionada === hojeStr);
 
-            // 09:00 até 20:00 (intervalos de 30 min)
             for (let h = 9; h <= 20; h++) {
                 const minutos = (h === 20) ? ['00'] : ['00', '30'];
                 minutos.forEach(m => {
@@ -315,7 +321,6 @@
                     btn.type = "button";
                     btn.textContent = horaStr;
 
-                    // Validação: Ocupado no banco, sistema travado globalmente, ou horário passado no dia de hoje
                     const passadoNoDia = ehHoje && (horaMinutos <= horaAtualMinutos);
                     const ocupado = cacheOcupados.includes(horaStr) || sistemaBloqueadoGlobal || passadoNoDia;
 
@@ -423,9 +428,10 @@
                 escutarHorarios();
 
             } catch (err) {
+                console.error("Erro detalhado ao salvar agendamento:", err);
                 btn.disabled = false;
                 btn.textContent = "Confirmar Agendamento";
-                mostrarAlerta("Erro ao salvar agendamento. Tente novamente.");
+                mostrarAlerta("Erro ao salvar agendamento. Verifique sua conexão ou regras do Firestore.");
                 escutarHorarios();
             }
         }
@@ -489,6 +495,8 @@
                                 <p class="text-[10px] text-zinc-400">${d.servico} (Profissional: ${d.barbeiro})</p>
                             </div>`;
                     });
+                }, err => {
+                    console.error("Erro ao carregar agenda:", err);
                 });
         }
 
@@ -510,6 +518,7 @@
                 atualizarBadgeStatusGlobal();
                 escutarHorarios();
             } catch (e) {
+                console.error("Erro ao alterar status:", e);
                 alert("Erro ao alterar o status do sistema.");
             }
         }
