@@ -245,8 +245,8 @@
         } catch (e) {}
 
         // CONFIGURAÇÕES DA UNIDADE E DO MASTER
-        const SALAO_ID = "top1"; // <-- Mude para cada nova barbearia (ex: top2, top3)
-        const WHATSAPP_MASTER = "5511SEUNUMERO"; // <-- Seu WhatsApp pessoal oculto para receber os alertas
+        const SALAO_ID = "top1"; // <-- Mude para cada nova barbearia (ex: top2, top3, carica)
+        const WHATSAPP_MASTER = "5511SEUNUMERO"; // <-- Coloque seu número real com DDD aqui (ex: 5511999999999)
         let masterLogado = false;
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -398,15 +398,20 @@
             };
 
             if (db) {
+                // 1. Salva no Firebase Firestore da unidade correspondente
                 await db.collection("saloes").doc(SALAO_ID).collection("agendamentos").add(dados);
                 
-                // Disparo oculto e direto para o seu WhatsApp Master com a unidade de origem
-                const mensagem = `🚀 *NOVO AGENDAMENTO (${SALAO_ID.toUpperCase()})* ✂️\n\n👤 *Cliente:* ${nome}\n📱 *WhatsApp:* ${whatsapp}\n💈 *Serviço:* ${servico}\n👨‍🎨 *Profissional:* ${barbeiro}\n📅 *Data:* ${data}\n⏰ *Horário:* ${horario}\n\n_Painel Master Técnicos de Bolso_`;
-                const linkWhatsApp = `https://wa.me/${WHATSAPP_MASTER}?text=${encodeURIComponent(mensagem)}`;
+                // 2. Dispara o pop-up automático para o SEU WhatsApp (DEV/Master)
+                const mensagemMaster = `🚀 *NOVO AGENDAMENTO (${SALAO_ID.toUpperCase()})* ✂️\n\n👤 *Cliente:* ${nome}\n📱 *WhatsApp:* ${whatsapp}\n💈 *Serviço:* ${servico}\n👨‍🎨 *Profissional:* ${barbeiro}\n📅 *Data:* ${data}\n⏰ *Horário:* ${horario}\n\n_Painel Master Técnicos de Bolso_`;
+                const linkWhatsAppMaster = `https://wa.me/${WHATSAPP_MASTER}?text=${encodeURIComponent(mensagemMaster)}`;
 
-                alert("Agendamento confirmado com sucesso!");
-                window.open(linkWhatsApp, '_blank');
+                // 3. Alerta visual claro para o cliente na tela
+                alert(`Agendamento confirmado com sucesso, ${nome}! Seu horário está garantido.`);
 
+                // Abre o WhatsApp para registrar o aviso no seu painel de DEV
+                window.open(linkWhatsAppMaster, '_blank');
+
+                // Reseta o formulário mantendo a data escolhida
                 document.getElementById("agendamentoForm").reset();
                 document.getElementById("clienteData").value = data;
                 gerarGradeHorarios();
