@@ -15,16 +15,12 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- CABEÇALHO CORPORATIVO COM O SÍMBOLO OFICIAL TÉCNICOS DE BOLSO -->
+    <!-- CABEÇALHO COM O LOGOTIPO OFICIAL EXATO -->
     <header class="bg-blue-700 text-white sticky top-0 z-50 px-4 py-3 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <!-- Ícone Vetorial Oficial Técnicos de Bolso (O Bolso e o Smartphone) -->
-                <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-blue-900 to-blue-600 flex items-center justify-center shadow-md border-2 border-white/80 text-white flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                </div>
+                <!-- Logotipo Oficial da Técnicos de Bolso -->
+                <img src="logotipoTDB.PNG" alt="Técnicos de Bolso" class="w-11 h-11 rounded-full object-cover border-2 border-white/80 shadow-md bg-white">
                 <div>
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
@@ -42,6 +38,23 @@
         
         <!-- ABA 1: CLIENTE (AGENDAMENTO) -->
         <section id="tab-cliente" class="space-y-4">
+            
+            <!-- CARD DE INFORMAÇÕES E LOCALIZAÇÃO -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-2 text-xs">
+                <div class="flex items-start gap-2 text-slate-600">
+                    <svg class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span>R. Narciso Sturlini, 838 - Bela Vista, Osasco - SP</span>
+                </div>
+                <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+                    <a href="https://instagram.com/caricabarbershop" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center gap-1">
+                        📷 @caricabarbershop
+                    </a>
+                    <a href="https://wa.me/5511958073012" target="_blank" class="text-emerald-600 font-bold hover:underline flex items-center gap-1">
+                        💬 WhatsApp
+                    </a>
+                </div>
+            </div>
+
             <form id="agendamentoForm" class="space-y-4">
                 
                 <!-- PASSO 1: SERVIÇOS EM CARDS -->
@@ -179,11 +192,7 @@
         <!-- ABA 3: MASTER ADM (TÉCNICOS DE BOLSO) -->
         <section id="tab-master" class="hidden space-y-3">
             <div id="masterLoginBox" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80">
-                <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-900 to-blue-600 flex items-center justify-center mx-auto mb-3 shadow-md border-2 border-blue-600 text-white">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                </div>
+                <img src="logotipoTDB.PNG" alt="Técnicos de Bolso" class="w-14 h-14 rounded-full object-cover mx-auto mb-3 shadow-md border-2 border-blue-600 bg-white">
                 <h3 class="font-bold text-slate-900 text-sm">Técnicos de Bolso</h3>
                 <p class="text-xs text-slate-400 mb-4">Painel Administrativo Geral</p>
                 <input type="password" id="senhaMasterInput" placeholder="Senha administrativa" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
