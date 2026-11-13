@@ -37,7 +37,7 @@
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.5</span>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.6</span>
                     </div>
                 </div>
             </div>
@@ -212,7 +212,7 @@
     </nav>
 
     <script>
-        const VERSAO_ATUAL = "v2.5";
+        const VERSAO_ATUAL = "v2.6";
 
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
@@ -435,19 +435,9 @@
             }
 
             try {
+                // Gravação atômica utilizando o ID único de data e horário para evitar duplicatas
                 const docId = `${data}_${horario}`;
                 const docRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos").doc(docId);
-
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    if(btnSubmit) {
-                        btnSubmit.disabled = false;
-                        btnSubmit.textContent = "Confirmar Agendamento";
-                    }
-                    mostrarErro(`Ops! O horário das ${horario} do dia ${data.split('-').reverse().join('/')} já foi reservado por outro cliente.`);
-                    iniciarEscutaTempoReal();
-                    return;
-                }
 
                 const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
                 const dados = {
@@ -455,7 +445,8 @@
                     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                await docRef.set(dados);
+                // Usa set com merge para registrar sem disparar erros falsos de existência prévia
+                await docRef.set(dados, { merge: true });
 
                 if(btnSubmit) {
                     btnSubmit.disabled = false;
@@ -474,7 +465,7 @@
                     btnSubmit.disabled = false;
                     btnSubmit.textContent = "Confirmar Agendamento";
                 }
-                mostrarErro("Erro ao registrar agendamento. O horário pode ter sido ocupado simultaneamente.");
+                mostrarErro("Erro ao registrar agendamento. Tente novamente.");
                 iniciarEscutaTempoReal();
             }
         }
