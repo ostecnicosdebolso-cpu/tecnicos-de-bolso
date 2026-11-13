@@ -15,11 +15,23 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
 
+    <!-- TELA DE BLOQUEIO MASTER (KILL SWITCH) -->
+    <div id="telaBloqueioMaster" class="hidden fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-6 text-center text-white">
+        <img src="logotipoTDB.PNG" alt="Técnicos de Bolso" class="w-16 h-16 rounded-full object-cover border-2 border-blue-500 shadow-lg mb-4 bg-white">
+        <span class="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[11px] font-bold uppercase tracking-wider mb-3">Acesso Suspenso</span>
+        <h2 class="text-xl font-extrabold mb-2">Sistema Temporariamente Pausado</h2>
+        <p class="text-xs text-slate-300 max-w-xs leading-relaxed mb-6">
+            Esta unidade encontra-se em manutenção ou aguardando liberação administrativa. Entre em contato com o suporte técnico.
+        </p>
+        <button onclick="acessoEmergenciaMaster()" class="text-[11px] text-slate-400 underline hover:text-white transition-colors">
+            Acesso Administrativo (Técnicos de Bolso)
+        </button>
+    </div>
+
     <!-- CABEÇALHO COM O LOGOTIPO OFICIAL EXATO -->
     <header class="bg-blue-700 text-white sticky top-0 z-50 px-4 py-3 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <!-- Logotipo Oficial da Técnicos de Bolso -->
                 <img src="logotipoTDB.PNG" alt="Técnicos de Bolso" class="w-11 h-11 rounded-full object-cover border-2 border-white/80 shadow-md bg-white">
                 <div>
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
@@ -200,6 +212,17 @@
             </div>
 
             <div id="masterPainelContent" class="hidden space-y-3">
+                
+                <!-- CONTROLE MASTER DE BLOQUEIO DO SISTEMA (KILL SWITCH) -->
+                <div class="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm border-2 border-slate-800">
+                    <div>
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-600">Controle de Licença</span>
+                        <h4 class="font-bold text-slate-900 text-xs">Status Global do App</h4>
+                        <p class="text-[11px] text-slate-500">Trava todo o uso imediatamente</p>
+                    </div>
+                    <button id="toggleBloqueioMasterBtn" onclick="alternarBloqueioSistema()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all">Carregando...</button>
+                </div>
+
                 <div class="grid grid-cols-2 gap-2.5">
                     <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80">
                         <p class="text-[11px] text-slate-400 mb-1">Faturamento Estimado</p>
@@ -246,7 +269,8 @@
         } catch (e) {}
 
         const SALAO_ID = "carica";
-        const WHATSAPP_BARBEARIA = "5511958073012"; // Número oficial do Carica
+        const WHATSAPP_BARBEARIA = "5511958073012";
+        let masterLogado = false;
 
         document.addEventListener("DOMContentLoaded", () => {
             const hoje = new Date().toISOString().split('T')[0];
@@ -316,10 +340,37 @@
             document.getElementById(`nav-${aba}`).className = "flex flex-col items-center justify-center py-1 text-blue-600";
         }
 
+        function acessoEmergenciaMaster() {
+            document.getElementById("telaBloqueioMaster").classList.add("hidden");
+            mudarAba('master');
+        }
+
         function verificarStatusSalaoTempoReal() {
             if (!db) return;
             db.collection("saloes").doc(SALAO_ID).onSnapshot(doc => {
-                const aberto = doc.exists ? doc.data().aberto : true;
+                const data = doc.exists ? doc.data() : {};
+                const aberto = data.aberto !== undefined ? data.aberto : true;
+                const bloqueadoMaster = data.bloqueadoMaster === true;
+
+                // Controle da Trava Global (Kill Switch)
+                const telaBloqueio = document.getElementById("telaBloqueioMaster");
+                const btnMaster = document.getElementById("toggleBloqueioMasterBtn");
+
+                if (bloqueadoMaster) {
+                    if (!masterLogado) telaBloqueio.classList.remove("hidden");
+                    if (btnMaster) {
+                        btnMaster.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm";
+                        btnMaster.textContent = "Desbloquear App";
+                    }
+                } else {
+                    telaBloqueio.classList.add("hidden");
+                    if (btnMaster) {
+                        btnMaster.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-sm";
+                        btnMaster.textContent = "Travar App Agora";
+                    }
+                }
+
+                // Controle do Status Aberto/Fechado do Barbeiro
                 const badge = document.getElementById("statusBadge");
                 const dot = document.getElementById("statusDot");
                 const text = document.getElementById("statusText");
@@ -343,7 +394,16 @@
             if (!db) return;
             const ref = db.collection("saloes").doc(SALAO_ID);
             const doc = await ref.get();
-            await ref.set({ aberto: !(doc.exists ? doc.data().aberto : true) }, { merge: true });
+            const atual = doc.exists && doc.data().aberto !== undefined ? doc.data().aberto : true;
+            await ref.set({ aberto: !atual }, { merge: true });
+        }
+
+        async function alternarBloqueioSistema() {
+            if (!db) return;
+            const ref = db.collection("saloes").doc(SALAO_ID);
+            const doc = await ref.get();
+            const atual = doc.exists && doc.data().bloqueadoMaster === true;
+            await ref.set({ bloqueadoMaster: !atual }, { merge: true });
         }
 
         async function salvarAgendamento(e) {
@@ -365,13 +425,10 @@
             if (db) {
                 await db.collection("saloes").doc(SALAO_ID).collection("agendamentos").add(dados);
                 
-                // Monta a mensagem de pop-up via WhatsApp para o Barbeiro
                 const mensagem = `🔔 *NOVO AGENDAMENTO!* ✂️\n\n👤 *Cliente:* ${nome}\n📱 *WhatsApp:* ${whatsapp}\n💈 *Serviço:* ${servico}\n👨‍🎨 *Profissional:* ${barbeiro}\n📅 *Data:* ${data}\n⏰ *Horário:* ${horario}\n\n_Gerenciado via Técnicos de Bolso_`;
                 const linkWhatsApp = `https://wa.me/${WHATSAPP_BARBEARIA}?text=${encodeURIComponent(mensagem)}`;
 
                 alert("Agendamento confirmado com sucesso! Você será redirecionado para enviar o aviso no WhatsApp do salão.");
-                
-                // Abre o WhatsApp com o pop-up da mensagem pronta para o barbeiro
                 window.open(linkWhatsApp, '_blank');
 
                 document.getElementById("agendamentoForm").reset();
@@ -413,6 +470,7 @@
 
         function fazerLoginMaster() {
             if (document.getElementById("senhaMasterInput").value === "master123") {
+                masterLogado = true;
                 document.getElementById("masterLoginBox").classList.add("hidden");
                 document.getElementById("masterPainelContent").classList.remove("hidden");
                 carregarDadosMaster();
