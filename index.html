@@ -28,7 +28,7 @@
         </button>
     </div>
 
-    <!-- MODAL DE RECIBO DE AGENDAMENTO (SEGURANÇA PARA O CLIENTE) -->
+    <!-- MODAL DE RECIBO DE AGENDAMENTO -->
     <div id="modalRecibo" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-slate-100">
             <div class="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold bg-emerald-100 text-emerald-600">
@@ -86,7 +86,6 @@
         
         <!-- ABA 1: CLIENTE (AGENDAMENTO) -->
         <section id="tab-cliente" class="space-y-4">
-            
             <form id="agendamentoForm" class="space-y-4">
                 
                 <!-- PASSO 1: SERVIÇOS -->
@@ -415,7 +414,6 @@
             await ref.set({ bloqueadoMaster: !atual }, { merge: true });
         }
 
-        // CONTROLE DOS MODAIS DE FEEDBACK IMEDIATO (ANDROID E iOS)
         function mostrarRecibo(servico, horario, protocolo) {
             const frase = `Você tem um agendamento de ${servico} as ${horario}.`;
             document.getElementById("reciboFraseEvidencia").textContent = frase;
@@ -453,14 +451,21 @@
             if (db) {
                 const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
 
-                // 1. TRAVA ANTI-SOBREPOSIÇÃO IMEDIATA
-                const queryDuplicado = await salaoRef.where("data", "==", data).where("horario", "==", horario).get();
-                if (!queryDuplicado.empty) {
+                // VALIDAÇÃO BLINDADA: Busca todos os agendamentos da data e valida na memória (sem falhar por índices do Firebase)
+                const snapshotDia = await salaoRef.where("data", "==", data).get();
+                let horarioOcupado = false;
+                snapshotDia.forEach(doc => {
+                    if (doc.data().horario === horario) {
+                        horarioOcupado = true;
+                    }
+                });
+
+                if (horarioOcupado) {
                     mostrarErro(`O horário das ${horario} do dia ${data} já foi reservado. Por favor, escolha outro horário.`);
                     return;
                 }
 
-                // 2. GERAÇÃO DE PROTOCOLO ÚNICO
+                // GERAÇÃO DE PROTOCOLO ÚNICO
                 const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
 
                 const dados = {
@@ -468,13 +473,12 @@
                     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // 3. SALVA NO FIREBASE (IMEDIATO)
+                // SALVA NO FIREBASE COM SEGURANÇA
                 await salaoRef.add(dados);
                 
-                // 4. EXIBE O RECIBO VISUAL COM A FRASE EXata SOLICITADA PARA O CLIENTE
+                // EXIBE O RECIBO COM A FRASE EXATA
                 mostrarRecibo(servico, horario, protocolo);
 
-                // Reseta o formulário mantendo a data atual
                 document.getElementById("agendamentoForm").reset();
                 document.getElementById("clienteData").value = data;
                 gerarGradeHorarios();
