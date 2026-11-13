@@ -37,7 +37,7 @@
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.1</span>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.2</span>
                     </div>
                 </div>
             </div>
@@ -212,7 +212,7 @@
     </nav>
 
     <script>
-        const VERSAO_ATUAL = "v2.1";
+        const VERSAO_ATUAL = "v2.2";
 
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
@@ -414,7 +414,7 @@
 
             if(btnSubmit) {
                 btnSubmit.disabled = true;
-                btnSubmit.textContent = "Processando...";
+                btnSubmit.textContent = "Agendado!";
             }
 
             try {
