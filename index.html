@@ -37,7 +37,7 @@
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.2</span>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.3</span>
                     </div>
                 </div>
             </div>
@@ -212,7 +212,7 @@
     </nav>
 
     <script>
-        const VERSAO_ATUAL = "v2.2";
+        const VERSAO_ATUAL = "v2.3";
 
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
@@ -224,6 +224,7 @@
         const SALAO_ID = "carica"; 
         let masterLogado = false;
         let horariosOcupadosCache = [];
+        let unsubscribeListener = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             const badgeVersao = document.getElementById("badgeVersaoApp");
@@ -236,10 +237,14 @@
             if(dataEl) dataEl.value = hoje;
             if(filtroBarbeariaEl) filtroBarbeariaEl.value = hoje;
             
-            escutarAgendamentosTempoReal();
+            iniciarEscutaTempoReal();
             verificarComprovanteSalvo();
 
-            if(dataEl) dataEl.addEventListener("change", gerarGradeHorarios);
+            if(dataEl) {
+                dataEl.addEventListener("change", () => {
+                    iniciarEscutaTempoReal();
+                });
+            }
             
             const form = document.getElementById("agendamentoForm");
             if(form) {
@@ -259,13 +264,21 @@
             if(activeCheck) activeCheck.className = "w-3.5 h-3.5 rounded-full border-4 border-blue-600 check-dot";
         }
 
-        function escutarAgendamentosTempoReal() {
+        // ESCUTA EM TEMPO REAL ATIVA (ATUALIZA QUALQUER APARELHO INSTANTANEAMENTE)
+        function iniciarEscutaTempoReal() {
             if (!db) {
                 gerarGradeHorarios();
                 return;
             }
+
             const dataSelecionada = document.getElementById("clienteData").value;
-            db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
+
+            // Cancela escuta anterior se houver para evitar sobreposição
+            if (unsubscribeListener) {
+                unsubscribeListener();
+            }
+
+            unsubscribeListener = db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
               .where("data", "==", dataSelecionada)
               .onSnapshot(snapshot => {
                   horariosOcupadosCache = [];
@@ -305,6 +318,10 @@
                     if (jaOcupado) {
                         btn.disabled = true;
                         btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-400 cursor-not-allowed opacity-75 line-through";
+                        // Se o horário selecionado atualmente foi ocupado por outro aparelho, limpa a seleção
+                        if (horarioSelecionadoAtual === horaStr) {
+                            document.getElementById("clienteHorario").value = "";
+                        }
                     } else if (ehHoje && horaMinutos <= horaAtualMinutos) {
                         btn.disabled = true;
                         btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-100 border border-slate-200 text-slate-300 cursor-not-allowed opacity-50";
@@ -344,7 +361,7 @@
             if(navAtiva) navAtiva.className = "flex flex-col items-center justify-center py-1 text-blue-600 cursor-pointer";
 
             if(aba === 'cliente') {
-                escutarAgendamentosTempoReal();
+                iniciarEscutaTempoReal();
             }
         }
 
@@ -395,6 +412,7 @@
             e.preventDefault();
             const btnSubmit = document.getElementById("btnSubmit");
             const horario = document.getElementById("clienteHorario").value;
+            const data = document.getElementById("clienteData").value;
             
             if (!horario) {
                 mostrarErro("Por favor, selecione um horário disponível na lista antes de continuar.");
@@ -405,7 +423,6 @@
             const whatsapp = document.getElementById("clienteWhatsapp").value.trim();
             const servico = document.getElementById("clienteServico").value;
             const barbeiro = document.getElementById("clienteBarbeiro").value;
-            const data = document.getElementById("clienteData").value;
 
             if (!db) {
                 mostrarErro("Banco de dados indisponível no momento.");
@@ -419,6 +436,18 @@
 
             try {
                 const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
+
+                // Trava de segurança atômica final antes de salvar
+                const checagemDupla = await salaoRef.where("data", "==", data).where("horario", "==", horario).get();
+                if (!checagemDupla.empty) {
+                    if(btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.textContent = "Confirmar Agendamento";
+                    }
+                    mostrarErro(`Ops! O horário das ${horario} acabou de ser reservado por outro cliente. Por favor, escolha outro.`);
+                    iniciarEscutaTempoReal();
+                    return;
+                }
                 
                 const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
                 const dados = {
@@ -438,7 +467,7 @@
 
                 document.getElementById("agendamentoForm").reset();
                 document.getElementById("clienteData").value = data;
-                escutarAgendamentosTempoReal();
+                iniciarEscutaTempoReal();
 
             } catch (err) {
                 if(btnSubmit) {
