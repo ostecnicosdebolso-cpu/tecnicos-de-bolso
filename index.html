@@ -37,7 +37,7 @@
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.3</span>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.5</span>
                     </div>
                 </div>
             </div>
@@ -212,7 +212,7 @@
     </nav>
 
     <script>
-        const VERSAO_ATUAL = "v2.3";
+        const VERSAO_ATUAL = "v2.5";
 
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
@@ -264,7 +264,6 @@
             if(activeCheck) activeCheck.className = "w-3.5 h-3.5 rounded-full border-4 border-blue-600 check-dot";
         }
 
-        // ESCUTA EM TEMPO REAL ATIVA (ATUALIZA QUALQUER APARELHO INSTANTANEAMENTE)
         function iniciarEscutaTempoReal() {
             if (!db) {
                 gerarGradeHorarios();
@@ -273,7 +272,6 @@
 
             const dataSelecionada = document.getElementById("clienteData").value;
 
-            // Cancela escuta anterior se houver para evitar sobreposição
             if (unsubscribeListener) {
                 unsubscribeListener();
             }
@@ -283,7 +281,10 @@
               .onSnapshot(snapshot => {
                   horariosOcupadosCache = [];
                   snapshot.forEach(doc => {
-                      horariosOcupadosCache.push(doc.data().horario);
+                      const d = doc.data();
+                      if (d && d.horario) {
+                          horariosOcupadosCache.push(d.horario);
+                      }
                   });
                   gerarGradeHorarios();
               }, err => {
@@ -318,7 +319,6 @@
                     if (jaOcupado) {
                         btn.disabled = true;
                         btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-400 cursor-not-allowed opacity-75 line-through";
-                        // Se o horário selecionado atualmente foi ocupado por outro aparelho, limpa a seleção
                         if (horarioSelecionadoAtual === horaStr) {
                             document.getElementById("clienteHorario").value = "";
                         }
@@ -435,27 +435,27 @@
             }
 
             try {
-                const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
+                const docId = `${data}_${horario}`;
+                const docRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos").doc(docId);
 
-                // Trava de segurança atômica final antes de salvar
-                const checagemDupla = await salaoRef.where("data", "==", data).where("horario", "==", horario).get();
-                if (!checagemDupla.empty) {
+                const docSnap = await docRef.get();
+                if (docSnap.exists) {
                     if(btnSubmit) {
                         btnSubmit.disabled = false;
                         btnSubmit.textContent = "Confirmar Agendamento";
                     }
-                    mostrarErro(`Ops! O horário das ${horario} acabou de ser reservado por outro cliente. Por favor, escolha outro.`);
+                    mostrarErro(`Ops! O horário das ${horario} do dia ${data.split('-').reverse().join('/')} já foi reservado por outro cliente.`);
                     iniciarEscutaTempoReal();
                     return;
                 }
-                
+
                 const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
                 const dados = {
                     nome, whatsapp, servico, barbeiro, data, horario, protocolo,
                     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                await salaoRef.add(dados);
+                await docRef.set(dados);
 
                 if(btnSubmit) {
                     btnSubmit.disabled = false;
@@ -474,7 +474,8 @@
                     btnSubmit.disabled = false;
                     btnSubmit.textContent = "Confirmar Agendamento";
                 }
-                mostrarErro("Erro ao registrar agendamento. Tente novamente.");
+                mostrarErro("Erro ao registrar agendamento. O horário pode ter sido ocupado simultaneamente.");
+                iniciarEscutaTempoReal();
             }
         }
 
@@ -493,12 +494,15 @@
             if (!db || !container) return;
             
             db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
-              .where("data", "==", dataFiltro).orderBy("horario", "asc")
+              .where("data", "==", dataFiltro)
               .onSnapshot(snap => {
                   container.innerHTML = snap.empty ? '<p class="text-xs text-slate-400 text-center py-4">Nenhum horário agendado para esta data.</p>' : '';
-                  snap.forEach(doc => {
-                      const d = doc.data();
+                  
+                  const docsOrdenados = [];
+                  snap.forEach(doc => docsOrdenados.push(doc.data()));
+                  docsOrdenados.sort((a, b) => a.horario.localeCompare(b.horario));
 
+                  docsOrdenados.forEach(d => {
                       container.innerHTML += `
                           <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 space-y-2">
                               <div class="flex justify-between items-center">
