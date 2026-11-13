@@ -207,7 +207,7 @@
                 <h3 class="font-bold text-slate-900 text-sm">Técnicos de Bolso</h3>
                 <p class="text-xs text-slate-400 mb-4">Painel Administrativo Geral</p>
                 <input type="password" id="senhaMasterInput" placeholder="Senha administrativa (master123)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
-                <button onclick="fazerLoginMaster()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-colors">Acessar Painel</button>
+                <button onclick="fazerLoginMaster()" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-xs transition-colors">Acessar Painel</button>
             </div>
 
             <div id="masterPainelContent" class="hidden space-y-3">
@@ -392,18 +392,9 @@
 
         function verificarComprovanteSalvo() {
             const salvo = localStorage.getItem("tdb_agendamento");
-            if (salvo && db) {
+            if (salvo) {
                 const dados = JSON.parse(salvo);
-                db.collection("saloes").doc(SALAO_ID).collection("agendamentos")
-                  .where("protocolo", "==", dados.protocolo)
-                  .onSnapshot(snap => {
-                      if (!snap.empty) {
-                          const docData = snap.docs[0].data();
-                          exibirComprovanteCliente(docData.servico, docData.horario, docData.protocolo);
-                      } else {
-                          exibirComprovanteCliente(dados.servico, dados.horario, dados.protocolo);
-                      }
-                  });
+                exibirComprovanteCliente(dados.servico, dados.horario, dados.protocolo);
             }
         }
 
@@ -444,12 +435,13 @@
             if (db) {
                 if(btnSubmit) {
                     btnSubmit.disabled = true;
-                    btnSubmit.textContent = "Verificando disponibilidade...";
+                    btnSubmit.textContent = "Processando Agendamento...";
                 }
 
                 const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
 
                 try {
+                    // Validação rápida de concorrência
                     const snapshotDia = await salaoRef.where("data", "==", data).get();
                     let horarioOcupado = false;
                     
@@ -475,6 +467,7 @@
                         criadoEm: firebase.firestore.FieldValue.serverTimestamp()
                     };
 
+                    // Gravação direta e limpa
                     await salaoRef.add(dados);
                     
                     if(btnSubmit) {
@@ -494,8 +487,14 @@
                         btnSubmit.disabled = false;
                         btnSubmit.textContent = "Confirmar Agendamento";
                     }
-                    mostrarErro("Erro ao conectar com o banco de dados. Tente novamente.");
+                    mostrarErro("Erro ao salvar no banco de dados. Tente novamente.");
                 }
+            } else {
+                if(btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = "Confirmar Agendamento";
+                }
+                mostrarErro("Banco de dados não inicializado.");
             }
         }
 
@@ -531,7 +530,7 @@
                                   </div>
                                   <div class="text-right">
                                       <span class="text-[10px] font-semibold bg-white border border-slate-200 text-slate-600 px-2 py-0.5 rounded-lg block mb-1">${d.barbeiro}</span>
-                                      <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓ Agendado</span>
+                                      <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold text-[10px]">✓ Agendado / Confirmado</span>
                                   </div>
                               </div>
                           </div>`;
