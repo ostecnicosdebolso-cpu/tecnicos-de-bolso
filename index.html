@@ -46,7 +46,10 @@
             <div class="flex items-center space-x-3">
                 <div>
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
-                    <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v1.0</span>
+                    </div>
                 </div>
             </div>
             <div id="statusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30">
@@ -239,6 +242,9 @@
     </nav>
 
     <script>
+        // CONTADOR AUTOMÁTICO DE VERSÕES
+        const VERSAO_ATUAL = "v1.5"; // Atualizado automaticamente a cada melhoria estrutural
+
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
         try {
@@ -250,6 +256,10 @@
         let masterLogado = false;
 
         document.addEventListener("DOMContentLoaded", () => {
+            // Exibir versão no cabeçalho
+            const badgeVersao = document.getElementById("badgeVersaoApp");
+            if(badgeVersao) badgeVersao.textContent = VERSAO_ATUAL;
+
             const hoje = new Date().toISOString().split('T')[0];
             const dataEl = document.getElementById("clienteData");
             const filtroBarbeariaEl = document.getElementById("filtroDataBarbearia");
@@ -287,20 +297,36 @@
             grid.innerHTML = "";
             document.getElementById("clienteHorario").value = "";
 
+            const dataSelecionada = document.getElementById("clienteData").value;
+            const hojeStr = new Date().toISOString().split('T')[0];
+            const agora = new Date();
+            const horaAtualMinutos = agora.getHours() * 60 + agora.getMinutes();
+            const ehHoje = (dataSelecionada === hojeStr);
+
             for (let h = 9; h < 20; h++) {
                 ['00', '30'].forEach(m => {
-                    const hora = `${String(h).padStart(2, '0')}:${m}`;
+                    const horaMinutos = h * 60 + parseInt(m);
+                    const horaStr = `${String(h).padStart(2, '0')}:${m}`;
+                    
                     const btn = document.createElement("button");
                     btn.type = "button";
-                    btn.textContent = hora;
-                    btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all";
-                    btn.onclick = () => {
-                        document.querySelectorAll(".hora-btn").forEach(b => {
-                            b.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all";
-                        });
-                        btn.className = "hora-btn py-2 rounded-xl text-xs font-bold bg-blue-600 border border-blue-600 text-white shadow-sm transition-all";
-                        document.getElementById("clienteHorario").value = hora;
-                    };
+                    btn.textContent = horaStr;
+
+                    if (ehHoje && horaMinutos <= horaAtualMinutos) {
+                        btn.disabled = true;
+                        btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-100 border border-slate-200 text-slate-300 cursor-not-allowed opacity-50";
+                    } else {
+                        btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all";
+                        btn.onclick = () => {
+                            document.querySelectorAll(".hora-btn").forEach(b => {
+                                if(!b.disabled) {
+                                    b.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all";
+                                }
+                            });
+                            btn.className = "hora-btn py-2 rounded-xl text-xs font-bold bg-blue-600 border border-blue-600 text-white shadow-sm transition-all";
+                            document.getElementById("clienteHorario").value = horaStr;
+                        };
+                    }
                     grid.appendChild(btn);
                 });
             }
@@ -435,31 +461,21 @@
             if (db) {
                 if(btnSubmit) {
                     btnSubmit.disabled = true;
-                    btnSubmit.textContent = "Processando Agendamento...";
+                    btnSubmit.textContent = "Salvando agendamento...";
                 }
+
+                let salvoComSucesso = false;
+                const timeoutId = setTimeout(() => {
+                    if (!salvoComSucesso && btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.textContent = "Confirmar Agendamento";
+                        mostrarErro("A conexão com o servidor demorou. Verifique sua internet e tente novamente.");
+                    }
+                }, 3500);
 
                 const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
 
                 try {
-                    // Validação rápida de concorrência
-                    const snapshotDia = await salaoRef.where("data", "==", data).get();
-                    let horarioOcupado = false;
-                    
-                    snapshotDia.forEach(doc => {
-                        if (doc.data().horario === horario) {
-                            horarioOcupado = true;
-                        }
-                    });
-
-                    if (horarioOcupado) {
-                        if(btnSubmit) {
-                            btnSubmit.disabled = false;
-                            btnSubmit.textContent = "Confirmar Agendamento";
-                        }
-                        mostrarErro(`O horário das ${horario} do dia ${data} já foi reservado. Escolha outro horário.`);
-                        return;
-                    }
-
                     const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
 
                     const dados = {
@@ -467,8 +483,9 @@
                         criadoEm: firebase.firestore.FieldValue.serverTimestamp()
                     };
 
-                    // Gravação direta e limpa
                     await salaoRef.add(dados);
+                    salvoComSucesso = true;
+                    clearTimeout(timeoutId);
                     
                     if(btnSubmit) {
                         btnSubmit.disabled = false;
@@ -483,6 +500,7 @@
                     gerarGradeHorarios();
 
                 } catch (err) {
+                    clearTimeout(timeoutId);
                     if(btnSubmit) {
                         btnSubmit.disabled = false;
                         btnSubmit.textContent = "Confirmar Agendamento";
