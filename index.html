@@ -28,26 +28,6 @@
         </button>
     </div>
 
-    <!-- MODAL DE RECIBO DE AGENDAMENTO -->
-    <div id="modalRecibo" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-slate-100">
-            <div class="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold bg-emerald-100 text-emerald-600">
-                ✓
-            </div>
-            <div>
-                <h3 class="font-extrabold text-slate-900 text-base">Agendamento Confirmado!</h3>
-                <p id="reciboFraseEvidencia" class="text-xs text-slate-600 mt-2 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200 font-medium"></p>
-            </div>
-            <div class="bg-blue-50 border border-blue-100 rounded-2xl p-3">
-                <span class="text-[10px] text-blue-500 uppercase tracking-wider block font-bold">Número do Protocolo</span>
-                <span id="reciboProtocolo" class="text-sm font-mono font-extrabold text-blue-700"></span>
-            </div>
-            <button onclick="fecharModalRecibo()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-md shadow-blue-600/30">
-                Concluir / Novo Agendamento
-            </button>
-        </div>
-    </div>
-
     <!-- MODAL DE AVISO DE ERRO / HORÁRIO OCUPADO -->
     <div id="modalErro" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-slate-100">
@@ -86,6 +66,20 @@
         
         <!-- ABA 1: CLIENTE (AGENDAMENTO) -->
         <section id="tab-cliente" class="space-y-4">
+            
+            <!-- ESPAÇO VISÍVEL DO CLIENTE: COMPROVANTE ATIVO DE AGENDAMENTO -->
+            <div id="cardComprovanteCliente" class="hidden bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-4 text-white shadow-lg space-y-2 border border-blue-400/30 animate-in fade-in duration-300">
+                <div class="flex items-center justify-between">
+                    <span class="px-2 py-0.5 rounded-full bg-white/20 text-blue-100 text-[10px] font-extrabold uppercase tracking-wider">Agendamento Ativo</span>
+                    <span id="clienteProtocoloBadge" class="font-mono text-xs font-bold bg-white/10 px-2 py-0.5 rounded"></span>
+                </div>
+                <p id="clienteFraseEvidencia" class="text-xs font-semibold text-blue-50 leading-relaxed"></p>
+                <div class="pt-2 border-t border-blue-500/40 flex justify-between items-center text-[11px] text-blue-200">
+                    <span id="clienteBarbeiroInfo">Profissional: Carica</span>
+                    <button onclick="limparComprovanteLocal()" class="text-white underline hover:text-blue-100 text-[10px]">Novo Agendamento</button>
+                </div>
+            </div>
+
             <form id="agendamentoForm" class="space-y-4">
                 
                 <!-- PASSO 1: SERVIÇOS -->
@@ -171,7 +165,7 @@
                     <input type="tel" id="clienteWhatsapp" required placeholder="WhatsApp (com DDD)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600">
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/30 transition-all active:scale-[0.99] text-xs">
+                <button type="submit" id="btnSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/30 transition-all active:scale-[0.99] text-xs">
                     Confirmar Agendamento
                 </button>
             </form>
@@ -289,6 +283,7 @@
             
             gerarGradeHorarios();
             verificarStatusSalaoTempoReal();
+            verificarComprovanteSalvo(); // Verifica se já há um agendamento na memória do celular do cliente
 
             document.getElementById("clienteData").addEventListener("change", gerarGradeHorarios);
             document.getElementById("agendamentoForm").addEventListener("submit", salvarAgendamento);
@@ -414,15 +409,28 @@
             await ref.set({ bloqueadoMaster: !atual }, { merge: true });
         }
 
-        function mostrarRecibo(servico, horario, protocolo) {
+        // FUNÇÕES PARA O COMPROVANTE VISÍVEL NA TELA DO CLIENTE
+        function exibirComprovanteCliente(servico, horario, protocolo) {
             const frase = `Você tem um agendamento de ${servico} as ${horario}.`;
-            document.getElementById("reciboFraseEvidencia").textContent = frase;
-            document.getElementById("reciboProtocolo").textContent = protocolo;
-            document.getElementById("modalRecibo").classList.remove("hidden");
+            document.getElementById("clienteFraseEvidencia").textContent = frase;
+            document.getElementById("clienteProtocoloBadge").textContent = protocolo;
+            document.getElementById("cardComprovanteCliente").classList.remove("hidden");
+            
+            // Salva no localStorage do celular do cliente para persistir se ele reabrir o app
+            localStorage.setItem("tdb_agendamento", JSON.stringify({ servico, horario, protocolo }));
         }
 
-        function fecharModalRecibo() {
-            document.getElementById("modalRecibo").classList.add("hidden");
+        function verificarComprovanteSalvo() {
+            const salvo = localStorage.getItem("tdb_agendamento");
+            if (salvo) {
+                const dados = JSON.parse(salvo);
+                exibirComprovanteCliente(dados.servico, dados.horario, dados.protocolo);
+            }
+        }
+
+        function limparComprovanteLocal() {
+            localStorage.removeItem("tdb_agendamento");
+            document.getElementById("cardComprovanteCliente").classList.add("hidden");
         }
 
         function mostrarErro(mensagem) {
@@ -436,6 +444,8 @@
 
         async function salvarAgendamento(e) {
             e.preventDefault();
+            const btnSubmit = document.getElementById("btnSubmit");
+            
             const horario = document.getElementById("clienteHorario").value;
             if (!horario) {
                 mostrarErro("Por favor, selecione um horário disponível na lista antes de continuar.");
@@ -449,39 +459,57 @@
             const data = document.getElementById("clienteData").value;
 
             if (db) {
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = "Verificando disponibilidade...";
+                btnSubmit.className = "w-full bg-slate-400 text-white font-bold py-3.5 px-4 rounded-xl text-xs cursor-not-allowed";
+
                 const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
 
-                // VALIDAÇÃO BLINDADA: Busca todos os agendamentos da data e valida na memória (sem falhar por índices do Firebase)
-                const snapshotDia = await salaoRef.where("data", "==", data).get();
-                let horarioOcupado = false;
-                snapshotDia.forEach(doc => {
-                    if (doc.data().horario === horario) {
-                        horarioOcupado = true;
+                try {
+                    const snapshotDia = await salaoRef.where("data", "==", data).get();
+                    let horarioOcupado = false;
+                    
+                    snapshotDia.forEach(doc => {
+                        if (doc.data().horario === horario) {
+                            horarioOcupado = true;
+                        }
+                    });
+
+                    if (horarioOcupado) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.textContent = "Confirmar Agendamento";
+                        btnSubmit.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/30 transition-all active:scale-[0.99] text-xs";
+                        
+                        mostrarErro(`O horário das ${horario} do dia ${data} já foi reservado. Por favor, escolha outro horário.`);
+                        return;
                     }
-                });
 
-                if (horarioOcupado) {
-                    mostrarErro(`O horário das ${horario} do dia ${data} já foi reservado. Por favor, escolha outro horário.`);
-                    return;
+                    const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
+
+                    const dados = {
+                        nome, whatsapp, servico, barbeiro, data, horario, protocolo,
+                        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    await salaoRef.add(dados);
+                    
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = "Confirmar Agendamento";
+                    btnSubmit.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/30 transition-all active:scale-[0.99] text-xs";
+
+                    // EXIBE O ESPAÇO COM A FRASE EXATA DIRETO NA TELA DO CLIENTE
+                    exibirComprovanteCliente(servico, horario, protocolo);
+
+                    document.getElementById("agendamentoForm").reset();
+                    document.getElementById("clienteData").value = data;
+                    gerarGradeHorarios();
+
+                } catch (err) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = "Confirmar Agendamento";
+                    btnSubmit.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/30 transition-all active:scale-[0.99] text-xs";
+                    mostrarErro("Erro de conexão ao verificar o horário. Tente novamente.");
                 }
-
-                // GERAÇÃO DE PROTOCOLO ÚNICO
-                const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
-
-                const dados = {
-                    nome, whatsapp, servico, barbeiro, data, horario, protocolo,
-                    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                // SALVA NO FIREBASE COM SEGURANÇA
-                await salaoRef.add(dados);
-                
-                // EXIBE O RECIBO COM A FRASE EXATA
-                mostrarRecibo(servico, horario, protocolo);
-
-                document.getElementById("agendamentoForm").reset();
-                document.getElementById("clienteData").value = data;
-                gerarGradeHorarios();
             }
         }
 
