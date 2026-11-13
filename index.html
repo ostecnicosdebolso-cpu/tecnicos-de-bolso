@@ -21,7 +21,7 @@
         <p class="text-xs text-slate-300 max-w-xs leading-relaxed mb-6">
             Esta unidade encontra-se em manutenção ou aguardando liberação administrativa.
         </p>
-        <button onclick="acessoEmergenciaMaster()" class="text-[11px] text-slate-400 underline hover:text-white transition-colors">
+        <button onclick="acessoEmergenciaMaster()" class="text-[11px] text-slate-400 underline hover:text-white transition-colors cursor-pointer">
             Acesso Administrativo (Técnicos de Bolso)
         </button>
     </div>
@@ -34,7 +34,7 @@
                 <h3 class="font-extrabold text-slate-900 text-base">Atenção</h3>
                 <p id="erroMensagemTxt" class="text-xs text-slate-600 mt-2 leading-relaxed font-medium"></p>
             </div>
-            <button onclick="fecharModalErro()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-colors">
+            <button onclick="fecharModalErro()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">
                 Entendido
             </button>
         </div>
@@ -48,7 +48,7 @@
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v1.7</span>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v1.9</span>
                     </div>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                 <p id="clienteFraseEvidencia" class="text-xs font-semibold text-blue-50 leading-relaxed"></p>
                 <div class="pt-2 border-t border-blue-500/40 flex justify-between items-center text-[11px] text-blue-200">
                     <span id="clienteBarbeiroInfo">Profissional: Carica</span>
-                    <button onclick="limparComprovanteLocal()" class="text-white underline hover:text-blue-100 text-[10px]">Novo Agendamento</button>
+                    <button onclick="limparComprovanteLocal()" class="text-white underline hover:text-blue-100 text-[10px] cursor-pointer">Novo Agendamento</button>
                 </div>
             </div>
 
@@ -170,7 +170,7 @@
                     </div>
                 </div>
 
-                <button type="submit" id="btnSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/30 transition-all active:scale-[0.99] text-xs">
+                <button type="submit" id="btnSubmit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/30 transition-all active:scale-[0.99] text-xs cursor-pointer">
                     Confirmar Agendamento
                 </button>
             </form>
@@ -182,7 +182,7 @@
                 <h3 class="font-bold text-slate-900 text-sm">Painel do Gestor</h3>
                 <p class="text-xs text-slate-400 mb-4">Acesso exclusivo da barbearia.</p>
                 <input type="password" id="senhaBarbeariaInput" placeholder="Digite sua senha (1234)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
-                <button onclick="fazerLoginBarbearia()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition-colors">Entrar</button>
+                <button onclick="fazerLoginBarbearia()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Entrar</button>
             </div>
 
             <div id="barbeariaPainelContent" class="hidden space-y-3">
@@ -191,7 +191,7 @@
                         <h4 class="font-bold text-slate-900 text-xs">Status do Salão</h4>
                         <p class="text-[11px] text-slate-400">Pausar ou liberar novos horários</p>
                     </div>
-                    <button id="toggleSalaoBtn" onclick="alternarStatusSalao()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all">Carregando...</button>
+                    <button id="toggleSalaoBtn" onclick="alternarStatusSalao()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">Carregando...</button>
                 </div>
 
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
@@ -210,7 +210,7 @@
                 <h3 class="font-bold text-slate-900 text-sm">Técnicos de Bolso</h3>
                 <p class="text-xs text-slate-400 mb-4">Painel Administrativo Geral</p>
                 <input type="password" id="senhaMasterInput" placeholder="Senha administrativa (master123)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
-                <button onclick="fazerLoginMaster()" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-xs transition-colors">Acessar Painel</button>
+                <button onclick="fazerLoginMaster()" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Acessar Painel</button>
             </div>
 
             <div id="masterPainelContent" class="hidden space-y-3">
@@ -219,7 +219,7 @@
                         <h4 class="font-bold text-slate-900 text-xs">Status Global do App</h4>
                         <p class="text-[11px] text-slate-500">Trava todo o uso imediatamente</p>
                     </div>
-                    <button id="toggleBloqueioMasterBtn" onclick="alternarBloqueioSistema()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all">Carregando...</button>
+                    <button id="toggleBloqueioMasterBtn" onclick="alternarBloqueioSistema()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">Carregando...</button>
                 </div>
             </div>
         </section>
@@ -229,20 +229,20 @@
     <!-- NAVEGAÇÃO INFERIOR -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 z-50 shadow-lg">
         <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
-            <button onclick="mudarAba('cliente')" id="nav-cliente" class="flex flex-col items-center justify-center py-1 text-blue-600">
+            <button onclick="mudarAba('cliente')" id="nav-cliente" class="flex flex-col items-center justify-center py-1 text-blue-600 cursor-pointer">
                 <span class="text-[10px] font-bold">Agendar</span>
             </button>
-            <button onclick="mudarAba('barbearia')" id="nav-barbearia" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600">
+            <button onclick="mudarAba('barbearia')" id="nav-barbearia" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer">
                 <span class="text-[10px] font-semibold">Barbearia</span>
             </button>
-            <button onclick="mudarAba('master')" id="nav-master" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600">
+            <button onclick="mudarAba('master')" id="nav-master" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer">
                 <span class="text-[10px] font-semibold">Técnicos ADM</span>
             </button>
         </div>
     </nav>
 
     <script>
-        const VERSAO_ATUAL = "v1.7";
+        const VERSAO_ATUAL = "v1.9";
 
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
@@ -314,14 +314,14 @@
                         btn.disabled = true;
                         btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-100 border border-slate-200 text-slate-300 cursor-not-allowed opacity-50";
                     } else {
-                        btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all";
+                        btn.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all cursor-pointer";
                         btn.onclick = () => {
                             document.querySelectorAll(".hora-btn").forEach(b => {
                                 if(!b.disabled) {
-                                    b.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all";
+                                    b.className = "hora-btn py-2 rounded-xl text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 hover:border-blue-400 transition-all cursor-pointer";
                                 }
                             });
-                            btn.className = "hora-btn py-2 rounded-xl text-xs font-bold bg-blue-600 border border-blue-600 text-white shadow-sm transition-all";
+                            btn.className = "hora-btn py-2 rounded-xl text-xs font-bold bg-blue-600 border border-blue-600 text-white shadow-sm transition-all cursor-pointer";
                             document.getElementById("clienteHorario").value = horaStr;
                         };
                     }
@@ -335,12 +335,12 @@
                 const el = document.getElementById(`tab-${a}`);
                 const nav = document.getElementById(`nav-${a}`);
                 if(el) el.classList.add('hidden');
-                if(nav) nav.className = "flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600";
+                if(nav) nav.className = "flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer";
             });
             const tabAtiva = document.getElementById(`tab-${aba}`);
             const navAtiva = document.getElementById(`nav-${aba}`);
             if(tabAtiva) tabAtiva.classList.remove('hidden');
-            if(navAtiva) navAtiva.className = "flex flex-col items-center justify-center py-1 text-blue-600";
+            if(navAtiva) navAtiva.className = "flex flex-col items-center justify-center py-1 text-blue-600 cursor-pointer";
         }
 
         function acessoEmergenciaMaster() {
@@ -349,7 +349,10 @@
         }
 
         function verificarStatusSalaoTempoReal() {
-            if (!db) return;
+            if (!db) {
+                configurarBotoesFallback(true, false);
+                return;
+            }
             db.collection("saloes").doc(SALAO_ID).onSnapshot(doc => {
                 const data = doc.exists ? doc.data() : {};
                 const aberto = data.aberto !== undefined ? data.aberto : true;
@@ -362,56 +365,64 @@
                     if(telaBloqueio) telaBloqueio.classList.add("hidden");
                 }
 
-                const text = document.getElementById("statusText");
-                const badge = document.getElementById("statusBadge");
-                const dot = document.getElementById("statusDot");
-                const btn = document.getElementById("toggleSalaoBtn");
-                const btnMaster = document.getElementById("toggleBloqueioMasterBtn");
-
-                if (aberto) {
-                    if(text) text.textContent = "Aberto";
-                    if(badge) badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30";
-                    if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-                    if(btn) { btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200 transition-all"; btn.textContent = "Fechar Salão"; }
-                } else {
-                    if(text) text.textContent = "Fechado";
-                    if(badge) badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-rose-500/20 text-rose-100 border border-rose-400/30";
-                    if(dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
-                    if(btn) { btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200 transition-all"; btn.textContent = "Abrir Salão"; }
-                }
-
-                if(btnMaster) {
-                    if(bloqueadoMaster) {
-                        btnMaster.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition-all";
-                        btnMaster.textContent = "Desbloquear App";
-                    } else {
-                        btnMaster.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-sm transition-all";
-                        btnMaster.textContent = "Travar App Agora";
-                    }
-                }
+                configurarBotoesFallback(aberto, bloqueadoMaster);
             }, err => {
-                const btnMaster = document.getElementById("toggleBloqueioMasterBtn");
-                if(btnMaster) {
-                    btnMaster.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-sm transition-all";
+                configurarBotoesFallback(true, false);
+            });
+        }
+
+        function configurarBotoesFallback(aberto, bloqueadoMaster) {
+            const text = document.getElementById("statusText");
+            const badge = document.getElementById("statusBadge");
+            const dot = document.getElementById("statusDot");
+            const btn = document.getElementById("toggleSalaoBtn");
+            const btnMaster = document.getElementById("toggleBloqueioMasterBtn");
+
+            if (aberto) {
+                if(text) text.textContent = "Aberto";
+                if(badge) badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30";
+                if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+                if(btn) { btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200 transition-all cursor-pointer"; btn.textContent = "Fechar Salão"; }
+            } else {
+                if(text) text.textContent = "Fechado";
+                if(badge) badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-rose-500/20 text-rose-100 border border-rose-400/30";
+                if(dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
+                if(btn) { btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200 transition-all cursor-pointer"; btn.textContent = "Abrir Salão"; }
+            }
+
+            if(btnMaster) {
+                if(bloqueadoMaster) {
+                    btnMaster.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition-all cursor-pointer";
+                    btnMaster.textContent = "Desbloquear App";
+                } else {
+                    btnMaster.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-sm transition-all cursor-pointer";
                     btnMaster.textContent = "Travar App Agora";
                 }
-            });
+            }
         }
 
         async function alternarStatusSalao() {
             if (!db) return;
-            const ref = db.collection("saloes").doc(SALAO_ID);
-            const doc = await ref.get();
-            const atual = doc.exists && doc.data().aberto !== undefined ? doc.data().aberto : true;
-            await ref.set({ aberto: !atual }, { merge: true });
+            try {
+                const ref = db.collection("saloes").doc(SALAO_ID);
+                const doc = await ref.get();
+                const atual = doc.exists && doc.data().aberto !== undefined ? doc.data().aberto : true;
+                await ref.set({ aberto: !atual }, { merge: true });
+            } catch (e) {
+                mostrarErro("Erro ao alterar status do salão.");
+            }
         }
 
         async function alternarBloqueioSistema() {
             if (!db) return;
-            const ref = db.collection("saloes").doc(SALAO_ID);
-            const doc = await ref.get();
-            const atual = doc.exists && doc.data().bloqueadoMaster === true;
-            await ref.set({ bloqueadoMaster: !atual }, { merge: true });
+            try {
+                const ref = db.collection("saloes").doc(SALAO_ID);
+                const doc = await ref.get();
+                const atual = doc.exists && doc.data().bloqueadoMaster === true;
+                await ref.set({ bloqueadoMaster: !atual }, { merge: true });
+            } catch (e) {
+                mostrarErro("Erro ao alterar bloqueio global.");
+            }
         }
 
         function exibirComprovanteCliente(servico, horario, protocolo) {
@@ -428,8 +439,14 @@
         function verificarComprovanteSalvo() {
             const salvo = localStorage.getItem("tdb_agendamento");
             if (salvo) {
-                const dados = JSON.parse(salvo);
-                exibirComprovanteCliente(dados.servico, dados.horario, dados.protocolo);
+                try {
+                    const dados = JSON.parse(salvo);
+                    if(dados && dados.horario) {
+                        exibirComprovanteCliente(dados.servico, dados.horario, dados.protocolo);
+                    }
+                } catch(e) {
+                    localStorage.removeItem("tdb_agendamento");
+                }
             }
         }
 
@@ -467,61 +484,59 @@
             const barbeiro = document.getElementById("clienteBarbeiro").value;
             const data = document.getElementById("clienteData").value;
 
-            if (db) {
-                if(btnSubmit) {
-                    btnSubmit.disabled = true;
-                    btnSubmit.textContent = "Verificando disponibilidade...";
-                }
+            if (!db) {
+                mostrarErro("Banco de dados indisponível no momento.");
+                return;
+            }
 
+            if(btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = "Processando...";
+            }
+
+            let concluido = false;
+            const timerSeguranca = setTimeout(() => {
+                if (!concluido && btnSubmit) {
+                    concluido = true;
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = "Confirmar Agendamento";
+                    mostrarErro("A operação demorou muito. Verifique sua conexão e tente novamente.");
+                }
+            }, 4000);
+
+            try {
                 const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
+                
+                const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
+                const dados = {
+                    nome, whatsapp, servico, barbeiro, data, horario, protocolo,
+                    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+                };
 
-                try {
-                    // Trava de segurança anti-sobreposição: verifica se já existe agendamento neste dia e horário
-                    const queryExistente = await salaoRef.where("data", "==", data).where("horario", "==", horario).get();
-                    
-                    if (!queryExistente.empty) {
-                        if(btnSubmit) {
-                            btnSubmit.disabled = false;
-                            btnSubmit.textContent = "Confirmar Agendamento";
-                        }
-                        mostrarErro(`O horário das ${horario} já foi reservado por outro cliente. Por favor, escolha outro horário.`);
-                        return;
-                    }
+                await salaoRef.add(dados);
+                concluido = true;
+                clearTimeout(timerSeguranca);
 
-                    const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
-
-                    const dados = {
-                        nome, whatsapp, servico, barbeiro, data, horario, protocolo,
-                        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-
-                    await salaoRef.add(dados);
-                    
-                    if(btnSubmit) {
-                        btnSubmit.disabled = false;
-                        btnSubmit.textContent = "Confirmar Agendamento";
-                    }
-
-                    localStorage.setItem("tdb_agendamento", JSON.stringify({ servico, horario, protocolo }));
-                    exibirComprovanteCliente(servico, horario, protocolo);
-
-                    document.getElementById("agendamentoForm").reset();
-                    document.getElementById("clienteData").value = data;
-                    gerarGradeHorarios();
-
-                } catch (err) {
-                    if(btnSubmit) {
-                        btnSubmit.disabled = false;
-                        btnSubmit.textContent = "Confirmar Agendamento";
-                    }
-                    mostrarErro("Erro ao salvar no banco de dados. Tente novamente.");
-                }
-            } else {
                 if(btnSubmit) {
                     btnSubmit.disabled = false;
                     btnSubmit.textContent = "Confirmar Agendamento";
                 }
-                mostrarErro("Banco de dados não inicializado.");
+
+                localStorage.setItem("tdb_agendamento", JSON.stringify({ servico, horario, protocolo }));
+                exibirComprovanteCliente(servico, horario, protocolo);
+
+                document.getElementById("agendamentoForm").reset();
+                document.getElementById("clienteData").value = data;
+                gerarGradeHorarios();
+
+            } catch (err) {
+                concluido = true;
+                clearTimeout(timerSeguranca);
+                if(btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = "Confirmar Agendamento";
+                }
+                mostrarErro("Erro ao registrar agendamento. Tente novamente.");
             }
         }
 
