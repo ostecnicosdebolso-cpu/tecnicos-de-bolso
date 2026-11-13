@@ -37,7 +37,7 @@
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.6</span>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.8</span>
                     </div>
                 </div>
             </div>
@@ -182,8 +182,8 @@
             <div id="masterLoginBox" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80">
                 <h3 class="font-bold text-slate-900 text-sm">Técnicos de Bolso</h3>
                 <p class="text-xs text-slate-400 mb-4">Painel Administrativo Geral</p>
-                <input type="password" id="senhaMasterInput" placeholder="Senha administrativa (master123)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
-                <button onclick="fazerLoginMaster()" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Acessar Painel</button>
+                <input type="password" id="senhaMasterInput" placeholder="Senha administrativa (master123)" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">
+                <button onclick="fazerLoginMaster()" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer mt-2">Acessar Painel</button>
             </div>
 
             <div id="masterPainelContent" class="hidden space-y-3">
@@ -212,7 +212,7 @@
     </nav>
 
     <script>
-        const VERSAO_ATUAL = "v2.6";
+        const VERSAO_ATUAL = "v2.8";
 
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
@@ -435,18 +435,25 @@
             }
 
             try {
-                // Gravação atômica utilizando o ID único de data e horário para evitar duplicatas
-                const docId = `${data}_${horario}`;
-                const docRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos").doc(docId);
+                if (horariosOcupadosCache.includes(horario)) {
+                    if(btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.textContent = "Confirmar Agendamento";
+                    }
+                    mostrarErro(`O horário das ${horario} acabou de ser ocupado. Escolha outro horário.`);
+                    iniciarEscutaTempoReal();
+                    return;
+                }
 
+                const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
                 const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
+                
                 const dados = {
                     nome, whatsapp, servico, barbeiro, data, horario, protocolo,
                     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Usa set com merge para registrar sem disparar erros falsos de existência prévia
-                await docRef.set(dados, { merge: true });
+                await salaoRef.add(dados);
 
                 if(btnSubmit) {
                     btnSubmit.disabled = false;
