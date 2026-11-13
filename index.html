@@ -15,17 +15,6 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- TELA DE BLOQUEIO MASTER (KILL SWITCH) -->
-    <div id="telaBloqueioMaster" class="hidden fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-6 text-center text-white">
-        <h2 class="text-xl font-extrabold mb-2">Sistema Temporariamente Pausado</h2>
-        <p class="text-xs text-slate-300 max-w-xs leading-relaxed mb-6">
-            Esta unidade encontra-se em manutenção ou aguardando liberação administrativa.
-        </p>
-        <button onclick="acessoEmergenciaMaster()" class="text-[11px] text-slate-400 underline hover:text-white transition-colors cursor-pointer">
-            Acesso Administrativo (Técnicos de Bolso)
-        </button>
-    </div>
-
     <!-- MODAL DE ERRO -->
     <div id="modalErro" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-slate-100">
@@ -48,13 +37,13 @@
                     <h1 class="font-bold text-sm leading-tight tracking-tight">Carica Barber Shop</h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <p class="text-[10px] text-blue-200 font-semibold tracking-wider uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v1.9</span>
+                        <span id="badgeVersaoApp" class="bg-blue-800/80 text-blue-100 text-[9px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">v2.0</span>
                     </div>
                 </div>
             </div>
             <div id="statusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" id="statusDot"></span>
-                <span id="statusText">Aberto</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Aberto</span>
             </div>
         </div>
     </header>
@@ -186,14 +175,6 @@
             </div>
 
             <div id="barbeariaPainelContent" class="hidden space-y-3">
-                <div class="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm border border-slate-200/80">
-                    <div>
-                        <h4 class="font-bold text-slate-900 text-xs">Status do Salão</h4>
-                        <p class="text-[11px] text-slate-400">Pausar ou liberar novos horários</p>
-                    </div>
-                    <button id="toggleSalaoBtn" onclick="alternarStatusSalao()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">Carregando...</button>
-                </div>
-
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
                     <div class="flex justify-between items-center mb-3">
                         <h4 class="font-bold text-slate-900 text-xs">Agenda do Dia & Contatos</h4>
@@ -214,12 +195,9 @@
             </div>
 
             <div id="masterPainelContent" class="hidden space-y-3">
-                <div class="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm border-2 border-slate-800">
-                    <div>
-                        <h4 class="font-bold text-slate-900 text-xs">Status Global do App</h4>
-                        <p class="text-[11px] text-slate-500">Trava todo o uso imediatamente</p>
-                    </div>
-                    <button id="toggleBloqueioMasterBtn" onclick="alternarBloqueioSistema()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">Carregando...</button>
+                <div class="bg-white rounded-2xl p-4 text-center shadow-sm border-2 border-slate-800">
+                    <h4 class="font-bold text-slate-900 text-xs mb-1">Painel Master Operacional</h4>
+                    <p class="text-[11px] text-slate-500">Unidade Carica Barber Shop ativa e operando normalmente.</p>
                 </div>
             </div>
         </section>
@@ -242,7 +220,7 @@
     </nav>
 
     <script>
-        const VERSAO_ATUAL = "v1.9";
+        const VERSAO_ATUAL = "v2.0";
 
         const firebaseConfig = { projectId: "tecnicos-de-bolso-db" };
         let db = null;
@@ -266,7 +244,6 @@
             if(filtroBarbeariaEl) filtroBarbeariaEl.value = hoje;
             
             gerarGradeHorarios();
-            verificarStatusSalaoTempoReal();
             verificarComprovanteSalvo();
 
             if(dataEl) dataEl.addEventListener("change", gerarGradeHorarios);
@@ -341,88 +318,6 @@
             const navAtiva = document.getElementById(`nav-${aba}`);
             if(tabAtiva) tabAtiva.classList.remove('hidden');
             if(navAtiva) navAtiva.className = "flex flex-col items-center justify-center py-1 text-blue-600 cursor-pointer";
-        }
-
-        function acessoEmergenciaMaster() {
-            document.getElementById("telaBloqueioMaster").classList.add("hidden");
-            mudarAba('master');
-        }
-
-        function verificarStatusSalaoTempoReal() {
-            if (!db) {
-                configurarBotoesFallback(true, false);
-                return;
-            }
-            db.collection("saloes").doc(SALAO_ID).onSnapshot(doc => {
-                const data = doc.exists ? doc.data() : {};
-                const aberto = data.aberto !== undefined ? data.aberto : true;
-                const bloqueadoMaster = data.bloqueadoMaster === true;
-
-                const telaBloqueio = document.getElementById("telaBloqueioMaster");
-                if (bloqueadoMaster && !masterLogado) {
-                    if(telaBloqueio) telaBloqueio.classList.remove("hidden");
-                } else {
-                    if(telaBloqueio) telaBloqueio.classList.add("hidden");
-                }
-
-                configurarBotoesFallback(aberto, bloqueadoMaster);
-            }, err => {
-                configurarBotoesFallback(true, false);
-            });
-        }
-
-        function configurarBotoesFallback(aberto, bloqueadoMaster) {
-            const text = document.getElementById("statusText");
-            const badge = document.getElementById("statusBadge");
-            const dot = document.getElementById("statusDot");
-            const btn = document.getElementById("toggleSalaoBtn");
-            const btnMaster = document.getElementById("toggleBloqueioMasterBtn");
-
-            if (aberto) {
-                if(text) text.textContent = "Aberto";
-                if(badge) badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30";
-                if(dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-                if(btn) { btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200 transition-all cursor-pointer"; btn.textContent = "Fechar Salão"; }
-            } else {
-                if(text) text.textContent = "Fechado";
-                if(badge) badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-rose-500/20 text-rose-100 border border-rose-400/30";
-                if(dot) dot.className = "w-2 h-2 rounded-full bg-rose-400";
-                if(btn) { btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200 transition-all cursor-pointer"; btn.textContent = "Abrir Salão"; }
-            }
-
-            if(btnMaster) {
-                if(bloqueadoMaster) {
-                    btnMaster.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm transition-all cursor-pointer";
-                    btnMaster.textContent = "Desbloquear App";
-                } else {
-                    btnMaster.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-sm transition-all cursor-pointer";
-                    btnMaster.textContent = "Travar App Agora";
-                }
-            }
-        }
-
-        async function alternarStatusSalao() {
-            if (!db) return;
-            try {
-                const ref = db.collection("saloes").doc(SALAO_ID);
-                const doc = await ref.get();
-                const atual = doc.exists && doc.data().aberto !== undefined ? doc.data().aberto : true;
-                await ref.set({ aberto: !atual }, { merge: true });
-            } catch (e) {
-                mostrarErro("Erro ao alterar status do salão.");
-            }
-        }
-
-        async function alternarBloqueioSistema() {
-            if (!db) return;
-            try {
-                const ref = db.collection("saloes").doc(SALAO_ID);
-                const doc = await ref.get();
-                const atual = doc.exists && doc.data().bloqueadoMaster === true;
-                await ref.set({ bloqueadoMaster: !atual }, { merge: true });
-            } catch (e) {
-                mostrarErro("Erro ao alterar bloqueio global.");
-            }
         }
 
         function exibirComprovanteCliente(servico, horario, protocolo) {
