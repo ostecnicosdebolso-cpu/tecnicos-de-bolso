@@ -1,527 +1,348 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Carica Barber Shop - Técnicos de Bolso</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f2225">
+<title>Carica Barber Shop - Técnicos de Bolso</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+  input,select{font-size:16px} /* evita zoom automático no iPhone */
+  .field{width:100%;background:#1f2225;border:1px solid #454a50;border-radius:.75rem;padding:.7rem .85rem;color:#e8eaec;outline:none}
+  .field:focus{border-color:#aeb4ba}
+  .field::placeholder{color:#7d848b}
+  fieldset:disabled{opacity:.4}
+  #dias{scrollbar-width:none}#dias::-webkit-scrollbar{display:none}
+  header{padding-top:env(safe-area-inset-top)}
+</style>
 </head>
-<body class="bg-zinc-900 text-zinc-100 min-h-screen flex flex-col justify-between selection:bg-zinc-700">
+<body class="bg-[#2a2d31] text-[#e8eaec] min-h-screen">
 
-    <!-- MODAL DE ALERTA -->
-    <div id="modalAlerta" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
-            <div id="modalIcone" class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl font-bold bg-zinc-800 text-zinc-300">!</div>
-            <div>
-                <h3 id="modalTitulo" class="font-bold text-zinc-100 text-sm">Atenção</h3>
-                <p id="modalMensagemTxt" class="text-xs text-zinc-400 mt-2 leading-relaxed"></p>
-            </div>
-            <button onclick="fecharModalAlerta()" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">
-                Entendido
-            </button>
-        </div>
+<!-- Modal de aviso -->
+<div id="modal" class="hidden fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-5">
+  <div class="bg-[#35393e] border border-[#454a50] rounded-2xl max-w-sm w-full p-6 text-center space-y-4">
+    <p id="modalTxt" class="text-sm leading-relaxed"></p>
+    <button data-act="fechar" class="w-full bg-[#e8eaec] text-[#1f2225] font-bold rounded-xl py-3">Entendi</button>
+  </div>
+</div>
+
+<header class="sticky top-0 z-50 bg-[#1f2225] border-b border-[#3a3f44]">
+  <div class="max-w-md mx-auto px-4 py-3 grid grid-cols-3 gap-1 bg-transparent">
+    <button data-tab="cliente" class="tabbtn py-2.5 rounded-lg text-sm">Cliente</button>
+    <button data-tab="barbearia" class="tabbtn py-2.5 rounded-lg text-sm">Barbearia</button>
+    <button data-tab="admin" class="tabbtn py-2.5 rounded-lg text-sm">Administrador</button>
+  </div>
+</header>
+
+<main class="max-w-md mx-auto px-4 pt-6 pb-16">
+
+  <!-- CLIENTE -->
+  <section id="tab-cliente" class="space-y-5">
+    <div>
+      <h1 class="text-2xl font-extrabold leading-tight">Carica Barber Shop</h1>
+      <p class="text-xs text-[#9aa1a8] mt-0.5">Técnicos de Bolso</p>
     </div>
 
-    <!-- CABEÇALHO / NAVEGAÇÃO SUPERIOR -->
-    <header class="bg-zinc-950 border-b border-zinc-800 sticky top-0 z-50 px-4 py-3">
-        <div class="max-w-md mx-auto space-y-3">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="font-extrabold text-sm tracking-tight text-white">Carica Barber Shop</h1>
-                    <div class="flex items-center gap-2 mt-0.5">
-                        <p class="text-[10px] text-zinc-400 font-medium tracking-wide uppercase">Técnicos de Bolso</p>
-                        <span id="badgeVersaoApp" class="bg-zinc-800 text-zinc-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-zinc-700">v3.2</span>
-                    </div>
-                </div>
-                <div id="statusSistemaBadge" class="px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span id="txtStatusSistema">Sistema Operacional</span>
-                </div>
-            </div>
+    <div id="aviso" class="hidden bg-[#4a2a2e] border border-[#7a3a41] text-[#f3c9cd] rounded-xl p-3 text-sm text-center">
+      Os agendamentos estão temporariamente indisponíveis.
+    </div>
 
-            <!-- OPÇÕES SUPERIORES: Cliente | Barbearia | Administrador -->
-            <div class="grid grid-cols-3 gap-1 bg-zinc-900 p-1 rounded-xl border border-zinc-800">
-                <button onclick="mudarAba('cliente')" id="nav-cliente" class="py-2 text-center text-xs font-bold rounded-lg transition-all bg-zinc-800 text-white shadow-sm cursor-pointer">Cliente</button>
-                <button onclick="mudarAba('barbearia')" id="nav-barbearia" class="py-2 text-center text-xs font-medium rounded-lg transition-all text-zinc-400 hover:text-zinc-200 cursor-pointer">Barbearia</button>
-                <button onclick="mudarAba('master')" id="nav-master" class="py-2 text-center text-xs font-medium rounded-lg transition-all text-zinc-400 hover:text-zinc-200 cursor-pointer">Administrador</button>
-            </div>
+    <div id="comprovante" class="hidden bg-[#35393e] border border-[#454a50] rounded-2xl p-4 space-y-2">
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-xs font-bold text-[#8fd3ae]">Agendamento confirmado</span>
+        <span id="protocolo" class="font-mono text-xs text-[#aeb4ba]"></span>
+      </div>
+      <p id="comprovanteTxt" class="text-sm"></p>
+      <button data-act="novo" class="text-xs underline text-[#aeb4ba]">Fazer novo agendamento</button>
+    </div>
+
+    <form id="form">
+      <fieldset id="fs" class="space-y-5">
+        <div>
+          <p class="text-sm font-semibold mb-2">Data</p>
+          <div id="dias" class="flex gap-2 overflow-x-auto -mx-4 px-4"></div>
         </div>
-    </header>
 
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main class="max-w-md w-full mx-auto p-4 flex-1 pb-24 space-y-4">
-        
-        <!-- ================= ABA CLIENTE ================= -->
-        <section id="tab-cliente" class="space-y-4">
-            
-            <!-- COMPROVANTE DO CLIENTE -->
-            <div id="cardComprovante" class="hidden bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-zinc-100 shadow-xl space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-extrabold uppercase tracking-wider border border-emerald-500/20">✓ Agendado com Sucesso</span>
-                    <span id="badgeProtocolo" class="font-mono text-xs font-bold text-zinc-400 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800"></span>
-                </div>
-                <p id="textoComprovante" class="text-xs font-medium text-zinc-300 leading-relaxed"></p>
-                <div class="pt-2 border-t border-zinc-800 flex justify-between items-center text-[11px] text-zinc-400">
-                    <span>Profissional: <b>Carica</b></span>
-                    <button onclick="limparComprovante()" class="text-zinc-200 underline hover:text-white text-[10px] cursor-pointer">Novo Agendamento</button>
-                </div>
-            </div>
+        <div>
+          <p class="text-sm font-semibold mb-2">Horário</p>
+          <div id="horas" class="grid grid-cols-4 gap-2"></div>
+          <p id="semHoras" class="hidden text-sm text-[#9aa1a8] mt-2">Sem horários livres neste dia. Escolha outra data.</p>
+        </div>
 
-            <form id="formAgendamento" class="space-y-4">
-                
-                <!-- DATA E HORA -->
-                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-sm">
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <div>
-                            <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Profissional</label>
-                            <select id="inputBarbeiro" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs font-medium text-zinc-200 focus:outline-none focus:border-zinc-600">
-                                <option value="Carica">Carica</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Data</label>
-                            <input type="date" id="inputData" onchange="escutarHorarios()" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs font-medium text-zinc-200 focus:outline-none focus:border-zinc-600">
-                        </div>
-                    </div>
+        <div>
+          <label for="prof" class="text-sm font-semibold block mb-2">Profissional</label>
+          <select id="prof" class="field"></select>
+        </div>
 
-                    <div>
-                        <label class="block text-[11px] font-semibold text-zinc-400 mb-2">Horários Disponíveis (09:00 às 20:00)</label>
-                        <input type="hidden" id="inputHorario" required>
-                        <div id="gridHorarios" class="grid grid-cols-4 gap-1.5 max-h-44 overflow-y-auto pr-1"></div>
-                    </div>
-                </div>
+        <div>
+          <p class="text-sm font-semibold mb-2">Serviço</p>
+          <div id="servicos" class="rounded-xl border border-[#454a50] divide-y divide-[#3a3f44] overflow-hidden"></div>
+        </div>
 
-                <!-- SERVIÇOS -->
-                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-sm">
-                    <label class="block text-xs font-bold text-zinc-400 uppercase tracking-wider">Serviços</label>
-                    <input type="hidden" id="inputServico" value="Corte" required>
-                    
-                    <div class="space-y-2">
-                        <div onclick="selecionarServico('Corte', this)" class="servico-item cursor-pointer bg-zinc-950 border-2 border-zinc-200 rounded-xl p-3 transition-all flex justify-between items-center">
-                            <div>
-                                <span class="font-bold text-xs text-zinc-200">Corte</span>
-                            </div>
-                            <span class="text-zinc-100 font-extrabold text-xs">R$ 45</span>
-                        </div>
+        <div class="space-y-2.5">
+          <p class="text-sm font-semibold">Seus dados</p>
+          <input id="nome" class="field" placeholder="Nome" autocomplete="name" required>
+          <input id="fone" class="field" placeholder="Telefone / WhatsApp com DDD" inputmode="tel" autocomplete="tel" required>
+        </div>
 
-                        <div onclick="selecionarServico('Barba', this)" class="servico-item cursor-pointer bg-zinc-950 border border-zinc-800 rounded-xl p-3 transition-all flex justify-between items-center hover:border-zinc-700">
-                            <div>
-                                <span class="font-bold text-xs text-zinc-200">Barba</span>
-                            </div>
-                            <span class="text-zinc-100 font-extrabold text-xs">R$ 45</span>
-                        </div>
+        <button class="w-full bg-[#e8eaec] text-[#1f2225] font-extrabold rounded-xl py-3.5 active:scale-[.99] transition">Agendar</button>
+      </fieldset>
+    </form>
+  </section>
 
-                        <div onclick="selecionarServico('Corte Criança', this)" class="servico-item cursor-pointer bg-zinc-950 border border-zinc-800 rounded-xl p-3 transition-all flex justify-between items-center hover:border-zinc-700">
-                            <div>
-                                <span class="font-bold text-xs text-zinc-200">Corte Criança</span>
-                            </div>
-                            <span class="text-zinc-100 font-extrabold text-xs">R$ 40</span>
-                        </div>
+  <!-- BARBEARIA -->
+  <section id="tab-barbearia" class="hidden space-y-4">
+    <div data-login="barbearia" class="bg-[#35393e] border border-[#454a50] rounded-2xl p-5 space-y-3 text-center">
+      <h2 class="font-bold">Agenda da barbearia</h2>
+      <p class="text-sm text-[#9aa1a8]">Acesso restrito. Digite a senha.</p>
+      <input type="password" class="field text-center" placeholder="Senha" data-pass>
+      <button data-act="login" data-role="barbearia" class="w-full bg-[#e8eaec] text-[#1f2225] font-bold rounded-xl py-3">Entrar</button>
+    </div>
+    <div data-panel="barbearia" class="hidden space-y-3">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="font-bold">Agendamentos</h2>
+        <input id="dataAgenda" type="date" class="field !w-auto !py-2">
+      </div>
+      <div id="listaAgenda" class="space-y-2"></div>
+    </div>
+  </section>
 
-                        <div onclick="selecionarServico('Combo', this)" class="servico-item cursor-pointer bg-zinc-950 border border-zinc-800 rounded-xl p-3 transition-all flex justify-between items-center hover:border-zinc-700">
-                            <div>
-                                <span class="font-bold text-xs text-zinc-200 block">Combo</span>
-                                <span class="text-[10px] text-zinc-400 font-medium">Inclui: Corte, Barba + Sobrancelha</span>
-                            </div>
-                            <span class="text-zinc-100 font-extrabold text-xs">R$ 90</span>
-                        </div>
-                    </div>
-                </div>
+  <!-- ADMINISTRADOR -->
+  <section id="tab-admin" class="hidden space-y-4">
+    <div data-login="admin" class="bg-[#35393e] border border-[#454a50] rounded-2xl p-5 space-y-3 text-center">
+      <h2 class="font-bold">Administrador</h2>
+      <p class="text-sm text-[#9aa1a8]">Acesso restrito. Digite a senha.</p>
+      <input type="password" class="field text-center" placeholder="Senha" data-pass>
+      <button data-act="login" data-role="admin" class="w-full bg-[#e8eaec] text-[#1f2225] font-bold rounded-xl py-3">Entrar</button>
+    </div>
+    <div data-panel="admin" class="hidden space-y-4">
+      <div class="bg-[#35393e] border border-[#454a50] rounded-2xl p-5 space-y-4">
+        <div class="flex items-center gap-3">
+          <span id="ponto" class="w-3 h-3 rounded-full bg-[#5fd39a]"></span>
+          <p id="statusSistema" class="font-bold">Sistema em operação</p>
+        </div>
+        <p id="statusConexao" class="text-xs text-[#9aa1a8]">Conectando ao banco de dados…</p>
+        <div class="pt-4 border-t border-[#454a50] space-y-2">
+          <p class="text-sm font-semibold">Travamento integral</p>
+          <p class="text-xs text-[#9aa1a8]">Bloqueia novos agendamentos em todos os aparelhos.</p>
+          <button id="btnTrava" data-act="trava" class="w-full font-bold rounded-xl py-3 border border-[#7a3a41] text-[#f3c9cd]">Travar sistema</button>
+        </div>
+      </div>
+      <button data-act="logout" data-role="admin" class="text-sm text-[#9aa1a8] underline">Sair</button>
+    </div>
+  </section>
+</main>
 
-                <!-- SEUS DADOS -->
-                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-2.5 shadow-sm">
-                    <label class="block text-xs font-bold text-zinc-400 uppercase tracking-wider">Seus Dados</label>
-                    <input type="text" id="inputNome" required placeholder="Seu Nome Completo" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-3 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600">
-                    <input type="tel" id="inputWhatsapp" required placeholder="WhatsApp (com DDD)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-3 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600">
-                </div>
+<script type="module">
+/* ========= CONFIGURAÇÃO ========= */
+const firebaseConfig = {
+  apiKey: "AIzaSyBfGd4a0_b3soNJTxL1FCa8JAMLxIxJyYg",
+  authDomain: "tecnicos-de-bolso-c3417.firebaseapp.com",
+  projectId: "tecnicos-de-bolso-c3417",
+  storageBucket: "tecnicos-de-bolso-c3417.firebasestorage.app",
+  messagingSenderId: "473908989188",
+  appId: "1:473908989188:web:478db24c71bb4bf32dbt79"
+};
+const SALAO = "carica";                        // documento: saloes/carica
+const SENHAS = { barbearia: "1234", admin: "master123" };
+const PROFISSIONAIS = ["Carica"];
+const SERVICOS = [
+  { nome: "Corte", preco: 45 },
+  { nome: "Barba", preco: 45 },
+  { nome: "Corte criança", preco: 40 },
+  { nome: "Combo", preco: 90, nota: "Inclui Corte, Barba + Sobrancelha" }
+];
+const INICIO = "09:00", FIM = "20:00", PASSO = 30, DIAS = 14;
 
-                <button type="submit" id="btnSalvar" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-extrabold py-3.5 px-4 rounded-xl shadow-lg transition-all active:scale-[0.99] text-xs cursor-pointer">
-                    Confirmar Agendamento
-                </button>
-            </form>
-        </section>
+/* ========= UTILIDADES ========= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const brl = v => "R$ " + Number(v).toLocaleString("pt-BR");
+const dig = s => String(s || "").replace(/\D/g, "");
+const pad = n => String(n).padStart(2, "0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; // data local, não UTC
+const hojeISO = () => iso(new Date());
+const dBR = d => d.split("-").reverse().join("/");
+const mm = h => +h.slice(0, 2) * 60 + +h.slice(3);
+const hh = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
+const slug = s => s.toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
+const SLOTS = []; for (let m = mm(INICIO); m <= mm(FIM); m += PASSO) SLOTS.push(hh(m));
+const DIASLISTA = Array.from({ length: DIAS }, (_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return iso(d); });
+const rotuloDia = s => { const [y, m, d] = s.split("-"); return new Date(y, m - 1, d).toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", ""); };
 
-        <!-- ================= ABA BARBEARIA ================= -->
-        <section id="tab-barbearia" class="hidden space-y-3">
-            <div id="boxLoginBarbearia" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center shadow-sm space-y-3">
-                <h3 class="font-bold text-zinc-100 text-sm">Painel da Barbearia</h3>
-                <p class="text-xs text-zinc-400">Acesso restrito ao gestor.</p>
-                <input type="password" id="senhaBarbearia" placeholder="Digite a senha" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-center text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600">
-                <button onclick="loginBarbearia()" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Entrar</button>
-            </div>
+/* ========= ESTADO ========= */
+let fs = null, fire = null, bloqueado = false;
+let diaSel = hojeISO(), horaSel = null, servSel = 0;
+let agDia = [], unsubDia = null, unsubAgenda = null;
+const auth = { barbearia: false, admin: false };
 
-            <div id="painelBarbearia" class="hidden space-y-3">
-                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-sm space-y-3">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-zinc-100 text-xs">Agenda & Contatos</h4>
-                        <input type="date" id="filtroDataBarbearia" onchange="carregarAgendaBarbearia()" class="bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1 text-[11px] font-medium text-zinc-200">
-                    </div>
-                    <div id="listaAgendaBarbearia" class="space-y-2"></div>
-                </div>
-            </div>
-        </section>
+/* ========= FIREBASE ========= */
+async function iniciar() {
+  try {
+    const base = "https://www.gstatic.com/firebasejs/10.12.2/";
+    const [{ initializeApp }, f] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js")]);
+    fs = f; fire = fs.getFirestore(initializeApp(firebaseConfig));
+    fs.onSnapshot(fs.doc(fire, "saloes", SALAO), s => {
+      bloqueado = s.exists() && s.data().sistemaBloqueado === true;
+      $("#statusConexao").textContent = "Conectado ao banco de dados em tempo real.";
+      desenharEstado();
+    }, erroConexao);
+    ouvirDia();
+    if (auth.barbearia) ouvirAgenda();
+  } catch (e) { erroConexao(e); }
+}
+function erroConexao(e) {
+  console.error(e);
+  $("#statusConexao").textContent = "Sem conexão com o banco de dados. Verifique a internet e as regras do Firestore.";
+}
+const colecao = () => fs.collection(fire, "saloes", SALAO, "agendamentos");
 
-        <!-- ================= ABA ADMINISTRADOR ================= -->
-        <section id="tab-master" class="hidden space-y-3">
-            <div id="boxLoginMaster" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center shadow-sm space-y-3">
-                <h3 class="font-bold text-zinc-100 text-sm">Administrador Técnico</h3>
-                <p class="text-xs text-zinc-400">Painel Master de Operações</p>
-                <input type="password" id="senhaMaster" placeholder="Digite a senha administrativa" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-center text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600">
-                <button onclick="loginMaster()" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer">Acessar Painel</button>
-            </div>
+function ouvirDia() {
+  if (!fs) return;
+  if (unsubDia) unsubDia();
+  unsubDia = fs.onSnapshot(fs.query(colecao(), fs.where("data", "==", diaSel)), s => {
+    agDia = s.docs.map(d => d.data()); desenharHoras();
+  }, erroConexao);
+}
 
-            <div id="painelMaster" class="hidden space-y-3">
-                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-sm space-y-4">
-                    <h4 class="font-bold text-zinc-100 text-xs">Status do Sistema</h4>
-                    <p class="text-[11px] text-zinc-400 leading-relaxed">O sistema está em operação contínua para a unidade Carica Barber Shop.</p>
-                    
-                    <div class="pt-3 border-t border-zinc-800 flex items-center justify-between">
-                        <div>
-                            <span class="block text-xs font-bold text-zinc-200">Travamento Integral</span>
-                            <span class="text-[10px] text-zinc-400">Interrompe novos agendamentos globalmente</span>
-                        </div>
-                        <button id="btnToggleSistema" onclick="alternarTravamentoSistema()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-pointer">Sistema Aberto</button>
-                    </div>
-                </div>
-            </div>
-        </section>
+function ouvirAgenda() {
+  if (!fs) return;
+  if (unsubAgenda) unsubAgenda();
+  unsubAgenda = fs.onSnapshot(fs.query(colecao(), fs.where("data", "==", $("#dataAgenda").value)), s => {
+    const l = s.docs.map(d => d.data()).sort((a, b) => a.horario.localeCompare(b.horario));
+    $("#listaAgenda").innerHTML = l.length ? l.map(p => `
+      <article class="bg-[#35393e] border border-[#454a50] rounded-xl p-3.5 space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="text-lg font-extrabold">${esc(p.horario)}</span>
+          <span class="font-mono text-xs text-[#9aa1a8]">${esc(p.protocolo)}</span>
+        </div>
+        <p class="font-semibold">${esc(p.nome)}</p>
+        <p class="text-sm"><a href="https://wa.me/55${dig(p.telefone).replace(/^55/, "")}" target="_blank" rel="noopener" class="text-[#8fd3ae] underline">${esc(p.telefone)}</a></p>
+        <p class="text-sm text-[#aeb4ba]">${esc(p.servico)} · ${brl(p.preco)} · ${esc(p.profissional)}</p>
+      </article>`).join("") : `<p class="text-center text-sm text-[#9aa1a8] py-6">Nenhum agendamento nesta data.</p>`;
+  }, erroConexao);
+}
 
-    </main>
+// Transação: dois clientes nunca conseguem o mesmo horário, mesmo ao mesmo tempo ou em aparelhos diferentes.
+async function gravar(o) {
+  const ref = fs.doc(fire, "saloes", SALAO, "agendamentos", o.chave);
+  const cfg = fs.doc(fire, "saloes", SALAO);
+  await fs.runTransaction(fire, async tx => {
+    const c = await tx.get(cfg), s = await tx.get(ref);
+    if (c.exists() && c.data().sistemaBloqueado) throw new Error("bloqueado");
+    if (s.exists()) throw new Error("ocupado");
+    tx.set(ref, { ...o, criadoEm: fs.serverTimestamp() });
+  });
+}
 
-    <!-- SCRIPT DE CONTROLE E FIREBASE -->
-    <script>
-        const VERSAO_APP = "v3.2";
-        const CONFIG_FIREBASE = { projectId: "tecnicos-de-bolso-db" };
-        let db = null;
-        try {
-            if (!firebase.apps.length) firebase.initializeApp(CONFIG_FIREBASE);
-            db = firebase.firestore();
-        } catch (e) {
-            console.error("Erro ao iniciar Firebase:", e);
-        }
+/* ========= TELAS ========= */
+function desenharDias() {
+  $("#dias").innerHTML = DIASLISTA.map(d => `<button type="button" data-dia="${d}" class="shrink-0 w-16 py-2 rounded-xl border text-center ${d === diaSel ? "bg-[#e8eaec] text-[#1f2225] border-[#e8eaec]" : "border-[#454a50] bg-[#35393e]"}"><span class="block text-[11px] capitalize opacity-70">${rotuloDia(d)}</span><span class="block text-sm font-bold">${d.slice(8)}/${d.slice(5, 7)}</span></button>`).join("");
+}
+function desenharServicos() {
+  $("#servicos").innerHTML = SERVICOS.map((s, i) => `<button type="button" data-serv="${i}" class="w-full flex items-center justify-between gap-3 px-3.5 py-3 text-left ${i === servSel ? "bg-[#454a50]" : "bg-[#35393e]"}"><span><span class="text-sm font-semibold">${esc(s.nome)}</span>${s.nota ? `<span class="block text-[11px] text-[#9aa1a8]">${esc(s.nota)}</span>` : ""}</span><span class="text-sm font-bold">${brl(s.preco)}</span></button>`).join("");
+}
+function desenharHoras() {
+  const prof = $("#prof").value, agora = new Date(), min = agora.getHours() * 60 + agora.getMinutes();
+  const oc = new Set(agDia.filter(p => p.profissional === prof).map(p => p.horario));
+  const livre = h => !bloqueado && !oc.has(h) && !(diaSel === hojeISO() && mm(h) <= min);
+  if (horaSel && !livre(horaSel)) horaSel = null;
+  $("#horas").innerHTML = SLOTS.map(h => livre(h)
+    ? `<button type="button" data-hora="${h}" class="py-2.5 rounded-lg text-sm font-semibold border ${h === horaSel ? "bg-[#e8eaec] text-[#1f2225] border-[#e8eaec]" : "bg-[#35393e] border-[#454a50]"}">${h}</button>`
+    : `<span class="py-2.5 rounded-lg text-sm text-center bg-[#2f3337] text-[#6b7279] line-through">${h}</span>`).join("");
+  $("#semHoras").classList.toggle("hidden", SLOTS.some(livre));
+}
+function desenharEstado() {
+  $("#aviso").classList.toggle("hidden", !bloqueado);
+  $("#fs").disabled = bloqueado;
+  $("#ponto").className = "w-3 h-3 rounded-full " + (bloqueado ? "bg-[#e0707a]" : "bg-[#5fd39a]");
+  $("#statusSistema").textContent = bloqueado ? "Sistema travado" : "Sistema em operação";
+  $("#btnTrava").textContent = bloqueado ? "Reabrir sistema" : "Travar sistema";
+  desenharHoras();
+}
+function aba(n) {
+  ["cliente", "barbearia", "admin"].forEach(x => {
+    $("#tab-" + x).classList.toggle("hidden", x !== n);
+    const b = document.querySelector(`[data-tab="${x}"]`);
+    b.className = "tabbtn py-2.5 rounded-lg text-sm " + (x === n ? "bg-[#454a50] text-white font-bold" : "text-[#9aa1a8] font-medium");
+  });
+}
+function sessao(r) {
+  document.querySelector(`[data-login="${r}"]`).classList.toggle("hidden", auth[r]);
+  document.querySelector(`[data-panel="${r}"]`).classList.toggle("hidden", !auth[r]);
+}
+function aviso(t) { $("#modalTxt").textContent = t; $("#modal").classList.remove("hidden"); }
+function mostrarComprovante(c) {
+  $("#protocolo").textContent = c.protocolo;
+  $("#comprovanteTxt").textContent = `${c.servico} com ${c.profissional} em ${dBR(c.data)} às ${c.horario}.`;
+  $("#comprovante").classList.remove("hidden");
+}
 
-        const ID_SALAO = "carica"; 
-        let cacheOcupados = [];
-        let escutaCliente = null;
-        let escutaBarbearia = null;
-        let sistemaBloqueadoGlobal = false;
+/* ========= EVENTOS ========= */
+document.addEventListener("click", async e => {
+  const t = e.target.closest("[data-tab],[data-dia],[data-hora],[data-serv],[data-act]"); if (!t) return;
+  const d = t.dataset;
+  if (d.tab) return aba(d.tab);
+  if (d.dia) { diaSel = d.dia; horaSel = null; desenharDias(); ouvirDia(); }
+  if (d.hora) { horaSel = d.hora; desenharHoras(); }
+  if (d.serv) { servSel = +d.serv; desenharServicos(); }
+  if (d.act === "fechar") $("#modal").classList.add("hidden");
+  if (d.act === "novo") { try { localStorage.removeItem("tdb_comprovante"); } catch {} $("#comprovante").classList.add("hidden"); }
+  if (d.act === "login") {
+    const box = document.querySelector(`[data-login="${d.role}"]`), campo = box.querySelector("[data-pass]");
+    if (campo.value === SENHAS[d.role]) {
+      auth[d.role] = true; campo.value = ""; sessao(d.role);
+      if (d.role === "barbearia") ouvirAgenda();
+    } else aviso("Senha incorreta. Tente novamente.");
+  }
+  if (d.act === "logout") { auth[d.role] = false; sessao(d.role); }
+  if (d.act === "trava" && fs) {
+    const novo = !bloqueado;
+    if (!confirm(novo ? "Travar o sistema? Ninguém conseguirá agendar até você reabrir." : "Reabrir o sistema para novos agendamentos?")) return;
+    try { await fs.setDoc(fs.doc(fire, "saloes", SALAO), { sistemaBloqueado: novo }, { merge: true }); }
+    catch (err) { console.error(err); aviso("Não foi possível alterar o sistema. Verifique a conexão e as regras do Firestore."); }
+  }
+});
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const badgeVersao = document.getElementById("badgeVersaoApp");
-            if(badgeVersao) badgeVersao.textContent = VERSAO_APP;
+$("#dataAgenda").addEventListener("change", ouvirAgenda);
 
-            const hoje = new Date().toISOString().split('T')[0];
-            const inputData = document.getElementById("inputData");
-            const filtroBarbearia = document.getElementById("filtroDataBarbearia");
-            
-            if(inputData) {
-                inputData.value = hoje;
-                inputData.min = hoje;
-            }
-            if(filtroBarbearia) filtroBarbearia.value = hoje;
-            
-            escutarStatusSistema();
-            escutarHorarios();
-            checarComprovanteSalvo();
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!fs) return aviso("Sem conexão com o banco de dados. Tente novamente em instantes.");
+  if (bloqueado) return aviso("Os agendamentos estão temporariamente indisponíveis.");
+  if (!horaSel) return aviso("Escolha um horário disponível.");
+  if (dig($("#fone").value).length < 10) return aviso("Digite o telefone com DDD, por exemplo 11 91234-5678.");
+  const prof = $("#prof").value, sv = SERVICOS[servSel], btn = e.submitter;
+  const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
+  const o = {
+    chave: `${slug(prof)}_${diaSel}_${horaSel.replace(":", "")}`,
+    nome: $("#nome").value.trim(), telefone: $("#fone").value.trim(), profissional: prof,
+    servico: sv.nome, preco: sv.preco, data: diaSel, horario: horaSel, protocolo
+  };
+  btn.disabled = true; btn.textContent = "Agendando…";
+  try {
+    await Promise.race([gravar(o), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]);
+    const c = { protocolo, servico: o.servico, profissional: prof, data: diaSel, horario: o.horario };
+    try { localStorage.setItem("tdb_comprovante", JSON.stringify(c)); } catch {}
+    mostrarComprovante(c); horaSel = null; desenharHoras(); window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (err) {
+    console.error(err);
+    aviso(err.message === "ocupado" ? "Esse horário acabou de ser reservado por outra pessoa. Escolha outro."
+        : err.message === "bloqueado" ? "Os agendamentos estão temporariamente indisponíveis."
+        : "Não foi possível agendar. Verifique a internet e tente novamente.");
+    horaSel = null; desenharHoras();
+  }
+  btn.disabled = false; btn.textContent = "Agendar";
+});
 
-            document.getElementById("formAgendamento").addEventListener("submit", processarAgendamento);
-        });
-
-        function selecionarServico(nome, elemento) {
-            document.getElementById("inputServico").value = nome;
-            document.querySelectorAll(".servico-item").forEach(card => {
-                card.className = "servico-item cursor-pointer bg-zinc-950 border border-zinc-800 rounded-xl p-3 transition-all flex justify-between items-center hover:border-zinc-700";
-            });
-            elemento.className = "servico-item cursor-pointer bg-zinc-950 border-2 border-zinc-200 rounded-xl p-3 transition-all flex justify-between items-center";
-        }
-
-        function escutarStatusSistema() {
-            if (!db) return;
-            db.collection("saloes").doc(ID_SALAO).onSnapshot(doc => {
-                if (doc.exists) {
-                    const dados = doc.data();
-                    sistemaBloqueadoGlobal = dados.sistemaBloqueado || false;
-                    atualizarBadgeStatusGlobal();
-                }
-            }, err => {
-                console.error("Erro no status:", err);
-            });
-        }
-
-        function atualizarBadgeStatusGlobal() {
-            const badge = document.getElementById("statusSistemaBadge");
-            const txt = document.getElementById("txtStatusSistema");
-            const btn = document.getElementById("btnToggleSistema");
-
-            if (sistemaBloqueadoGlobal) {
-                badge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20";
-                txt.textContent = "Sistema Fechado / Travado";
-                if(btn) {
-                    btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 cursor-pointer";
-                    btn.textContent = "Sistema Travado";
-                }
-            } else {
-                badge.className = "px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-                txt.textContent = "Sistema Operacional";
-                if(btn) {
-                    btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-pointer";
-                    btn.textContent = "Sistema Aberto";
-                }
-            }
-        }
-
-        function escutarHorarios() {
-            if (!db) { gerarGrade(); return; }
-
-            const dataSelecionada = document.getElementById("inputData").value;
-            if (escutaCliente) escutaCliente();
-
-            escutaCliente = db.collection("saloes").doc(ID_SALAO).collection("agendamentos")
-                .where("data", "==", dataSelecionada)
-                .onSnapshot(snapshot => {
-                    cacheOcupados = [];
-                    snapshot.forEach(doc => {
-                        const d = doc.data();
-                        if (d && d.horario) cacheOcupados.push(d.horario);
-                    });
-                    gerarGrade();
-                }, err => {
-                    console.error("Erro ao escutar horários:", err);
-                    gerarGrade();
-                });
-        }
-
-        function gerarGrade() {
-            const grid = document.getElementById("gridHorarios");
-            if(!grid) return;
-            
-            const horarioAtual = document.getElementById("inputHorario").value;
-            grid.innerHTML = "";
-
-            const dataSelecionada = document.getElementById("inputData").value;
-            const hojeStr = new Date().toISOString().split('T')[0];
-            const agora = new Date();
-            const horaAtualMinutos = agora.getHours() * 60 + agora.getMinutes();
-            const ehHoje = (dataSelecionada === hojeStr);
-
-            for (let h = 9; h <= 20; h++) {
-                const minutos = (h === 20) ? ['00'] : ['00', '30'];
-                minutos.forEach(m => {
-                    if (h === 20 && m === '30') return;
-                    
-                    const horaMinutos = h * 60 + parseInt(m);
-                    const horaStr = `${String(h).padStart(2, '0')}:${m}`;
-                    const btn = document.createElement("button");
-                    btn.type = "button";
-                    btn.textContent = horaStr;
-
-                    const passadoNoDia = ehHoje && (horaMinutos <= horaAtualMinutos);
-                    const ocupado = cacheOcupados.includes(horaStr) || sistemaBloqueadoGlobal || passadoNoDia;
-
-                    if (ocupado) {
-                        btn.disabled = true;
-                        btn.className = "py-2 rounded-xl text-xs font-semibold bg-zinc-950 border border-zinc-800 text-zinc-600 cursor-not-allowed line-through opacity-60";
-                        if (horarioAtual === horaStr) document.getElementById("inputHorario").value = "";
-                    } else {
-                        const selecionado = (horarioAtual === horaStr);
-                        btn.className = selecionado 
-                            ? "py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-900 border border-white shadow-sm transition-all cursor-pointer"
-                            : "py-2 rounded-xl text-xs font-semibold bg-zinc-950 border border-zinc-800 text-zinc-300 hover:border-zinc-600 transition-all cursor-pointer";
-
-                        btn.onclick = () => {
-                            document.querySelectorAll("#gridHorarios button").forEach(b => {
-                                if(!b.disabled) b.className = "py-2 rounded-xl text-xs font-semibold bg-zinc-950 border border-zinc-800 text-zinc-300 hover:border-zinc-600 transition-all cursor-pointer";
-                            });
-                            btn.className = "py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-900 border border-white shadow-sm transition-all cursor-pointer";
-                            document.getElementById("inputHorario").value = horaStr;
-                        };
-                    }
-                    grid.appendChild(btn);
-                });
-            }
-        }
-
-        function mudarAba(aba) {
-            ['cliente', 'barbearia', 'master'].forEach(a => {
-                document.getElementById(`tab-${a}`).classList.add('hidden');
-                document.getElementById(`nav-${a}`).className = "py-2 text-center text-xs font-medium rounded-lg transition-all text-zinc-400 hover:text-zinc-200 cursor-pointer";
-            });
-            document.getElementById(`tab-${aba}`).classList.remove('hidden');
-            document.getElementById(`nav-${aba}`).className = "py-2 text-center text-xs font-bold rounded-lg transition-all bg-zinc-800 text-white shadow-sm cursor-pointer";
-
-            if (aba === 'cliente') escutarHorarios();
-            if (aba === 'barbearia' && !document.getElementById('painelBarbearia').classList.contains('hidden')) {
-                carregarAgendaBarbearia();
-            }
-        }
-
-        function mostrarAlerta(mensagem) {
-            document.getElementById("modalMensagemTxt").textContent = mensagem;
-            document.getElementById("modalAlerta").classList.remove("hidden");
-        }
-
-        function fecharModalAlerta() {
-            document.getElementById("modalAlerta").classList.add("hidden");
-        }
-
-        async function processarAgendamento(e) {
-            e.preventDefault();
-            if (sistemaBloqueadoGlobal) {
-                mostrarAlerta("O sistema está temporariamente travado para novos agendamentos.");
-                return;
-            }
-
-            const btn = document.getElementById("btnSalvar");
-            const horario = document.getElementById("inputHorario").value;
-            const data = document.getElementById("inputData").value;
-
-            if (!horario) {
-                mostrarAlerta("Por favor, selecione um horário disponível na lista.");
-                return;
-            }
-
-            const nome = document.getElementById("inputNome").value.trim();
-            const whatsapp = document.getElementById("inputWhatsapp").value.trim();
-            const servico = document.getElementById("inputServico").value;
-            const barbeiro = document.getElementById("inputBarbeiro").value;
-
-            if (!db) {
-                mostrarAlerta("Banco de dados indisponível.");
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = "Processando...";
-
-            try {
-                if (cacheOcupados.includes(horario)) {
-                    btn.disabled = false;
-                    btn.textContent = "Confirmar Agendamento";
-                    mostrarAlerta(`O horário das ${horario} acabou de ser ocupado. Escolha outro.`);
-                    escutarHorarios();
-                    return;
-                }
-
-                const ref = db.collection("saloes").doc(ID_SALAO).collection("agendamentos");
-                const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
-
-                await ref.add({
-                    nome, whatsapp, servico, barbeiro, data, horario, protocolo,
-                    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                btn.disabled = false;
-                btn.textContent = "Confirmar Agendamento";
-
-                localStorage.setItem("tdb_comprovante", JSON.stringify({ servico, horario, protocolo }));
-                exibirComprovante(servico, horario, protocolo);
-
-                document.getElementById("formAgendamento").reset();
-                document.getElementById("inputData").value = data;
-                document.getElementById("inputHorario").value = "";
-                escutarHorarios();
-
-            } catch (err) {
-                console.error("Erro detalhado ao salvar agendamento:", err);
-                btn.disabled = false;
-                btn.textContent = "Confirmar Agendamento";
-                mostrarAlerta("Erro ao salvar agendamento. Verifique sua conexão ou regras do Firestore.");
-                escutarHorarios();
-            }
-        }
-
-        function exibirComprovante(servico, horario, protocolo) {
-            document.getElementById("textoComprovante").textContent = `Agendamento confirmado para ${servico} às ${horario}.`;
-            document.getElementById("badgeProtocolo").textContent = protocolo;
-            document.getElementById("cardComprovante").classList.remove("hidden");
-        }
-
-        function checarComprovanteSalvo() {
-            const salvo = localStorage.getItem("tdb_comprovante");
-            if (salvo) {
-                try {
-                    const d = JSON.parse(salvo);
-                    if (d && d.horario) exibirComprovante(d.servico, d.horario, d.protocolo);
-                } catch(e) { localStorage.removeItem("tdb_comprovante"); }
-            }
-        }
-
-        function limparComprovante() {
-            localStorage.removeItem("tdb_comprovante");
-            document.getElementById("cardComprovante").classList.add("hidden");
-            escutarHorarios();
-        }
-
-        function loginBarbearia() {
-            const senha = document.getElementById("senhaBarbearia").value;
-            if (senha === "1234") {
-                document.getElementById("boxLoginBarbearia").classList.add("hidden");
-                document.getElementById("painelBarbearia").classList.remove("hidden");
-                carregarAgendaBarbearia();
-            } else { alert("Senha incorreta!"); }
-        }
-
-        function carregarAgendaBarbearia() {
-            const dataFiltro = document.getElementById("filtroDataBarbearia").value;
-            const container = document.getElementById("listaAgendaBarbearia");
-            if (!db || !container) return;
-
-            if (escutaBarbearia) escutaBarbearia();
-
-            escutaBarbearia = db.collection("saloes").doc(ID_SALAO).collection("agendamentos")
-                .where("data", "==", dataFiltro)
-                .onSnapshot(snap => {
-                    container.innerHTML = snap.empty ? '<p class="text-xs text-zinc-500 text-center py-4">Nenhum agendamento para esta data.</p>' : '';
-                    
-                    const lista = [];
-                    snap.forEach(doc => lista.push(doc.data()));
-                    lista.sort((a, b) => a.horario.localeCompare(b.horario));
-
-                    lista.forEach(d => {
-                        container.innerHTML += `
-                            <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-3 space-y-1">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-zinc-200 font-bold text-xs">${d.horario} - <span class="font-mono text-zinc-400">${d.protocolo}</span></span>
-                                    <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-bold text-[10px] border border-emerald-500/20">Confirmado</span>
-                                </div>
-                                <h5 class="text-zinc-100 font-bold text-xs">${d.nome}</h5>
-                                <p class="text-[11px] text-emerald-400 font-semibold">WhatsApp: ${d.whatsapp}</p>
-                                <p class="text-[10px] text-zinc-400">${d.servico} (Profissional: ${d.barbeiro})</p>
-                            </div>`;
-                    });
-                }, err => {
-                    console.error("Erro ao carregar agenda:", err);
-                });
-        }
-
-        function loginMaster() {
-            const senha = document.getElementById("senhaMaster").value;
-            if (senha === "master123") {
-                document.getElementById("boxLoginMaster").classList.add("hidden");
-                document.getElementById("painelMaster").classList.remove("hidden");
-            } else { alert("Senha incorreta!"); }
-        }
-
-        async function alternarTravamentoSistema() {
-            if (!db) return;
-            sistemaBloqueadoGlobal = !sistemaBloqueadoGlobal;
-            try {
-                await db.collection("saloes").doc(ID_SALAO).set({
-                    sistemaBloqueado: sistemaBloqueadoGlobal
-                }, { merge: true });
-                atualizarBadgeStatusGlobal();
-                escutarHorarios();
-            } catch (e) {
-                console.error("Erro ao alterar status:", e);
-                alert("Erro ao alterar o status do sistema.");
-            }
-        }
-    </script>
+/* ========= INÍCIO ========= */
+$("#prof").innerHTML = PROFISSIONAIS.map(p => `<option>${esc(p)}</option>`).join("");
+$("#dataAgenda").value = hojeISO();
+desenharDias(); desenharServicos(); desenharHoras(); aba("cliente");
+try { const c = JSON.parse(localStorage.getItem("tdb_comprovante") || "null"); if (c && c.protocolo) mostrarComprovante(c); } catch {}
+iniciar();
+</script>
 </body>
 </html>
