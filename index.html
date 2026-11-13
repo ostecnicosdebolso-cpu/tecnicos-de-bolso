@@ -9,86 +9,84 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- CABEÇALHO UNIFICADO COM A MARCA TÉCNICOS DE BOLSO -->
-    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-50 px-4 py-3.5">
+    <!-- CABEÇALHO COM A LOGOTIPO OFICIAL E AZUL CORPORATIVO -->
+    <header class="bg-blue-700 text-white sticky top-0 z-50 px-4 py-3.5 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <!-- SÍMBOLO DA TÉCNICOS DE BOLSO -->
-                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-sm shadow-blue-600/25 text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                </div>
+                <!-- LOGO OFICIAL REDONDA APLICADA COMO AVATAR -->
+                <img src="69C85D9B-B283-4FA2-AAA4-B4DCB2EBA757.PNG" alt="Técnicos de Bolso" class="w-10 h-10 rounded-full object-cover border-2 border-white/30 shadow-inner">
                 <div>
-                    <h1 class="font-bold text-base leading-tight text-slate-900">Carica Barber Shop</h1>
-                    <p class="text-[11px] text-blue-600 font-semibold tracking-wide uppercase">Powered by Técnicos de Bolso</p>
+                    <h1 class="font-bold text-base leading-tight tracking-tight">Carica Barber Shop</h1>
+                    <p class="text-[10px] text-blue-200 font-medium tracking-wider uppercase">Técnicos de Bolso</p>
                 </div>
             </div>
-            <div id="statusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" id="statusDot"></span>
+            <div id="statusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 backdrop-blur-sm">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" id="statusDot"></span>
                 <span id="statusText">Aberto</span>
             </div>
         </div>
     </header>
 
     <!-- CONTEÚDO PRINCIPAL -->
-    <main class="max-w-md w-full mx-auto p-4 flex-1 pb-24">
+    <main class="max-w-md w-full mx-auto p-4 flex-1 pb-24 space-y-4">
         
         <!-- ABA 1: CLIENTE (AGENDAMENTO) -->
-        <section id="tab-cliente" class="space-y-5">
-            <form id="agendamentoForm" class="space-y-5">
+        <section id="tab-cliente" class="space-y-4">
+            <form id="agendamentoForm" class="space-y-4">
                 
-                <!-- PASSO 1: SERVIÇOS EM CARDS VISUAIS (INCLUINDO CORTE CRIANÇA) -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">1. Escolha o Serviço</label>
+                <!-- PASSO 1: SERVIÇOS EM CARDS -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">1. Escolha o Serviço</label>
                     <input type="hidden" id="clienteServico" value="Corte" required>
                     
                     <div class="grid grid-cols-2 gap-2.5" id="gridServicos">
-                        <div onclick="selecionarServico('Corte', this)" class="servico-card cursor-pointer bg-white border-2 border-blue-600 rounded-2xl p-3.5 shadow-sm transition-all">
+                        <div onclick="selecionarServico('Corte', this)" class="servico-card cursor-pointer bg-slate-50 border-2 border-blue-600 rounded-xl p-3 transition-all">
                             <div class="flex justify-between items-start">
-                                <span class="font-bold text-sm text-slate-900">Corte</span>
-                                <span class="w-4 h-4 rounded-full border-4 border-blue-600 check-dot"></span>
+                                <span class="font-bold text-xs text-slate-900">Corte</span>
+                                <span class="w-3.5 h-3.5 rounded-full border-4 border-blue-600 check-dot"></span>
                             </div>
-                            <p class="text-blue-600 font-bold text-base mt-1">R$ 45</p>
+                            <p class="text-blue-600 font-extrabold text-sm mt-1">R$ 45</p>
                         </div>
 
-                        <div onclick="selecionarServico('Barba', this)" class="servico-card cursor-pointer bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-all">
+                        <div onclick="selecionarServico('Barba', this)" class="servico-card cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all hover:border-slate-300">
                             <div class="flex justify-between items-start">
-                                <span class="font-bold text-sm text-slate-900">Barba</span>
-                                <span class="w-4 h-4 rounded-full border border-slate-300 check-dot"></span>
+                                <span class="font-bold text-xs text-slate-900">Barba</span>
+                                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 check-dot"></span>
                             </div>
-                            <p class="text-slate-700 font-bold text-base mt-1">R$ 45</p>
+                            <p class="text-slate-700 font-extrabold text-sm mt-1">R$ 45</p>
                         </div>
 
-                        <div onclick="selecionarServico('Corte Criança', this)" class="servico-card cursor-pointer bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-all">
+                        <div onclick="selecionarServico('Corte Criança', this)" class="servico-card cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all hover:border-slate-300">
                             <div class="flex justify-between items-start">
-                                <span class="font-bold text-sm text-slate-900">Corte Criança</span>
-                                <span class="w-4 h-4 rounded-full border border-slate-300 check-dot"></span>
+                                <span class="font-bold text-xs text-slate-900">Corte Criança</span>
+                                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 check-dot"></span>
                             </div>
-                            <p class="text-slate-700 font-bold text-base mt-1">R$ 40</p>
+                            <p class="text-slate-700 font-extrabold text-sm mt-1">R$ 40</p>
                         </div>
 
-                        <div onclick="selecionarServico('Sobrancelha', this)" class="servico-card cursor-pointer bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-all">
+                        <div onclick="selecionarServico('Sobrancelha', this)" class="servico-card cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all hover:border-slate-300">
                             <div class="flex justify-between items-start">
-                                <span class="font-bold text-sm text-slate-900">Sobrancelha</span>
-                                <span class="w-4 h-4 rounded-full border border-slate-300 check-dot"></span>
+                                <span class="font-bold text-xs text-slate-900">Sobrancelha</span>
+                                <span class="w-3.5 h-3.5 rounded-full border border-slate-300 check-dot"></span>
                             </div>
-                            <p class="text-slate-700 font-bold text-base mt-1">R$ 20</p>
+                            <p class="text-slate-700 font-extrabold text-sm mt-1">R$ 20</p>
                         </div>
 
-                        <div onclick="selecionarServico('Combo', this)" class="servico-card col-span-2 cursor-pointer bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-all">
+                        <div onclick="selecionarServico('Combo', this)" class="servico-card col-span-2 cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all hover:border-slate-300">
                             <div class="flex justify-between items-center">
                                 <div>
-                                    <span class="font-bold text-sm text-slate-900">Combo (Corte + Barba + Sobrancelha)</span>
-                                    <p class="text-[11px] text-slate-400 mt-0.5">Atendimento completo com desconto especial</p>
+                                    <span class="font-bold text-xs text-slate-900">Combo (Corte + Barba + Sobrancelha)</span>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">Atendimento completo com desconto</p>
                                 </div>
-                                <div class="text-right flex items-center gap-3">
-                                    <p class="text-slate-700 font-bold text-base">R$ 90</p>
-                                    <span class="w-4 h-4 rounded-full border border-slate-300 check-dot"></span>
+                                <div class="text-right flex items-center gap-2">
+                                    <p class="text-slate-700 font-extrabold text-sm">R$ 90</p>
+                                    <span class="w-3.5 h-3.5 rounded-full border border-slate-300 check-dot"></span>
                                 </div>
                             </div>
                         </div>
@@ -96,42 +94,41 @@
                 </div>
 
                 <!-- PASSO 2: PROFISSIONAL E DATA -->
-                <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm space-y-3.5">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">2. Profissional e Data</label>
-                    <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-3">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">2. Profissional e Data</label>
+                    <div class="grid grid-cols-2 gap-2.5">
                         <div>
                             <span class="block text-[11px] font-medium text-slate-500 mb-1">Barbeiro</span>
-                            <select id="clienteBarbeiro" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:border-blue-600">
+                            <select id="clienteBarbeiro" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-blue-600">
                                 <option value="Carica">Carica</option>
                             </select>
                         </div>
                         <div>
                             <span class="block text-[11px] font-medium text-slate-500 mb-1">Data</span>
-                            <input type="date" id="clienteData" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:border-blue-600">
+                            <input type="date" id="clienteData" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-blue-600">
                         </div>
                     </div>
 
-                    <!-- HORÁRIOS EM PÍLULAS CLICÁVEIS -->
                     <div class="pt-1">
                         <span class="block text-[11px] font-medium text-slate-500 mb-2">Horários Disponíveis</span>
                         <input type="hidden" id="clienteHorario" required>
-                        <div id="gridHorarios" class="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto pr-1"></div>
+                        <div id="gridHorarios" class="grid grid-cols-4 gap-1.5 max-h-36 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
 
                 <!-- PASSO 3: DADOS DO CLIENTE -->
-                <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm space-y-3">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">3. Seus Dados</label>
-                    <input type="text" id="clienteNome" required placeholder="Seu Nome Completo" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors">
-                    <input type="tel" id="clienteWhatsapp" required placeholder="WhatsApp (com DDD)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors">
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 space-y-2.5">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">3. Seus Dados</label>
+                    <input type="text" id="clienteNome" required placeholder="Seu Nome Completo" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600">
+                    <input type="tel" id="clienteWhatsapp" required placeholder="WhatsApp (com DDD)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600">
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-2xl shadow-md shadow-blue-600/25 transition-all active:scale-[0.99] text-sm">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-blue-600/30 transition-all active:scale-[0.99] text-xs">
                     Confirmar Agendamento
                 </button>
             </form>
 
-            <div class="text-center pt-1">
+            <div class="text-center pt-2">
                 <a href="https://g.page/r/exemplo-link-google-avaliacoes" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors">
                     <span>⭐ Já cortou com a gente? Avalie no Google</span>
                 </a>
@@ -139,68 +136,66 @@
         </section>
 
         <!-- ABA 2: GESTÃO DA BARBEARIA -->
-        <section id="tab-barbearia" class="hidden space-y-4">
-            <div id="barbeariaLoginBox" class="bg-white border border-slate-200 rounded-2xl p-6 text-center shadow-sm">
+        <section id="tab-barbearia" class="hidden space-y-3">
+            <div id="barbeariaLoginBox" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80">
                 <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                 </div>
-                <h3 class="font-bold text-slate-900 text-base">Painel do Gestor</h3>
-                <p class="text-xs text-slate-500 mb-4">Acesso exclusivo da barbearia.</p>
-                <input type="password" id="senhaBarbeariaInput" placeholder="Digite sua senha" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
-                <button onclick="fazerLoginBarbearia()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-colors">Entrar</button>
+                <h3 class="font-bold text-slate-900 text-sm">Painel do Gestor</h3>
+                <p class="text-xs text-slate-400 mb-4">Acesso exclusivo da barbearia.</p>
+                <input type="password" id="senhaBarbeariaInput" placeholder="Digite sua senha" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
+                <button onclick="fazerLoginBarbearia()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition-colors">Entrar</button>
             </div>
 
-            <div id="barbeariaPainelContent" class="hidden space-y-4">
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+            <div id="barbeariaPainelContent" class="hidden space-y-3">
+                <div class="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm border border-slate-200/80">
                     <div>
-                        <h4 class="font-bold text-slate-900 text-sm">Status do Salão</h4>
-                        <p class="text-xs text-slate-500">Liberar ou pausar novos agendamentos</p>
+                        <h4 class="font-bold text-slate-900 text-xs">Status do Salão</h4>
+                        <p class="text-[11px] text-slate-400">Pausar ou liberar novos horários</p>
                     </div>
-                    <button id="toggleSalaoBtn" onclick="alternarStatusSalao()" class="px-4 py-2 rounded-xl text-xs font-bold transition-all">Carregando...</button>
+                    <button id="toggleSalaoBtn" onclick="alternarStatusSalao()" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all">Carregando...</button>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
                     <div class="flex justify-between items-center mb-3">
-                        <h4 class="font-bold text-slate-900 text-sm">Agenda do Dia</h4>
-                        <input type="date" id="filtroDataBarbearia" onchange="carregarAgendamentosBarbearia()" class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700">
+                        <h4 class="font-bold text-slate-900 text-xs">Agenda do Dia</h4>
+                        <input type="date" id="filtroDataBarbearia" onchange="carregarAgendamentosBarbearia()" class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[11px] font-medium text-slate-700">
                     </div>
                     <div id="listaAgendamentosBarbearia" class="space-y-2"></div>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-2xl p-5 text-center shadow-sm">
-                    <h4 class="font-bold text-slate-900 text-sm mb-1">QR Code do Balcão</h4>
-                    <p class="text-xs text-slate-500 mb-3">Aponte a câmera para agendar</p>
-                    <div id="qrcode" class="bg-white p-2 rounded-xl inline-block mx-auto border border-slate-100"></div>
+                <div class="bg-white rounded-2xl p-5 text-center shadow-sm border border-slate-200/80">
+                    <h4 class="font-bold text-slate-900 text-xs mb-1">QR Code do Balcão</h4>
+                    <p class="text-[11px] text-slate-400 mb-3">Aponte a câmera para agendar</p>
+                    <div id="qrcode" class="bg-white p-2 rounded-xl inline-block mx-auto border border-slate-100 shadow-inner"></div>
                 </div>
             </div>
         </section>
 
-        <!-- ABA 3: MASTER ADM (DESENVOLVEDOR) -->
-        <section id="tab-master" class="hidden space-y-4">
-            <div id="masterLoginBox" class="bg-white border border-slate-200 rounded-2xl p-6 text-center shadow-sm">
-                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-3">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                </div>
-                <h3 class="font-bold text-slate-900 text-base">Técnicos de Bolso (Master)</h3>
-                <p class="text-xs text-slate-500 mb-4">Painel do Desenvolvedor</p>
-                <input type="password" id="senhaMasterInput" placeholder="Senha administrativa" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
-                <button onclick="fazerLoginMaster()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-sm transition-colors">Acessar Painel</button>
+        <!-- ABA 3: MASTER ADM (TÉCNICOS DE BOLSO) -->
+        <section id="tab-master" class="hidden space-y-3">
+            <div id="masterLoginBox" class="bg-white rounded-2xl p-6 text-center shadow-sm border border-slate-200/80">
+                <img src="69C85D9B-B283-4FA2-AAA4-B4DCB2EBA757.PNG" alt="Técnicos de Bolso" class="w-12 h-12 rounded-full object-cover mx-auto mb-3 shadow-md">
+                <h3 class="font-bold text-slate-900 text-sm">Técnicos de Bolso</h3>
+                <p class="text-xs text-slate-400 mb-4">Painel Administrativo Geral</p>
+                <input type="password" id="senhaMasterInput" placeholder="Senha administrativa" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-center text-slate-900 mb-3 focus:outline-none focus:border-blue-600">
+                <button onclick="fazerLoginMaster()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition-colors">Acessar Painel</button>
             </div>
 
-            <div id="masterPainelContent" class="hidden space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                        <p class="text-xs text-slate-500 mb-1">Faturamento Estimado</p>
-                        <h4 id="masterFaturamento" class="text-xl font-bold text-blue-600">R$ 0</h4>
+            <div id="masterPainelContent" class="hidden space-y-3">
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80">
+                        <p class="text-[11px] text-slate-400 mb-1">Faturamento Estimado</p>
+                        <h4 id="masterFaturamento" class="text-lg font-extrabold text-blue-600">R$ 0</h4>
                     </div>
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                        <p class="text-xs text-slate-500 mb-1">Total Agendamentos</p>
-                        <h4 id="masterTotalAgendamentos" class="text-xl font-bold text-slate-900">0</h4>
+                    <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80">
+                        <p class="text-[11px] text-slate-400 mb-1">Total Agendamentos</p>
+                        <h4 id="masterTotalAgendamentos" class="text-lg font-extrabold text-slate-900">0</h4>
                     </div>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                    <h4 class="font-bold text-slate-900 text-sm mb-3">Histórico Global</h4>
-                    <div id="listaMasterHistorico" class="space-y-2 max-h-96 overflow-y-auto"></div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+                    <h4 class="font-bold text-slate-900 text-xs mb-3">Histórico Global</h4>
+                    <div id="listaMasterHistorico" class="space-y-2 max-h-80 overflow-y-auto"></div>
                 </div>
             </div>
         </section>
@@ -208,7 +203,7 @@
     </main>
 
     <!-- NAVEGAÇÃO INFERIOR -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 z-50">
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 z-50 shadow-lg">
         <div class="max-w-md mx-auto grid grid-cols-3 gap-2">
             <button onclick="mudarAba('cliente')" id="nav-cliente" class="flex flex-col items-center justify-center py-1 text-blue-600">
                 <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -248,7 +243,7 @@
 
             try {
                 new QRCode(document.getElementById("qrcode"), {
-                    text: window.location.href, width: 120, height: 120,
+                    text: window.location.href, width: 110, height: 110,
                     colorDark: "#0f172a", colorLight: "#ffffff"
                 });
             } catch (err) {}
@@ -257,17 +252,17 @@
         function selecionarServico(nome, elemento) {
             document.getElementById("clienteServico").value = nome;
             document.querySelectorAll(".servico-card").forEach(card => {
-                card.className = "servico-card cursor-pointer bg-white border border-slate-200 rounded-2xl p-3.5 shadow-sm hover:border-slate-300 transition-all";
+                card.className = "servico-card cursor-pointer bg-slate-50 border border-slate-200 rounded-xl p-3 transition-all hover:border-slate-300";
                 const check = card.querySelector(".check-dot");
-                if(check) check.className = "w-4 h-4 rounded-full border border-slate-300 check-dot";
+                if(check) check.className = "w-3.5 h-3.5 rounded-full border border-slate-300 check-dot";
                 const p = card.querySelector("p");
-                if(p && !p.classList.contains("text-[11px]")) p.className = "text-slate-700 font-bold text-base mt-1";
+                if(p && !p.classList.contains("text-[10px]")) p.className = "text-slate-700 font-extrabold text-sm mt-1";
             });
-            elemento.className = "servico-card cursor-pointer bg-white border-2 border-blue-600 rounded-2xl p-3.5 shadow-sm transition-all";
+            elemento.className = "servico-card cursor-pointer bg-slate-50 border-2 border-blue-600 rounded-xl p-3 transition-all";
             const activeCheck = elemento.querySelector(".check-dot");
-            if(activeCheck) activeCheck.className = "w-4 h-4 rounded-full border-4 border-blue-600 check-dot";
+            if(activeCheck) activeCheck.className = "w-3.5 h-3.5 rounded-full border-4 border-blue-600 check-dot";
             const activeP = elemento.querySelector("p");
-            if(activeP && !activeP.classList.contains("text-[11px]")) activeP.className = "text-blue-600 font-bold text-base mt-1";
+            if(activeP && !activeP.classList.contains("text-[10px]")) activeP.className = "text-blue-600 font-extrabold text-sm mt-1";
         }
 
         function gerarGradeHorarios() {
@@ -313,15 +308,15 @@
                 const btn = document.getElementById("toggleSalaoBtn");
 
                 if (aberto) {
-                    badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200";
-                    dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                    badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-100 border border-emerald-400/30 backdrop-blur-sm";
+                    dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
                     text.textContent = "Aberto";
-                    if (btn) { btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200"; btn.textContent = "Fechar Salão"; }
+                    if (btn) { btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200"; btn.textContent = "Fechar Salão"; }
                 } else {
-                    badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-rose-50 text-rose-700 border border-rose-200";
-                    dot.className = "w-2 h-2 rounded-full bg-rose-500";
+                    badge.className = "px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1.5 bg-rose-500/20 text-rose-100 border border-rose-400/30 backdrop-blur-sm";
+                    dot.className = "w-2 h-2 rounded-full bg-rose-400";
                     text.textContent = "Fechado";
-                    if (btn) { btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200"; btn.textContent = "Abrir Salão"; }
+                    if (btn) { btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200"; btn.textContent = "Abrir Salão"; }
                 }
             });
         }
@@ -379,10 +374,10 @@
                           <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex justify-between items-center">
                               <div>
                                   <span class="text-blue-600 font-bold text-xs">${d.horario}</span>
-                                  <h5 class="text-slate-900 font-bold text-sm">${d.nome}</h5>
-                                  <p class="text-[11px] text-slate-500">${d.servico} • ${d.whatsapp}</p>
+                                  <h5 class="text-slate-900 font-bold text-xs">${d.nome}</h5>
+                                  <p class="text-[10px] text-slate-500">${d.servico} • ${d.whatsapp}</p>
                               </div>
-                              <span class="text-[10px] font-semibold bg-white border border-slate-200 text-slate-600 px-2.5 py-1 rounded-lg">${d.barbeiro}</span>
+                              <span class="text-[10px] font-semibold bg-white border border-slate-200 text-slate-600 px-2 py-0.5 rounded-lg">${d.barbeiro}</span>
                           </div>`;
                   });
               });
@@ -410,10 +405,10 @@
                       if (d.servico === "Sobrancelha") fat += 20;
                       if (d.servico === "Combo") fat += 90;
                       container.innerHTML += `
-                          <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 text-xs">
+                          <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 text-xs">
                               <span class="text-blue-600 font-semibold">${d.data} às ${d.horario}</span>
                               <p class="text-slate-900 font-bold mt-0.5">${d.nome} (${d.whatsapp})</p>
-                              <p class="text-slate-500">${d.servico} • ${d.barbeiro}</p>
+                              <p class="text-slate-500 text-[11px]">${d.servico} • ${d.barbeiro}</p>
                           </div>`;
                   });
                   document.getElementById("masterFaturamento").innerText = `R$ ${fat}`;
