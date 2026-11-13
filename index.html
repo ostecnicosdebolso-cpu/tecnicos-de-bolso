@@ -28,6 +28,24 @@
         </button>
     </div>
 
+    <!-- MODAL DE FEEDBACK IMEDIATO (SUCESSO / ERRO) -->
+    <div id="modalFeedback" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-200">
+            <div id="modalIcone" class="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold"></div>
+            <div>
+                <h3 id="modalTitulo" class="font-extrabold text-slate-900 text-base"></h3>
+                <p id="modalMensagem" class="text-xs text-slate-500 mt-1 leading-relaxed"></p>
+            </div>
+            <div id="modalProtocoloBox" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-3">
+                <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">Número do Protocolo</span>
+                <span id="modalProtocoloTxt" class="text-sm font-mono font-extrabold text-blue-600"></span>
+            </div>
+            <button onclick="fecharModalFeedback()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-md shadow-blue-600/30">
+                Entendido / Novo Agendamento
+            </button>
+        </div>
+    </div>
+
     <!-- CABEÇALHO -->
     <header class="bg-blue-700 text-white sticky top-0 z-50 px-4 py-3 shadow-md">
         <div class="max-w-md mx-auto flex justify-between items-center">
@@ -244,9 +262,8 @@
             db = firebase.firestore();
         } catch (e) {}
 
-        // CONFIGURAÇÕES DA UNIDADE CARICA E DO MASTER OCULTO
         const SALAO_ID = "carica"; 
-        const WHATSAPP_MASTER = "5511991655249"; // WhatsApp oculto para o Master ADM
+        const WHATSAPP_MASTER = "5511991655249";
         let masterLogado = false;
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -381,10 +398,45 @@
             await ref.set({ bloqueadoMaster: !atual }, { merge: true });
         }
 
+        // FUNÇÃO DE FEEDBACK MODAL IMEDIATO (SUBSTITUI OS ALERTS NATIVOS LENTOS)
+        function mostrarModal(sucesso, titulo, mensagem, protocolo = null) {
+            const modal = document.getElementById("modalFeedback");
+            const icone = document.getElementById("modalIcone");
+            const tituloEl = document.getElementById("modalTitulo");
+            const msgEl = document.getElementById("modalMensagem");
+            const protoBox = document.getElementById("modalProtocoloBox");
+            const protoTxt = document.getElementById("modalProtocoloTxt");
+
+            tituloEl.textContent = titulo;
+            msgEl.textContent = mensagem;
+
+            if (sucesso) {
+                icone.className = "w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold bg-emerald-100 text-emerald-600";
+                icone.textContent = "✓";
+                if (protocolo) {
+                    protoBox.classList.remove("hidden");
+                    protoTxt.textContent = protocolo;
+                }
+            } else {
+                icone.className = "w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold bg-rose-100 text-rose-600";
+                icone.textContent = "✕";
+                protoBox.classList.add("hidden");
+            }
+
+            modal.classList.remove("hidden");
+        }
+
+        function fecharModalFeedback() {
+            document.getElementById("modalFeedback").classList.add("hidden");
+        }
+
         async function salvarAgendamento(e) {
             e.preventDefault();
             const horario = document.getElementById("clienteHorario").value;
-            if (!horario) { alert("Por favor, toque em um horário disponível."); return; }
+            if (!horario) {
+                mostrarModal(false, "Horário não selecionado", "Por favor, selecione um horário disponível na lista.");
+                return;
+            }
 
             const nome = document.getElementById("clienteNome").value.trim();
             const whatsapp = document.getElementById("clienteWhatsapp").value.trim();
@@ -395,14 +447,14 @@
             if (db) {
                 const salaoRef = db.collection("saloes").doc(SALAO_ID).collection("agendamentos");
 
-                // TRAVA ANTI-SOBREPOSIÇÃO: Checa se o horário já está ocupado no dia
+                // TRAVA ANTI-SOBREPOSIÇÃO IMEDIATA
                 const queryDuplicado = await salaoRef.where("data", "==", data).where("horario", "==", horario).get();
                 if (!queryDuplicado.empty) {
-                    alert(`⚠️ O horário das ${horario} do dia ${data} já foi reservado. Escolha outro horário.`);
+                    mostrarModal(false, "Horário Indisponível", `O horário das ${horario} do dia ${data} já foi reservado por outro cliente. Escolha outro horário.`);
                     return;
                 }
 
-                // GERAÇÃO DE PROTOCOLO ÚNICO PARA O CLIENTE
+                // GERAÇÃO DE PROTOCOLO ÚNICO
                 const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
 
                 const dados = {
@@ -413,17 +465,19 @@
                 // 1. Salva no Firebase
                 await salaoRef.add(dados);
                 
-                // 2. Disparo oculto para o WhatsApp do Master ADM
+                // 2. Disparo oculto para o WhatsApp do Master ADM em segundo plano
                 const mensagemMaster = `🚀 *NOVO AGENDAMENTO (${SALAO_ID.toUpperCase()})* ✂️\n\n📌 *Protocolo:* ${protocolo}\n👤 *Cliente:* ${nome}\n📱 *WhatsApp:* ${whatsapp}\n💈 *Serviço:* ${servico}\n👨‍🎨 *Profissional:* ${barbeiro}\n📅 *Data:* ${data}\n⏰ *Horário:* ${horario}\n\n_Painel Master Técnicos de Bolso_`;
                 const linkWhatsAppMaster = `https://wa.me/${WHATSAPP_MASTER}?text=${encodeURIComponent(mensagemMaster)}`;
 
-                // 3. Exibe o Protocolo oficial para o cliente na tela
-                alert(`✅ Agendamento Confirmado!\n\nCliente: ${nome}\nServiço: ${servico}\nData: ${data} às ${horario}\n\n🎟️ SEU PROTOCOLO: ${protocolo}\nApresente este número no estabelecimento.`);
+                // 3. Exibe o Modal Visual Imediato com o Protocolo para o cliente
+                mostrarModal(true, "Agendado com Sucesso!", `${nome}, seu horário está garantido com ${barbeiro}.`, protocolo);
 
-                // Abre o WhatsApp para o Master ADM em segundo plano
-                window.open(linkWhatsAppMaster, '_blank');
+                // Abre a aba do WhatsApp Master em segundo plano sem travar a tela
+                setTimeout(() => {
+                    window.open(linkWhatsAppMaster, '_blank');
+                }, 300);
 
-                // Reseta o formulário
+                // Reseta o formulário mantendo a data atual
                 document.getElementById("agendamentoForm").reset();
                 document.getElementById("clienteData").value = data;
                 gerarGradeHorarios();
