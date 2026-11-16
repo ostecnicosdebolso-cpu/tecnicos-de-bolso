@@ -52,6 +52,10 @@
         <span id="protocolo" class="font-mono text-xs text-[#aeb4ba]"></span>
       </div>
       <p id="comprovanteTxt" class="text-sm"></p>
+      <div id="zapBox" class="hidden space-y-1">
+        <a id="btnZap" href="#" target="_blank" rel="noopener" class="block text-center bg-[#25a35a] text-white font-bold rounded-xl py-3 text-sm">Avisar a barbearia no WhatsApp</a>
+        <p class="text-[11px] text-[#9aa1a8]">Toque em enviar no WhatsApp para a barbearia receber o aviso.</p>
+      </div>
       <button data-act="novo" class="text-xs underline text-[#aeb4ba]">Fazer novo agendamento</button>
     </div>
 
@@ -164,7 +168,7 @@
 
 <script type="module">
 /* ========= CONFIGURAÇÃO ========= */
-const VERSAO = "v1.3";                         // some 0.1 a cada alteração publicada (v1.3, v1.4...)
+const VERSAO = "v1.4";                         // some 0.1 a cada alteração publicada (v1.5, v1.6...)
 const firebaseConfig = {
   apiKey: "AIzaSyBfGd4a0_b3soNJTxL1FCa8JAMLxIxJyYg",
   authDomain: "tecnicos-de-bolso-c3417.firebaseapp.com",
@@ -174,6 +178,7 @@ const firebaseConfig = {
   appId: "1:473908989188:web:478db24c71bb4bf32dbt79"
 };
 const SALAO = "carica";                        // documento: saloes/carica
+const WHATSAPP_BARBEARIA = "5511991655249";    // quem recebe o aviso: 55 + DDD + número, só dígitos
 const SENHAS = { barbearia: "1234", admin: "master123" };
 const PROFISSIONAIS = ["Carica"];
 const SERVICOS = [
@@ -279,11 +284,18 @@ async function gravar(o) {
 
 /* ========= COMPROVANTE DO CLIENTE ========= */
 const lerComprovante = () => { try { return JSON.parse(localStorage.getItem("tdb_comprovante") || "null"); } catch { return null; } };
+function linkZap(c) {
+  const linhas = [`Novo agendamento (${c.protocolo})`, c.nome && `Cliente: ${c.nome}`, c.telefone && `Telefone: ${c.telefone}`,
+    `Serviço: ${c.servico}`, `Data: ${dBR(c.data).slice(0, 5)} às ${c.horario}`, `Profissional: ${c.profissional}`].filter(Boolean);
+  return `https://wa.me/${WHATSAPP_BARBEARIA}?text=${encodeURIComponent(linhas.join("\n"))}`;
+}
 function mostrarComprovante(c, foiCancelado) {
   $("#selo").textContent = foiCancelado ? "Agendamento cancelado" : "Agendamento confirmado";
   $("#selo").className = "text-xs font-bold " + (foiCancelado ? "text-[#f3c9cd]" : "text-[#8fd3ae]");
   $("#protocolo").textContent = c.protocolo;
   $("#comprovanteTxt").textContent = `${c.servico} com ${c.profissional} em ${dBR(c.data)} às ${c.horario}.` + (foiCancelado ? " Este horário foi cancelado pela barbearia." : "");
+  $("#zapBox").classList.toggle("hidden", !!foiCancelado);
+  if (!foiCancelado) $("#btnZap").href = linkZap(c);
   $("#comprovante").classList.remove("hidden");
 }
 // Acompanha em tempo real: se a barbearia cancelar, o cliente vê o aviso no próprio aparelho.
@@ -421,7 +433,7 @@ $("#form").addEventListener("submit", async e => {
   btn.disabled = true; btn.textContent = "Agendando…";
   try {
     await Promise.race([gravar(o), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]);
-    const c = { chave: o.chave, protocolo, servico: o.servico, profissional: prof, data: diaSel, horario: o.horario };
+    const c = { chave: o.chave, protocolo, servico: o.servico, profissional: prof, data: diaSel, horario: o.horario, nome: o.nome, telefone: o.telefone };
     try { localStorage.setItem("tdb_comprovante", JSON.stringify(c)); } catch {}
     acompanharMeu(c); horaSel = null; desenharHoras(); window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (err) {
