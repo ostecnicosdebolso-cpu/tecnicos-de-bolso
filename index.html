@@ -39,25 +39,59 @@
 
   <!-- CLIENTE -->
   <section id="tab-cliente" class="space-y-5">
-    <div>
-      <h1 class="text-2xl font-extrabold leading-tight">Carica Barber Shop</h1>
-      <p class="text-xs text-[#9aa1a8] mt-0.5">Técnicos de Bolso · <span class="ver"></span></p>
+
+    <!-- INÍCIO -->
+    <div id="home" class="space-y-5">
+      <div id="comprovante" class="hidden bg-[#35393e] border border-[#454a50] rounded-2xl p-4 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span id="selo" class="text-xs font-bold text-[#8fd3ae]">Agendamento confirmado</span>
+          <span id="protocolo" class="font-mono text-xs text-[#aeb4ba]"></span>
+        </div>
+        <p id="comprovanteTxt" class="text-sm"></p>
+        <div id="zapBox" class="hidden space-y-1">
+          <a id="btnZap" href="#" target="_blank" rel="noopener" class="block text-center bg-[#25a35a] text-white font-bold rounded-xl py-3 text-sm">Avisar a barbearia no WhatsApp</a>
+          <p class="text-[11px] text-[#9aa1a8]">Toque em enviar no WhatsApp para a barbearia receber o aviso.</p>
+        </div>
+        <button data-act="novo" class="text-xs underline text-[#aeb4ba]">Fazer novo agendamento</button>
+      </div>
+
+      <div class="text-center pt-2">
+        <div class="w-14 h-14 rounded-full bg-[#35393e] border border-[#454a50] mx-auto mb-3 flex items-center justify-center text-[#e8eaec]">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>
+        </div>
+        <h1 class="text-2xl font-extrabold leading-tight">Carica Barber Shop</h1>
+        <p class="text-xs text-[#9aa1a8] mt-0.5">Técnicos de Bolso · <span class="ver"></span></p>
+        <p class="text-sm text-[#aeb4ba] mt-4 mb-4">Escolha o dia e o horário em poucos toques. Sem fila e sem troca de mensagens.</p>
+        <div class="inline-flex items-center gap-2 bg-[#1f2225] border border-[#454a50] rounded-full px-3 py-1 text-xs mb-4">
+          <span id="statusDot" class="w-2 h-2 rounded-full bg-[#5fd39a]"></span><span id="statusTxt">Agendamentos abertos</span>
+        </div>
+        <button id="btnAgendar" data-act="agendar" class="w-full bg-[#e8eaec] text-[#1f2225] font-extrabold rounded-xl py-3.5 active:scale-[.99] transition">Agendar horário</button>
+      </div>
+
+      <div class="bg-[#35393e] border border-[#454a50] rounded-2xl px-4 py-1 divide-y divide-[#454a50] text-sm">
+        <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Horário</span><span id="infoHorario"></span></div>
+        <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Profissional</span><span id="infoProf"></span></div>
+        <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Endereço</span><a id="linkMapa" href="#" target="_blank" rel="noopener" class="text-right underline"></a></div>
+      </div>
+
+      <div>
+        <p class="text-xs text-[#9aa1a8] mb-1.5 ml-1">Serviços</p>
+        <div id="homeServicos" class="bg-[#35393e] border border-[#454a50] rounded-2xl px-4 py-0.5 divide-y divide-[#454a50]"></div>
+      </div>
+
+      <div class="flex justify-center gap-3 pt-1">
+        <a id="linkZapContato" href="#" target="_blank" rel="noopener" class="px-4 py-2 rounded-full border border-[#454a50] text-sm">WhatsApp</a>
+        <a id="linkInsta" href="#" target="_blank" rel="noopener" class="px-4 py-2 rounded-full border border-[#454a50] text-sm">Instagram</a>
+      </div>
     </div>
 
-    <div id="aviso" class="hidden bg-[#4a2a2e] border border-[#7a3a41] text-[#f3c9cd] rounded-xl p-3 text-sm text-center"></div>
-
-    <div id="comprovante" class="hidden bg-[#35393e] border border-[#454a50] rounded-2xl p-4 space-y-2">
-      <div class="flex items-center justify-between gap-2">
-        <span id="selo" class="text-xs font-bold text-[#8fd3ae]">Agendamento confirmado</span>
-        <span id="protocolo" class="font-mono text-xs text-[#aeb4ba]"></span>
+    <!-- AGENDAR -->
+    <div id="agendar" class="hidden space-y-5">
+      <div class="flex items-center gap-3">
+        <button data-act="inicio" class="text-sm text-[#aeb4ba] underline">‹ Início</button>
+        <h2 class="font-extrabold text-xl">Agendar horário</h2>
       </div>
-      <p id="comprovanteTxt" class="text-sm"></p>
-      <div id="zapBox" class="hidden space-y-1">
-        <a id="btnZap" href="#" target="_blank" rel="noopener" class="block text-center bg-[#25a35a] text-white font-bold rounded-xl py-3 text-sm">Avisar a barbearia no WhatsApp</a>
-        <p class="text-[11px] text-[#9aa1a8]">Toque em enviar no WhatsApp para a barbearia receber o aviso.</p>
-      </div>
-      <button data-act="novo" class="text-xs underline text-[#aeb4ba]">Fazer novo agendamento</button>
-    </div>
+      <div id="aviso" class="hidden bg-[#4a2a2e] border border-[#7a3a41] text-[#f3c9cd] rounded-xl p-3 text-sm text-center"></div>
 
     <form id="form">
       <fieldset id="fs" class="space-y-5">
@@ -101,6 +135,7 @@
         <button class="w-full bg-[#e8eaec] text-[#1f2225] font-extrabold rounded-xl py-3.5 active:scale-[.99] transition">Agendar</button>
       </fieldset>
     </form>
+    </div>
   </section>
 
   <!-- BARBEARIA -->
@@ -168,7 +203,7 @@
 
 <script type="module">
 /* ========= CONFIGURAÇÃO ========= */
-const VERSAO = "v1.4";                         // some 0.1 a cada alteração publicada (v1.5, v1.6...)
+const VERSAO = "v1.5";                         // some 0.1 a cada alteração publicada (v1.6, v1.7...)
 const firebaseConfig = {
   apiKey: "AIzaSyBfGd4a0_b3soNJTxL1FCa8JAMLxIxJyYg",
   authDomain: "tecnicos-de-bolso-c3417.firebaseapp.com",
@@ -179,6 +214,10 @@ const firebaseConfig = {
 };
 const SALAO = "carica";                        // documento: saloes/carica
 const WHATSAPP_BARBEARIA = "5511991655249";    // quem recebe o aviso: 55 + DDD + número, só dígitos
+const ENDERECO = "R. Narciso Sturlini, 838 - Bela Vista, Osasco - SP";
+const MAPS_URL = "https://www.google.com/maps/place/carica+barbershop/data=!4m2!3m1!1s0x94ce511a6ba39beb:0x5b636f79148e662b?sa=X&ved=1t:242&ictx=111";
+const INSTAGRAM = "caricabarbershop";
+const WHATSAPP_CONTATO = "5511958073012";      // número exibido na tela inicial (contato)
 const SENHAS = { barbearia: "1234", admin: "master123" };
 const PROFISSIONAIS = ["Carica"];
 const SERVICOS = [
@@ -325,6 +364,19 @@ function desenharCalendario() {
   }
   $("#calendario").innerHTML = cel;
 }
+function desenharHome() {
+  $("#infoHorario").textContent = `${INICIO} às ${FIM}`;
+  $("#infoProf").textContent = PROFISSIONAIS.join(", ");
+  $("#linkMapa").textContent = ENDERECO; $("#linkMapa").href = MAPS_URL;
+  $("#linkZapContato").href = `https://wa.me/${WHATSAPP_CONTATO}`;
+  $("#linkInsta").href = `https://www.instagram.com/${INSTAGRAM}/`;
+  $("#homeServicos").innerHTML = SERVICOS.map(s => `<div class="flex justify-between gap-3 py-2.5 text-sm"><span>${esc(s.nome)}${s.nota ? `<span class="block text-[11px] text-[#9aa1a8]">${esc(s.nota)}</span>` : ""}</span><span class="font-bold">${brl(s.preco)}</span></div>`).join("");
+}
+function mostrarTela(v) {
+  $("#home").classList.toggle("hidden", v !== "home");
+  $("#agendar").classList.toggle("hidden", v !== "agendar");
+  window.scrollTo({ top: 0 });
+}
 function desenharServicos() {
   $("#servicos").innerHTML = SERVICOS.map((s, i) => `<button type="button" data-serv="${i}" class="w-full flex items-center justify-between gap-3 px-3.5 py-3 text-left ${i === servSel ? "bg-[#454a50]" : "bg-[#35393e]"}"><span><span class="text-sm font-semibold">${esc(s.nome)}</span>${s.nota ? `<span class="block text-[11px] text-[#9aa1a8]">${esc(s.nota)}</span>` : ""}</span><span class="text-sm font-bold">${brl(s.preco)}</span></button>`).join("");
 }
@@ -340,7 +392,15 @@ function desenharHoras() {
   $("#semHoras").classList.toggle("hidden", SLOTS.some(livre));
 }
 function desenharEstado() {
-  // Cliente
+  // Cliente: início
+  const fechado = indisponivel();
+  $("#statusDot").className = "w-2 h-2 rounded-full " + (fechado ? "bg-[#e0707a]" : "bg-[#5fd39a]");
+  $("#statusTxt").textContent = fechado ? "Agendamentos fechados" : "Agendamentos abertos";
+  const ba = $("#btnAgendar");
+  ba.disabled = fechado;
+  ba.textContent = fechado ? "Agendamentos indisponíveis" : "Agendar horário";
+  ba.className = "w-full font-extrabold rounded-xl py-3.5 transition " + (fechado ? "bg-[#454a50] text-[#9aa1a8]" : "bg-[#e8eaec] text-[#1f2225] active:scale-[.99]");
+  // Cliente: agendamento
   const av = $("#aviso");
   av.classList.toggle("hidden", !indisponivel());
   av.textContent = sistemaTravado ? "Os agendamentos estão temporariamente indisponíveis." : "A barbearia não está recebendo agendamentos no momento.";
@@ -389,7 +449,9 @@ document.addEventListener("click", async e => {
   if (d.hora) { horaSel = d.hora; desenharHoras(); }
   if (d.serv) { servSel = +d.serv; desenharServicos(); }
   if (d.act === "fechar") $("#modal").classList.add("hidden");
-  if (d.act === "novo") { try { localStorage.removeItem("tdb_comprovante"); } catch {} if (unsubMeu) unsubMeu(); $("#comprovante").classList.add("hidden"); }
+  if (d.act === "agendar" && !indisponivel()) mostrarTela("agendar");
+  if (d.act === "inicio") mostrarTela("home");
+  if (d.act === "novo") { try { localStorage.removeItem("tdb_comprovante"); } catch {} if (unsubMeu) unsubMeu(); $("#comprovante").classList.add("hidden"); if (!indisponivel()) mostrarTela("agendar"); }
   if (d.act === "login") {
     const box = document.querySelector(`[data-login="${d.role}"]`), campo = box.querySelector("[data-pass]");
     if (campo.value === SENHAS[d.role]) {
@@ -435,7 +497,7 @@ $("#form").addEventListener("submit", async e => {
     await Promise.race([gravar(o), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]);
     const c = { chave: o.chave, protocolo, servico: o.servico, profissional: prof, data: diaSel, horario: o.horario, nome: o.nome, telefone: o.telefone };
     try { localStorage.setItem("tdb_comprovante", JSON.stringify(c)); } catch {}
-    acompanharMeu(c); horaSel = null; desenharHoras(); window.scrollTo({ top: 0, behavior: "smooth" });
+    acompanharMeu(c); horaSel = null; desenharHoras(); mostrarTela("home");
   } catch (err) {
     console.error(err);
     aviso(err.message === "ocupado" ? "Horário Indisponível"
@@ -450,7 +512,7 @@ $("#form").addEventListener("submit", async e => {
 document.querySelectorAll(".ver").forEach(el => el.textContent = VERSAO);
 $("#prof").innerHTML = PROFISSIONAIS.map(p => `<option>${esc(p)}</option>`).join("");
 $("#dataAgenda").value = hojeISO(); $("#dataAdmin").value = hojeISO();
-desenharCalendario(); desenharServicos(); desenharEstado(); aba("cliente");
+desenharHome(); desenharCalendario(); desenharServicos(); desenharEstado(); aba("cliente");
 { const c = lerComprovante(); if (c && c.protocolo) mostrarComprovante(c, false); }
 iniciar();
 </script>
