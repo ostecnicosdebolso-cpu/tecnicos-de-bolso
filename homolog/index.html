@@ -121,7 +121,11 @@
           <div><label class="lbl">Último horário</label><input id="fFim" type="time" class="field"></div>
         </div>
         <div><label class="lbl">Profissionais (separe por vírgula)</label><input id="fProfs" class="field"></div>
-        <div><label class="lbl">Serviços — um por linha: Nome | preço | observação</label><textarea id="fServ" rows="5" class="field"></textarea></div>
+        <div class="space-y-2">
+          <label class="lbl">Serviços oferecidos</label>
+          <div id="fServList" class="space-y-2"></div>
+          <button type="button" data-act="addServ" class="w-full btn2 text-sm font-bold">+ Adicionar serviço</button>
+        </div>
         <div class="pt-2 border-t border-[#454a50] space-y-2">
           <p class="text-sm font-semibold">Acesso do dono</p>
           <div><label class="lbl">E-mail de acesso</label><input id="fEmail" type="email" class="field"></div>
@@ -305,17 +309,17 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.1";                        // sobe 0.1 a cada alteração publicada (v2.1, v2.2...)
+const VERSAO = "v2.2";                        // sobe 0.1 a cada alteração publicada (v2.1, v2.2...)
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 
 // Produção: banco real (o mesmo da v1.6)
 const CONFIG_PRODUCAO = {
-  apiKey: "AIzaSyBfGd4a0_b3soNJTxL1FCa8JAMLxIxJyYg",
+  apiKey: "AIzaSyBfGd4aD_b3soNJTxLiFcA8JAWLxixJyYg",
   authDomain: "tecnicos-de-bolso-c3417.firebaseapp.com",
   projectId: "tecnicos-de-bolso-c3417",
   storageBucket: "tecnicos-de-bolso-c3417.firebasestorage.app",
-  messagingSenderId: "473908989188",
-  appId: "1:473908989188:web:478db24c71bb4bf32dbt79"
+  messagingSenderId: "473908989180",
+  appId: "1:473908989180:web:47c8db24c71bb4bf32db79"
 };
 // Homologação: banco de testes. Cole aqui a configuração do projeto de testes.
 const CONFIG_HOMOLOGACAO = {
@@ -363,7 +367,7 @@ const SEED = {
 /* ================= UTILIDADES ================= */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const brl = v => "R$ " + Number(v).toLocaleString("pt-BR");
+const brl = v => "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: Number(v) % 1 ? 2 : 0, maximumFractionDigits: 2 });
 const dig = s => String(s || "").replace(/\D/g, "");
 const pad = n => String(n).padStart(2, "0");
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; // data local, não UTC
@@ -488,6 +492,22 @@ function desenharMaster() {
   if (sel.value) ouvirAgenda("mAg", sel.value, $("#mAgData").value, "#mAgLista");
 }
 
+// Uma linha do editor de serviços: nome, preço, observação e botão de remover
+function linhaServico(s = {}) {
+  return `<div class="servRow rounded-xl border border-[#454a50] bg-[#2f3337] p-2.5 space-y-2">
+    <div class="flex gap-2">
+      <input class="field sNome" placeholder="Nome do serviço (ex.: Corte)" value="${esc(s.nome || "")}">
+      <button type="button" data-act="rmServ" class="shrink-0 w-12 rounded-xl border border-[#7a3a41] text-[#f3c9cd] font-bold" aria-label="Remover serviço">✕</button>
+    </div>
+    <div class="flex gap-2">
+      <div class="relative w-28 shrink-0">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#9aa1a8]">R$</span>
+        <input class="field sPreco !pl-10" inputmode="decimal" placeholder="0" value="${s.preco ?? ""}">
+      </div>
+      <input class="field sNota" placeholder="Observação (opcional)" value="${esc(s.nota || "")}">
+    </div>
+  </div>`;
+}
 function abrirForm(id) {
   const f = $("#formSalao"), s = id ? saloes.find(x => x.id === id) : null;
   const n = saloes.filter(x => /^top\d+$/.test(x.id)).reduce((m, x) => Math.max(m, +x.id.slice(3)), 0) + 1;
@@ -500,7 +520,8 @@ function abrirForm(id) {
   $("#fZap").value = v.whatsapp || ""; $("#fInsta").value = v.instagram || "";
   $("#fInicio").value = v.inicio || "09:00"; $("#fFim").value = v.fim || "20:00";
   $("#fProfs").value = (v.profissionais || []).join(", ");
-  $("#fServ").value = (v.servicos || []).map(x => [x.nome, x.preco, x.nota].filter(y => y !== undefined && y !== "").join(" | ")).join("\n");
+  const lista = v.servicos && v.servicos.length ? v.servicos : [{}];
+  $("#fServList").innerHTML = lista.map(linhaServico).join("");
   $("#fEmail").value = v.emailDono || ""; $("#fSenha").value = "";
   f.classList.remove("hidden"); f.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -512,10 +533,11 @@ async function salvarForm(e) {
   if (!id || !nome) return aviso("Preencha o código do link e o nome.");
   if (novo && saloes.some(s => s.id === id && s.nome)) return aviso("Já existe uma barbearia com esse código. Escolha outro.");
   const servicos = [];
-  for (const linha of $("#fServ").value.split("\n").map(l => l.trim()).filter(Boolean)) {
-    const [n, p, nota] = linha.split("|").map(x => x.trim());
-    const preco = Number(String(p || "").replace(",", "."));
-    if (!n || !isFinite(preco) || !p) return aviso(`Serviço com formato errado: "${linha}". Use: Nome | preço`);
+  for (const r of document.querySelectorAll("#fServList .servRow")) {
+    const n = r.querySelector(".sNome").value.trim(), p = r.querySelector(".sPreco").value.trim(), nota = r.querySelector(".sNota").value.trim();
+    if (!n && !p && !nota) continue;                       // linha vazia: ignora
+    const preco = Number(p.replace(",", "."));
+    if (!n || !p || !isFinite(preco) || preco < 0) return aviso(`Confira o serviço "${n || "sem nome"}": preencha o nome e o preço (ex.: 45 ou 45,50).`);
     servicos.push(nota ? { nome: n, preco, nota } : { nome: n, preco });
   }
   if (!servicos.length) return aviso("Cadastre pelo menos um serviço.");
@@ -853,6 +875,12 @@ document.addEventListener("click", async e => {
     case "seed": try { await criarSeed(); } catch (err) { console.error(err); aviso("Não foi possível criar os cadastros. Verifique as regras do Firestore."); } break;
     case "novaSalao": abrirForm(null); break;
     case "editar": abrirForm(d.id); break;
+    case "addServ": {
+      $("#fServList").insertAdjacentHTML("beforeend", linhaServico());
+      $("#fServList").lastElementChild.querySelector(".sNome").focus();
+      break;
+    }
+    case "rmServ": t.closest(".servRow").remove(); break;
     case "fecharForm": $("#formSalao").classList.add("hidden"); break;
     case "sync": try { await sincronizar(d.id); } catch (err) { console.error(err); aviso("Não foi possível sincronizar."); } break;
   }
