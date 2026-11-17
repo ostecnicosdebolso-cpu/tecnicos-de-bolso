@@ -4,234 +4,370 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1f2225">
-<title>Carica Barber Shop - Técnicos de Bolso</title>
+<title>Técnicos de Bolso</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   body{font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-  input,select{font-size:16px} /* evita zoom automático no iPhone */
+  input,select,textarea{font-size:16px} /* evita zoom automático no iPhone */
   .field{width:100%;background:#1f2225;border:1px solid #454a50;border-radius:.75rem;padding:.7rem .85rem;color:#e8eaec;outline:none}
   .field:focus{border-color:#aeb4ba}
   .field::placeholder{color:#7d848b}
+  .field[readonly]{opacity:.6}
+  .card{background:#35393e;border:1px solid #454a50;border-radius:1rem}
+  .btn{width:100%;background:#e8eaec;color:#1f2225;font-weight:800;border-radius:.75rem;padding:.8rem}
+  .btn2{display:block;text-align:center;border:1px solid #454a50;border-radius:.6rem;padding:.5rem .4rem}
+  .lbl{display:block;font-size:.75rem;color:#9aa1a8;margin:0 0 .25rem .25rem}
   fieldset:disabled{opacity:.4}
-  header{padding-top:env(safe-area-inset-top)}
+  body{padding-top:env(safe-area-inset-top)}
 </style>
 </head>
 <body class="bg-[#2a2d31] text-[#e8eaec] min-h-screen">
 
+<div id="faixaHomolog" class="hidden sticky top-0 z-50 bg-[#d69e2e] text-[#1f2225] text-center text-xs font-extrabold py-1.5">HOMOLOGAÇÃO · ambiente de testes</div>
+
 <!-- Modal de aviso -->
 <div id="modal" class="hidden fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-5">
-  <div class="bg-[#35393e] border border-[#454a50] rounded-2xl max-w-sm w-full p-6 text-center space-y-4">
+  <div class="card max-w-sm w-full p-6 text-center space-y-4">
     <p id="modalTxt" class="text-sm leading-relaxed"></p>
-    <button data-act="fechar" class="w-full bg-[#e8eaec] text-[#1f2225] font-bold rounded-xl py-3">Entendi</button>
+    <button data-act="fechar" class="btn">Entendi</button>
   </div>
 </div>
 
-<header class="sticky top-0 z-50 bg-[#1f2225] border-b border-[#3a3f44]">
-  <div class="max-w-md mx-auto px-4 py-3 grid grid-cols-3 gap-1">
-    <button data-tab="cliente" class="tabbtn py-2.5 rounded-lg text-sm">Cliente</button>
-    <button data-tab="barbearia" class="tabbtn py-2.5 rounded-lg text-sm">Barbearia</button>
-    <button data-tab="admin" class="tabbtn py-2.5 rounded-lg text-sm">Administrador</button>
+<!-- Janela de confirmação (substitui a caixinha do navegador) -->
+<div id="confirmBox" class="hidden fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-5">
+  <div class="card max-w-sm w-full p-6 text-center space-y-4">
+    <p id="confirmTxt" class="text-sm leading-relaxed"></p>
+    <div class="grid grid-cols-2 gap-2">
+      <button data-conf="0" class="btn2 !py-3 font-bold">Voltar</button>
+      <button data-conf="1" id="confirmOk" class="btn">Confirmar</button>
+    </div>
   </div>
-</header>
+</div>
 
 <main class="max-w-md mx-auto px-4 pt-6 pb-16">
 
-  <!-- CLIENTE -->
-  <section id="tab-cliente" class="space-y-5">
+  <p id="carregando" class="text-center text-sm text-[#9aa1a8] py-16">Carregando…</p>
 
-    <!-- INÍCIO -->
-    <div id="home" class="space-y-5">
-      <div id="comprovante" class="hidden bg-[#35393e] border border-[#454a50] rounded-2xl p-4 space-y-2">
-        <div class="flex items-center justify-between gap-2">
-          <span id="selo" class="text-xs font-bold text-[#8fd3ae]">Agendamento confirmado</span>
-          <span id="protocolo" class="font-mono text-xs text-[#aeb4ba]"></span>
-        </div>
-        <p id="comprovanteTxt" class="text-sm"></p>
-        <div id="zapBox" class="hidden space-y-1">
-          <a id="btnZap" href="#" target="_blank" rel="noopener" class="block text-center bg-[#25a35a] text-white font-bold rounded-xl py-3 text-sm">Avisar a barbearia no WhatsApp</a>
-          <p class="text-[11px] text-[#9aa1a8]">Toque em enviar no WhatsApp para a barbearia receber o aviso.</p>
-        </div>
-        <button data-act="novo" class="text-xs underline text-[#aeb4ba]">Fazer novo agendamento</button>
+  <!-- ================= VITRINE ================= -->
+  <section id="vVitrine" class="hidden space-y-5">
+    <div class="text-center pt-2">
+      <div class="w-14 h-14 rounded-full bg-[#35393e] border border-[#454a50] mx-auto mb-3 flex items-center justify-center">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>
       </div>
-
-      <div class="text-center pt-2">
-        <div class="w-14 h-14 rounded-full bg-[#35393e] border border-[#454a50] mx-auto mb-3 flex items-center justify-center text-[#e8eaec]">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>
-        </div>
-        <h1 class="text-2xl font-extrabold leading-tight">Carica Barber Shop</h1>
-        <p class="text-xs text-[#9aa1a8] mt-0.5">Técnicos de Bolso · <span class="ver"></span></p>
-        <p class="text-sm text-[#aeb4ba] mt-4 mb-4">Escolha o dia e o horário em poucos toques. Sem fila e sem troca de mensagens.</p>
-        <div class="inline-flex items-center gap-2 bg-[#1f2225] border border-[#454a50] rounded-full px-3 py-1 text-xs mb-4">
-          <span id="statusDot" class="w-2 h-2 rounded-full bg-[#5fd39a]"></span><span id="statusTxt">Agendamentos abertos</span>
-        </div>
-        <button id="btnAgendar" data-act="agendar" class="w-full bg-[#e8eaec] text-[#1f2225] font-extrabold rounded-xl py-3.5 active:scale-[.99] transition">Agendar horário</button>
-      </div>
-
-      <div class="bg-[#35393e] border border-[#454a50] rounded-2xl px-4 py-1 divide-y divide-[#454a50] text-sm">
-        <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Horário</span><span id="infoHorario"></span></div>
-        <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Profissional</span><span id="infoProf"></span></div>
-        <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Endereço</span><a id="linkMapa" href="#" target="_blank" rel="noopener" class="text-right underline"></a></div>
-      </div>
-
-      <div>
-        <p class="text-xs text-[#9aa1a8] mb-1.5 ml-1">Serviços</p>
-        <div id="homeServicos" class="bg-[#35393e] border border-[#454a50] rounded-2xl px-4 py-0.5 divide-y divide-[#454a50]"></div>
-      </div>
-
-      <div class="flex justify-center gap-3 pt-1">
-        <a id="linkZapContato" href="#" target="_blank" rel="noopener" class="px-4 py-2 rounded-full border border-[#454a50] text-sm">WhatsApp</a>
-        <a id="linkInsta" href="#" target="_blank" rel="noopener" class="px-4 py-2 rounded-full border border-[#454a50] text-sm">Instagram</a>
-      </div>
+      <h1 class="text-2xl font-extrabold">Técnicos de Bolso</h1>
+      <p class="text-sm text-[#aeb4ba] mt-2">Seu assistente virtual de agendamentos. Escolha a barbearia e agende em poucos toques.</p>
     </div>
-
-    <!-- AGENDAR -->
-    <div id="agendar" class="hidden space-y-5">
-      <div class="flex items-center gap-3">
-        <button data-act="inicio" class="text-sm text-[#aeb4ba] underline">‹ Início</button>
-        <h2 class="font-extrabold text-xl">Agendar horário</h2>
-      </div>
-      <div id="aviso" class="hidden bg-[#4a2a2e] border border-[#7a3a41] text-[#f3c9cd] rounded-xl p-3 text-sm text-center"></div>
-
-    <form id="form">
-      <fieldset id="fs" class="space-y-5">
-        <div>
-          <p class="text-sm font-semibold mb-2">Data</p>
-          <div class="bg-[#35393e] border border-[#454a50] rounded-2xl p-3">
-            <div class="flex items-center justify-between mb-2">
-              <button type="button" id="mesAnt" data-mes="-1" class="w-10 h-10 rounded-lg text-xl disabled:opacity-25" aria-label="Mês anterior">‹</button>
-              <p id="mesNome" class="text-sm font-bold capitalize"></p>
-              <button type="button" id="mesProx" data-mes="1" class="w-10 h-10 rounded-lg text-xl disabled:opacity-25" aria-label="Próximo mês">›</button>
-            </div>
-            <div class="grid grid-cols-7 gap-1 text-center text-[11px] text-[#9aa1a8] mb-1">
-              <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
-            </div>
-            <div id="calendario" class="grid grid-cols-7 gap-1"></div>
-          </div>
-        </div>
-
-        <div>
-          <p class="text-sm font-semibold mb-2">Horário <span id="diaTxt" class="text-[#9aa1a8] font-normal"></span></p>
-          <div id="horas" class="grid grid-cols-4 gap-2"></div>
-          <p id="semHoras" class="hidden text-sm text-[#9aa1a8] mt-2">Sem horários livres neste dia. Escolha outra data.</p>
-        </div>
-
-        <div>
-          <label for="prof" class="text-sm font-semibold block mb-2">Profissional</label>
-          <select id="prof" class="field"></select>
-        </div>
-
-        <div>
-          <p class="text-sm font-semibold mb-2">Serviço</p>
-          <div id="servicos" class="rounded-xl border border-[#454a50] divide-y divide-[#3a3f44] overflow-hidden"></div>
-        </div>
-
-        <div class="space-y-2.5">
-          <p class="text-sm font-semibold">Seus dados</p>
-          <input id="nome" class="field" placeholder="Nome" autocomplete="name" required>
-          <input id="fone" class="field" placeholder="Telefone / WhatsApp com DDD" inputmode="tel" autocomplete="tel" required>
-        </div>
-
-        <button class="w-full bg-[#e8eaec] text-[#1f2225] font-extrabold rounded-xl py-3.5 active:scale-[.99] transition">Agendar</button>
-      </fieldset>
-    </form>
+    <div id="listaSaloes" class="space-y-3"></div>
+    <div class="text-center pt-6 space-y-1">
+      <button data-act="irMaster" class="text-xs text-[#7d848b] underline">Área restrita</button>
+      <p class="text-[11px] text-[#5b6168]"><span class="ver"></span></p>
     </div>
   </section>
 
-  <!-- BARBEARIA -->
-  <section id="tab-barbearia" class="hidden space-y-4">
-    <div data-login="barbearia" class="bg-[#35393e] border border-[#454a50] rounded-2xl p-5 space-y-3 text-center">
-      <h2 class="font-bold">Agenda da barbearia</h2>
-      <p class="text-sm text-[#9aa1a8]">Acesso restrito. Digite a senha.</p>
-      <input type="password" class="field text-center" placeholder="Senha" data-pass>
-      <button data-act="login" data-role="barbearia" class="w-full bg-[#e8eaec] text-[#1f2225] font-bold rounded-xl py-3">Entrar</button>
-      <p class="text-[11px] text-[#7d848b]"><span class="ver"></span></p>
+  <!-- ================= MASTER ================= -->
+  <section id="vMaster" class="hidden space-y-4">
+    <div class="flex items-center gap-3">
+      <button data-act="irVitrine" class="text-sm text-[#aeb4ba] underline">‹ Barbearias</button>
+      <h2 class="font-extrabold text-xl">Master</h2>
     </div>
-    <div data-panel="barbearia" class="hidden space-y-3">
-      <div class="flex items-center justify-between">
-        <h2 class="font-bold">Agenda da barbearia</h2>
-        <span class="ver text-[11px] text-[#7d848b]"></span>
-      </div>
-      <div class="bg-[#35393e] border border-[#454a50] rounded-2xl p-4 flex items-center justify-between gap-3">
-        <div>
-          <p class="font-bold text-sm">Receber agendamentos</p>
-          <p id="barbStatus" class="text-xs text-[#9aa1a8]"></p>
-        </div>
-        <button id="btnBarb" data-act="barb" class="shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold"></button>
-      </div>
-      <div class="flex items-center justify-between gap-3">
-        <h3 class="font-semibold text-sm">Agendamentos do dia</h3>
-        <input id="dataAgenda" type="date" class="field !w-auto !py-2">
-      </div>
-      <div id="listaAgenda" class="space-y-2"></div>
-    </div>
-  </section>
 
-  <!-- ADMINISTRADOR -->
-  <section id="tab-admin" class="hidden space-y-4">
-    <div data-login="admin" class="bg-[#35393e] border border-[#454a50] rounded-2xl p-5 space-y-3 text-center">
-      <h2 class="font-bold">Administrador</h2>
-      <p class="text-sm text-[#9aa1a8]">Acesso restrito. Digite a senha.</p>
-      <input type="password" class="field text-center" placeholder="Senha" data-pass>
-      <button data-act="login" data-role="admin" class="w-full bg-[#e8eaec] text-[#1f2225] font-bold rounded-xl py-3">Entrar</button>
-      <p class="text-[11px] text-[#7d848b]"><span class="ver"></span></p>
+    <div id="masterLogin" class="card p-5 space-y-3 text-center">
+      <p class="text-sm text-[#9aa1a8]">Acesso do administrador geral.</p>
+      <input id="mEmail" type="email" class="field text-center" autocomplete="username" placeholder="E-mail">
+      <input id="mSenha" type="password" class="field text-center" autocomplete="current-password" placeholder="Senha">
+      <button data-act="loginMaster" class="btn">Entrar</button>
+      <button data-act="esqueciMaster" class="text-xs underline text-[#9aa1a8]">Esqueci a senha</button>
     </div>
-    <div data-panel="admin" class="hidden space-y-4">
-      <div class="bg-[#35393e] border border-[#454a50] rounded-2xl p-5 space-y-4">
+
+    <div id="masterPainel" class="hidden space-y-4">
+      <div class="card p-5 space-y-3">
         <div class="flex items-center gap-3">
           <span id="ponto" class="w-3 h-3 rounded-full bg-[#5fd39a]"></span>
           <p id="statusSistema" class="font-bold">Sistema em operação</p>
         </div>
-        <p id="statusBarb" class="text-sm text-[#aeb4ba]"></p>
         <p id="statusConexao" class="text-xs text-[#9aa1a8]">Conectando ao banco de dados…</p>
         <p class="text-xs text-[#9aa1a8]">Versão do app: <span class="ver"></span></p>
-        <div class="pt-4 border-t border-[#454a50] space-y-2">
+        <div class="pt-3 border-t border-[#454a50] space-y-2">
           <p class="text-sm font-semibold">Travamento integral</p>
-          <p class="text-xs text-[#9aa1a8]">Bloqueia novos agendamentos em todos os aparelhos e se sobrepõe ao Aberto/Fechado da barbearia.</p>
+          <p class="text-xs text-[#9aa1a8]">Bloqueia novos agendamentos em todas as barbearias e se sobrepõe ao Aberto/Fechado de cada uma.</p>
           <button id="btnTrava" data-act="trava" class="w-full font-extrabold rounded-xl py-3.5"></button>
         </div>
       </div>
-      <div class="flex items-center justify-between gap-3">
-        <h3 class="font-semibold text-sm">Agendamentos do dia</h3>
-        <input id="dataAdmin" type="date" class="field !w-auto !py-2">
+
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold">Barbearias</h3>
+        <button data-act="novaSalao" class="text-sm font-bold bg-[#e8eaec] text-[#1f2225] rounded-lg px-3 py-2">+ Nova barbearia</button>
       </div>
-      <div id="listaAdmin" class="space-y-2"></div>
-      <button data-act="logout" data-role="admin" class="text-sm text-[#9aa1a8] underline">Sair</button>
+      <div id="mSeed"></div>
+
+      <form id="formSalao" class="hidden card p-4 space-y-3" autocomplete="off">
+        <p id="formTitulo" class="font-bold"></p>
+        <div><label class="lbl">Código do link (ex.: top3) — não muda depois</label><input id="fId" class="field" required></div>
+        <div><label class="lbl">Nome da barbearia</label><input id="fNome" class="field" required></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="lbl">Exibir na vitrine como</label>
+            <select id="fStatus" class="field"><option value="ativa">Barbearia ativa</option><option value="vaga">Vaga (Sua Barbearia Aqui)</option></select></div>
+          <div><label class="lbl">Ordem na vitrine</label><input id="fOrdem" type="number" class="field"></div>
+        </div>
+        <div><label class="lbl">Endereço</label><input id="fEndereco" class="field"></div>
+        <div><label class="lbl">Link do Google Maps</label><input id="fMaps" class="field" inputmode="url"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="lbl">WhatsApp (com DDD)</label><input id="fZap" class="field" inputmode="tel"></div>
+          <div><label class="lbl">Instagram (sem @)</label><input id="fInsta" class="field"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="lbl">Abre às</label><input id="fInicio" type="time" class="field"></div>
+          <div><label class="lbl">Último horário</label><input id="fFim" type="time" class="field"></div>
+        </div>
+        <div><label class="lbl">Profissionais (separe por vírgula)</label><input id="fProfs" class="field"></div>
+        <div class="space-y-2">
+          <label class="lbl">Serviços oferecidos</label>
+          <div id="fServList" class="space-y-2"></div>
+          <button type="button" data-act="addServ" class="w-full btn2 text-sm font-bold">+ Adicionar serviço</button>
+        </div>
+        <div class="pt-2 border-t border-[#454a50] space-y-2">
+          <p class="text-sm font-semibold">Acesso do dono</p>
+          <div><label class="lbl">E-mail de acesso</label><input id="fEmail" type="email" class="field"></div>
+          <div><label class="lbl">Senha — preencha só para CRIAR o acesso (mínimo 6)</label><input id="fSenha" type="text" class="field" autocomplete="off"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button type="button" data-act="fecharForm" class="btn2 text-sm">Cancelar</button>
+          <button class="btn !py-2.5">Salvar</button>
+        </div>
+      </form>
+
+      <div id="mSaloes" class="space-y-2"></div>
+
+      <div class="pt-2 space-y-2">
+        <h3 class="font-bold">Agenda</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <select id="mAgSalao" class="field !py-2"></select>
+          <input id="mAgData" type="date" class="field !py-2">
+        </div>
+        <div id="mAgLista" class="space-y-2"></div>
+      </div>
+
+      <button data-act="sair" class="text-sm text-[#9aa1a8] underline">Sair</button>
     </div>
+  </section>
+
+  <!-- ================= BARBEARIA ================= -->
+  <section id="vSalao" class="hidden space-y-5">
+    <div class="flex items-center justify-between gap-2">
+      <a href="./" class="text-xs text-[#9aa1a8] underline">‹ Técnicos de Bolso</a>
+      <div class="grid grid-cols-2 gap-1 bg-[#1f2225] rounded-xl p-1">
+        <button data-tab="cliente" class="tabbtn px-3 py-1.5 rounded-lg text-xs">Agendar</button>
+        <button data-tab="barbeiro" class="tabbtn px-3 py-1.5 rounded-lg text-xs">Barbeiro</button>
+      </div>
+    </div>
+    <div id="bannerTeste" class="hidden text-center text-[11px] text-[#d69e2e] border border-[#6b5420] rounded-lg py-1.5">Página em teste — não aparece na vitrine como barbearia ativa</div>
+
+    <!-- CLIENTE -->
+    <div id="tab-cliente" class="space-y-5">
+      <div id="home" class="space-y-5">
+        <div id="comprovante" class="hidden card p-4 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <span id="selo" class="text-xs font-bold text-[#8fd3ae]">Agendamento confirmado</span>
+            <span id="protocolo" class="font-mono text-xs text-[#aeb4ba]"></span>
+          </div>
+          <p id="comprovanteTxt" class="text-sm"></p>
+          <div id="zapBox" class="hidden space-y-1">
+            <a id="btnZap" href="#" target="_blank" rel="noopener" class="block text-center bg-[#25a35a] text-white font-bold rounded-xl py-3 text-sm">Avisar a barbearia no WhatsApp</a>
+            <p class="text-[11px] text-[#9aa1a8]">Toque em enviar no WhatsApp para a barbearia receber o aviso.</p>
+          </div>
+          <button data-act="novo" class="text-xs underline text-[#aeb4ba]">Fazer novo agendamento</button>
+        </div>
+
+        <div class="text-center pt-2">
+          <h1 id="salaoNome" class="text-2xl font-extrabold leading-tight"></h1>
+          <p class="text-xs text-[#9aa1a8] mt-0.5">Técnicos de Bolso · <span class="ver"></span></p>
+          <p class="text-sm text-[#aeb4ba] mt-4 mb-4">Escolha o dia e o horário em poucos toques. Sem fila e sem troca de mensagens.</p>
+          <div class="inline-flex items-center gap-2 bg-[#1f2225] border border-[#454a50] rounded-full px-3 py-1 text-xs mb-4">
+            <span id="statusDot" class="w-2 h-2 rounded-full bg-[#5fd39a]"></span><span id="statusTxt">Agendamentos abertos</span>
+          </div>
+          <button id="btnAgendar" data-act="agendar" class="btn">Agendar horário</button>
+        </div>
+
+        <div class="card px-4 py-1 divide-y divide-[#454a50] text-sm">
+          <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Horário</span><span id="infoHorario"></span></div>
+          <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Profissional</span><span id="infoProf" class="text-right"></span></div>
+          <div id="linhaEndereco" class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Endereço</span><a id="linkMapa" href="#" target="_blank" rel="noopener" class="text-right underline"></a></div>
+        </div>
+
+        <div>
+          <p class="text-xs text-[#9aa1a8] mb-1.5 ml-1">Serviços</p>
+          <div id="homeServicos" class="card px-4 py-0.5 divide-y divide-[#454a50]"></div>
+        </div>
+
+        <div class="flex justify-center gap-3 pt-1">
+          <a id="linkZapContato" href="#" target="_blank" rel="noopener" class="px-4 py-2 rounded-full border border-[#454a50] text-sm">WhatsApp</a>
+          <a id="linkInsta" href="#" target="_blank" rel="noopener" class="px-4 py-2 rounded-full border border-[#454a50] text-sm">Instagram</a>
+        </div>
+      </div>
+
+      <!-- TELA DE SUCESSO (após agendar) -->
+      <div id="sucesso" class="hidden space-y-5 pt-2 text-center">
+        <div class="w-16 h-16 rounded-full bg-[#1f3a2c] border border-[#2f6b4a] mx-auto flex items-center justify-center text-[#8fd3ae] text-3xl font-extrabold">✓</div>
+        <h2 class="text-2xl font-extrabold">Horário reservado!</h2>
+        <div class="card px-4 py-1 divide-y divide-[#454a50] text-sm text-left">
+          <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Quando</span><span id="sucQuando" class="text-right font-semibold capitalize"></span></div>
+          <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Serviço</span><span id="sucServico" class="text-right"></span></div>
+          <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Profissional</span><span id="sucProf" class="text-right"></span></div>
+          <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Protocolo</span><span id="sucProto" class="text-right font-mono text-xs"></span></div>
+        </div>
+        <div id="sucZap" class="space-y-2">
+          <a id="sucBtnZap" href="#" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 bg-[#25a35a] text-white font-extrabold rounded-xl py-4 text-lg active:scale-[.99] transition">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>
+            Enviar confirmação no WhatsApp
+          </a>
+          <p class="text-xs text-[#9aa1a8]">Toque no botão e depois em <b class="text-[#e8eaec]">enviar</b> no WhatsApp para avisar a barbearia.</p>
+        </div>
+        <button data-act="inicio" class="text-sm underline text-[#aeb4ba]">Voltar ao início</button>
+      </div>
+
+      <div id="agendar" class="hidden space-y-5">
+        <div class="flex items-center gap-3">
+          <button data-act="inicio" class="text-sm text-[#aeb4ba] underline">‹ Início</button>
+          <h2 class="font-extrabold text-xl">Agendar horário</h2>
+        </div>
+        <div id="aviso" class="hidden bg-[#4a2a2e] border border-[#7a3a41] text-[#f3c9cd] rounded-xl p-3 text-sm text-center"></div>
+        <form id="form">
+          <fieldset id="fs" class="space-y-5">
+            <div>
+              <p class="text-sm font-semibold mb-2">Data</p>
+              <div class="card p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <button type="button" id="mesAnt" data-mes="-1" class="w-10 h-10 rounded-lg text-xl disabled:opacity-25" aria-label="Mês anterior">‹</button>
+                  <p id="mesNome" class="text-sm font-bold capitalize"></p>
+                  <button type="button" id="mesProx" data-mes="1" class="w-10 h-10 rounded-lg text-xl disabled:opacity-25" aria-label="Próximo mês">›</button>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center text-[11px] text-[#9aa1a8] mb-1">
+                  <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                </div>
+                <div id="calendario" class="grid grid-cols-7 gap-1"></div>
+              </div>
+            </div>
+            <div>
+              <p class="text-sm font-semibold mb-2">Horário <span id="diaTxt" class="text-[#9aa1a8] font-normal"></span></p>
+              <div id="horas" class="grid grid-cols-4 gap-2"></div>
+              <p id="semHoras" class="hidden text-sm text-[#9aa1a8] mt-2">Sem horários livres neste dia. Escolha outra data.</p>
+            </div>
+            <div>
+              <label for="prof" class="text-sm font-semibold block mb-2">Profissional</label>
+              <select id="prof" class="field"></select>
+            </div>
+            <div>
+              <p class="text-sm font-semibold mb-2">Serviço</p>
+              <div id="servicos" class="rounded-xl border border-[#454a50] divide-y divide-[#3a3f44] overflow-hidden"></div>
+            </div>
+            <div class="space-y-2.5">
+              <p class="text-sm font-semibold">Seus dados</p>
+              <input id="nome" class="field" placeholder="Nome" autocomplete="name" required>
+              <input id="fone" class="field" placeholder="Telefone / WhatsApp com DDD" inputmode="tel" autocomplete="tel" required>
+            </div>
+            <button class="btn">Agendar</button>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+
+    <!-- BARBEIRO -->
+    <div id="tab-barbeiro" class="hidden space-y-4">
+      <div id="donoLogin" class="card p-5 space-y-3 text-center">
+        <h2 class="font-bold">Área do barbeiro</h2>
+        <p class="text-sm text-[#9aa1a8]">Digite a sua senha.</p>
+        <input id="dSenha" type="password" class="field text-center" placeholder="Senha" autocomplete="current-password">
+        <button data-act="loginDono" class="btn">Entrar</button>
+        <button data-act="esqueciDono" class="text-xs underline text-[#9aa1a8]">Esqueci a senha</button>
+      </div>
+      <div id="donoPainel" class="hidden space-y-3">
+        <p id="donoQuem" class="text-xs text-[#9aa1a8]"></p>
+        <div class="card p-4 flex items-center justify-between gap-3">
+          <div>
+            <p class="font-bold text-sm">Receber agendamentos</p>
+            <p id="barbStatus" class="text-xs text-[#9aa1a8]"></p>
+          </div>
+          <button id="btnBarb" data-act="barb" class="shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold"></button>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <h3 class="font-semibold text-sm">Agendamentos do dia</h3>
+          <input id="dAgData" type="date" class="field !w-auto !py-2">
+        </div>
+        <div id="dAgLista" class="space-y-2"></div>
+        <button data-act="sair" class="text-sm text-[#9aa1a8] underline">Sair</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ERRO ================= -->
+  <section id="vErro" class="hidden text-center space-y-4 py-12">
+    <p id="erroTxt" class="text-sm text-[#aeb4ba]">Barbearia não encontrada.</p>
+    <a href="./" class="inline-block underline text-sm">Ver barbearias</a>
   </section>
 </main>
 
 <script type="module">
-/* ========= CONFIGURAÇÃO ========= */
-const VERSAO = "v1.6";                         // some 0.1 a cada alteração publicada (v1.7, v1.8...)
-const firebaseConfig = {
-  apiKey: "AIzaSyBfGd4a0_b3soNJTxL1FCa8JAMLxIxJyYg",
+/* ================= CONFIGURAÇÃO ================= */
+const VERSAO = "v2.2";                        // sobe 0.1 a cada alteração publicada (v2.1, v2.2...)
+const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
+
+// Produção: banco real (o mesmo da v1.6)
+const CONFIG_PRODUCAO = {
+  apiKey: "AIzaSyBfGd4aD_b3soNJTxLiFcA8JAWLxixJyYg",
   authDomain: "tecnicos-de-bolso-c3417.firebaseapp.com",
   projectId: "tecnicos-de-bolso-c3417",
   storageBucket: "tecnicos-de-bolso-c3417.firebasestorage.app",
-  messagingSenderId: "473908989188",
-  appId: "1:473908989188:web:478db24c71bb4bf32dbt79"
+  messagingSenderId: "473908989180",
+  appId: "1:473908989180:web:47c8db24c71bb4bf32db79"
 };
-const SALAO = "carica";                        // documento: saloes/carica
-const WHATSAPP_BARBEARIA = "5511958073012";    // quem recebe o aviso: 55 + DDD + número, só dígitos
-const ENDERECO = "R. Narciso Sturlini, 838 - Bela Vista, Osasco - SP";
-const MAPS_URL = "https://www.google.com/maps/place/carica+barbershop/data=!4m2!3m1!1s0x94ce511a6ba39beb:0x5b636f79148e662b?sa=X&ved=1t:242&ictx=111";
-const INSTAGRAM = "caricabarbershop";
-const WHATSAPP_CONTATO = "5511958073012";      // número exibido na tela inicial (contato)
-const SENHAS = { barbearia: "1234", admin: "master123" };
-const PROFISSIONAIS = ["Carica"];
-const SERVICOS = [
+// Homologação: banco de testes. Cole aqui a configuração do projeto de testes.
+const CONFIG_HOMOLOGACAO = {
+  apiKey: "AIzaSyC_R6OnGMQvZMwh3wgw3Jllz1K07vkC-50",
+  authDomain: "tecnicos-de-bolso-homolog.firebaseapp.com",
+  projectId: "tecnicos-de-bolso-homolog",
+  storageBucket: "tecnicos-de-bolso-homolog.firebasestorage.app",
+  messagingSenderId: "412924142849",
+  appId: "1:412924142849:web:37831966d4ee872f33a700"
+};
+// O próprio endereço decide o banco: dentro da pasta /homolog/ usa o de testes.
+const HOMOLOG = /\/homolog(\/|$)/.test(location.pathname);
+const firebaseConfig = HOMOLOG ? CONFIG_HOMOLOGACAO : CONFIG_PRODUCAO;
+
+const PASSO = 15, MAX_DIAS = 90;
+
+// Cadastros iniciais (criados pelo botão no painel master, só se ainda não existirem)
+const SERVICOS_CARICA = [
   { nome: "Corte", preco: 45 },
   { nome: "Barba", preco: 45 },
   { nome: "Corte criança", preco: 40 },
   { nome: "Combo", preco: 90, nota: "Inclui Corte, Barba + Sobrancelha" }
 ];
-const INICIO = "09:00", FIM = "20:00", PASSO = 15, MAX_DIAS = 90; // até 90 dias à frente
+const SERVICOS_TESTE = [{ nome: "Corte", preco: 40 }, { nome: "Barba", preco: 35 }];
+const SEED = {
+  carica: {
+    nome: "Carica Barber Shop", status: "ativa", ordem: 1, emailDono: "produtos.semi.novos@gmail.com",
+    endereco: "R. Narciso Sturlini, 838 - Bela Vista, Osasco - SP",
+    mapsUrl: "https://www.google.com/maps/place/carica+barbershop/data=!4m2!3m1!1s0x94ce511a6ba39beb:0x5b636f79148e662b?sa=X&ved=1t:242&ictx=111",
+    whatsapp: "5511958073012", instagram: "caricabarbershop",
+    inicio: "09:00", fim: "20:00", profissionais: ["Carica"], servicos: SERVICOS_CARICA
+  },
+  top1: {
+    nome: "TDB-Top1", status: "vaga", ordem: 2, emailDono: "fsantosmelo.1749@gmail.com",
+    endereco: "", mapsUrl: "", whatsapp: "", instagram: "",
+    inicio: "09:00", fim: "19:00", profissionais: ["Profissional"], servicos: SERVICOS_TESTE
+  },
+  top2: {
+    nome: "TDB-Top2", status: "vaga", ordem: 3, emailDono: "cadastrofsmelo@gmail.com",
+    endereco: "", mapsUrl: "", whatsapp: "", instagram: "",
+    inicio: "09:00", fim: "19:00", profissionais: ["Profissional"], servicos: SERVICOS_TESTE
+  }
+};
 
-/* ========= UTILIDADES ========= */
+/* ================= UTILIDADES ================= */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const brl = v => "R$ " + Number(v).toLocaleString("pt-BR");
+const brl = v => "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: Number(v) % 1 ? 2 : 0, maximumFractionDigits: 2 });
 const dig = s => String(s || "").replace(/\D/g, "");
 const pad = n => String(n).padStart(2, "0");
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; // data local, não UTC
@@ -240,114 +376,328 @@ const maxISO = () => { const d = new Date(); d.setDate(d.getDate() + MAX_DIAS); 
 const dBR = d => d.split("-").reverse().join("/");
 const mm = h => +h.slice(0, 2) * 60 + +h.slice(3);
 const hh = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
-const slug = s => s.toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
-const cancelado = p => p.status === "Cancelado"; // agendamentos antigos (sem status) contam como ativos
-const SLOTS = []; for (let m = mm(INICIO); m <= mm(FIM); m += PASSO) SLOTS.push(hh(m));
+const slug = s => String(s || "").toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
+const cancelado = p => p.status === "Cancelado";
+const emailUser = () => (user?.email || "").toLowerCase();
+const zapNum = s => { let z = dig(s); if (z && !z.startsWith("55")) z = "55" + z; return z; };
+const slotsDe = s => { const r = []; for (let m = mm(s.inicio || "09:00"); m <= mm(s.fim || "20:00"); m += PASSO) r.push(hh(m)); return r; };
+function aviso(t) { $("#modalTxt").textContent = t; $("#modal").classList.remove("hidden"); }
+// Janela de confirmação própria (não usa a caixinha do navegador, que pode ser bloqueada no iPhone)
+let resolverConf = null;
+function confirmar(t, ok = "Confirmar") {
+  $("#confirmTxt").textContent = t; $("#confirmOk").textContent = ok;
+  $("#confirmBox").classList.remove("hidden");
+  return new Promise(r => { resolverConf = r; });
+}
 
-/* ========= ESTADO ========= */
-let fs = null, fire = null;
-let sistemaTravado = false, barbeariaFechada = false;   // travado = Administrador (soberano); fechado = Barbearia
-const indisponivel = () => sistemaTravado || barbeariaFechada;
-let diaSel = hojeISO(), horaSel = null, servSel = 0;
+/* ================= ESTADO ================= */
+let F = null, A = null, AppMod = null, fire = null, AU = null, user = null;
+let saloes = [], salao = null, travado = false;
+let diaSel = hojeISO(), horaSel = null, servSel = 0, ocupadosDia = new Set();
 let mes = { y: new Date().getFullYear(), m: new Date().getMonth() };
-let agDia = [], unsubDia = null, unsubMeu = null;
-const auth = { barbearia: false, admin: false };
-const AG = { barbearia: { data: "#dataAgenda", lista: "#listaAgenda", unsub: null }, admin: { data: "#dataAdmin", lista: "#listaAdmin", unsub: null } };
+const SALAO_ID = slug(new URLSearchParams(location.search).get("b"));
+const unsubs = {};
+const off = k => { if (unsubs[k]) { unsubs[k](); delete unsubs[k]; } };
 
-/* ========= FIREBASE ========= */
+const isMaster = () => emailUser() === MASTER_EMAIL;
+const isDono = () => !!(user && salao && emailUser() === String(salao.emailDono || "").toLowerCase());
+const indisponivel = () => travado || salao?.barbeariaFechada === true;
+
+/* ================= FIREBASE ================= */
+const dSalao = id => F.doc(fire, "saloes", id);
+const cAg = id => F.collection(fire, "saloes", id, "agendamentos");
+const cOc = id => F.collection(fire, "saloes", id, "ocupados");
+const dGeral = () => F.doc(fire, "sistema", "geral");
+
 async function iniciar() {
+  document.querySelectorAll(".ver").forEach(el => el.textContent = VERSAO + (HOMOLOG ? " · homologação" : ""));
+  if (HOMOLOG) $("#faixaHomolog").classList.remove("hidden");
+  if (!firebaseConfig.projectId) return ver("erro", "Homologação ainda não configurada: cole a configuração do Firebase de testes no código (CONFIG_HOMOLOGACAO).");
   try {
     const base = "https://www.gstatic.com/firebasejs/10.12.2/";
-    const [{ initializeApp }, f] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js")]);
-    fs = f; fire = fs.getFirestore(initializeApp(firebaseConfig));
-    fs.onSnapshot(fs.doc(fire, "saloes", SALAO), s => {
-      const d = s.exists() ? s.data() : {};
-      sistemaTravado = d.sistemaBloqueado === true;
-      barbeariaFechada = d.barbeariaFechada === true;
+    [AppMod, F, A] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js"), import(base + "firebase-auth.js")]);
+    const app = AppMod.initializeApp(firebaseConfig);
+    fire = F.getFirestore(app); AU = A.getAuth(app);
+    F.onSnapshot(dGeral(), s => {
+      travado = s.exists() && s.data().bloqueado === true;
       $("#statusConexao").textContent = "Conectado ao banco de dados em tempo real.";
       desenharEstado();
     }, erroConexao);
-    ouvirDia();
-    Object.keys(AG).forEach(r => { if (auth[r]) ouvirAgenda(r); });
-    const c = lerComprovante(); if (c) acompanharMeu(c);
-  } catch (e) { erroConexao(e); }
+    A.onAuthStateChanged(AU, u => { user = u; desenharAuth(); });
+    if (SALAO_ID) abrirSalao();
+    else { ouvirSaloes(); ver(location.hash === "#master" ? "master" : "vitrine"); }
+  } catch (e) { erroConexao(e); ver("erro", "Não foi possível conectar. Verifique a internet e tente novamente."); }
 }
 function erroConexao(e) {
   console.error(e);
   $("#statusConexao").textContent = "Sem conexão com o banco de dados. Verifique a internet e as regras do Firestore.";
 }
-const colecao = () => fs.collection(fire, "saloes", SALAO, "agendamentos");
 
-function ouvirDia() {
-  if (!fs) return;
-  if (unsubDia) unsubDia();
-  unsubDia = fs.onSnapshot(fs.query(colecao(), fs.where("data", "==", diaSel)), s => {
-    agDia = s.docs.map(d => d.data()); desenharHoras();
-  }, erroConexao);
+function ver(v, msg) {
+  $("#carregando").classList.add("hidden");
+  ["vitrine", "master", "salao", "erro"].forEach(x => $("#v" + x[0].toUpperCase() + x.slice(1)).classList.toggle("hidden", x !== v));
+  if (msg) $("#erroTxt").textContent = msg;
+  window.scrollTo({ top: 0 });
 }
 
-function cardAgenda(p) {
+/* ================= VITRINE ================= */
+function ouvirSaloes() {
+  off("saloes");
+  unsubs.saloes = F.onSnapshot(F.collection(fire, "saloes"), s => {
+    saloes = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.ordem ?? 99) - (b.ordem ?? 99));
+    desenharVitrine(); desenharMaster();
+  }, erroConexao);
+}
+function desenharVitrine() {
+  const cad = saloes.filter(s => s.nome);
+  const ativas = cad.filter(s => s.status === "ativa"), vagas = cad.filter(s => s.status === "vaga");
+  const html = ativas.map(s => `
+    <a href="?b=${encodeURIComponent(s.id)}" class="block card p-4 active:scale-[.99] transition">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0"><p class="font-extrabold">${esc(s.nome)}</p>${s.endereco ? `<p class="text-xs text-[#9aa1a8] truncate">${esc(s.endereco)}</p>` : ""}</div>
+        <span class="shrink-0 text-sm font-bold bg-[#e8eaec] text-[#1f2225] rounded-lg px-3 py-1.5">Agendar</span>
+      </div>
+    </a>`).join("") + vagas.map(s => `
+    <div class="rounded-2xl border border-dashed border-[#454a50] px-4 py-3 text-center">
+      <p class="text-sm font-semibold text-[#aeb4ba]">Sua Barbearia Aqui</p>
+      <p class="text-[10px] text-[#5b6168] mt-0.5 tracking-wide">${esc(s.nome)}</p>
+    </div>`).join("");
+  $("#listaSaloes").innerHTML = html || `<p class="text-center text-sm text-[#9aa1a8] py-6">Nenhuma barbearia cadastrada ainda.</p>`;
+}
+
+/* ================= MASTER ================= */
+function desenharMaster() {
+  if (!isMaster()) return;
+  const faltam = Object.keys(SEED).filter(id => !saloes.find(s => s.id === id && s.nome));
+  $("#mSeed").innerHTML = faltam.length
+    ? `<button data-act="seed" class="w-full btn2 text-sm">Criar cadastros iniciais (${faltam.join(", ")})</button>` : "";
+  $("#mSaloes").innerHTML = saloes.filter(s => s.nome).map(s => `
+    <div class="card p-3.5 space-y-2">
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0">
+          <p class="font-bold">${esc(s.nome)}</p>
+          <p class="text-[11px] text-[#9aa1a8] break-all">?b=${esc(s.id)} · ${s.status === "ativa" ? "Ativa" : "Vaga"} · ${esc(s.emailDono || "sem e-mail")}</p>
+        </div>
+        <span class="shrink-0 text-[11px] font-bold ${s.barbeariaFechada ? "text-[#f3c9cd]" : "text-[#8fd3ae]"}">${s.barbeariaFechada ? "Fechada" : "Aberta"}</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-xs">
+        <a href="?b=${encodeURIComponent(s.id)}" class="btn2">Abrir página</a>
+        <button data-act="editar" data-id="${esc(s.id)}" class="btn2">Editar</button>
+        <button data-act="sync" data-id="${esc(s.id)}" class="btn2">Sincronizar</button>
+      </div>
+    </div>`).join("");
+  const sel = $("#mAgSalao"), atual = sel.value;
+  sel.innerHTML = saloes.filter(s => s.nome).map(s => `<option value="${esc(s.id)}">${esc(s.nome)}</option>`).join("");
+  if (atual && saloes.some(s => s.id === atual)) sel.value = atual;
+  if (sel.value) ouvirAgenda("mAg", sel.value, $("#mAgData").value, "#mAgLista");
+}
+
+// Uma linha do editor de serviços: nome, preço, observação e botão de remover
+function linhaServico(s = {}) {
+  return `<div class="servRow rounded-xl border border-[#454a50] bg-[#2f3337] p-2.5 space-y-2">
+    <div class="flex gap-2">
+      <input class="field sNome" placeholder="Nome do serviço (ex.: Corte)" value="${esc(s.nome || "")}">
+      <button type="button" data-act="rmServ" class="shrink-0 w-12 rounded-xl border border-[#7a3a41] text-[#f3c9cd] font-bold" aria-label="Remover serviço">✕</button>
+    </div>
+    <div class="flex gap-2">
+      <div class="relative w-28 shrink-0">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#9aa1a8]">R$</span>
+        <input class="field sPreco !pl-10" inputmode="decimal" placeholder="0" value="${s.preco ?? ""}">
+      </div>
+      <input class="field sNota" placeholder="Observação (opcional)" value="${esc(s.nota || "")}">
+    </div>
+  </div>`;
+}
+function abrirForm(id) {
+  const f = $("#formSalao"), s = id ? saloes.find(x => x.id === id) : null;
+  const n = saloes.filter(x => /^top\d+$/.test(x.id)).reduce((m, x) => Math.max(m, +x.id.slice(3)), 0) + 1;
+  const v = s || { nome: `TDB-Top${n}`, status: "vaga", ordem: saloes.length + 1, inicio: "09:00", fim: "19:00", profissionais: ["Profissional"], servicos: SERVICOS_TESTE };
+  f.dataset.modo = s ? "editar" : "novo";
+  $("#formTitulo").textContent = s ? "Editar barbearia" : "Nova barbearia";
+  $("#fId").value = s ? s.id : `top${n}`; $("#fId").readOnly = !!s;
+  $("#fNome").value = v.nome || ""; $("#fStatus").value = v.status || "vaga"; $("#fOrdem").value = v.ordem ?? "";
+  $("#fEndereco").value = v.endereco || ""; $("#fMaps").value = v.mapsUrl || "";
+  $("#fZap").value = v.whatsapp || ""; $("#fInsta").value = v.instagram || "";
+  $("#fInicio").value = v.inicio || "09:00"; $("#fFim").value = v.fim || "20:00";
+  $("#fProfs").value = (v.profissionais || []).join(", ");
+  const lista = v.servicos && v.servicos.length ? v.servicos : [{}];
+  $("#fServList").innerHTML = lista.map(linhaServico).join("");
+  $("#fEmail").value = v.emailDono || ""; $("#fSenha").value = "";
+  f.classList.remove("hidden"); f.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function salvarForm(e) {
+  e.preventDefault();
+  const novo = $("#formSalao").dataset.modo === "novo";
+  const id = slug($("#fId").value), nome = $("#fNome").value.trim();
+  if (!id || !nome) return aviso("Preencha o código do link e o nome.");
+  if (novo && saloes.some(s => s.id === id && s.nome)) return aviso("Já existe uma barbearia com esse código. Escolha outro.");
+  const servicos = [];
+  for (const r of document.querySelectorAll("#fServList .servRow")) {
+    const n = r.querySelector(".sNome").value.trim(), p = r.querySelector(".sPreco").value.trim(), nota = r.querySelector(".sNota").value.trim();
+    if (!n && !p && !nota) continue;                       // linha vazia: ignora
+    const preco = Number(p.replace(",", "."));
+    if (!n || !p || !isFinite(preco) || preco < 0) return aviso(`Confira o serviço "${n || "sem nome"}": preencha o nome e o preço (ex.: 45 ou 45,50).`);
+    servicos.push(nota ? { nome: n, preco, nota } : { nome: n, preco });
+  }
+  if (!servicos.length) return aviso("Cadastre pelo menos um serviço.");
+  const profissionais = $("#fProfs").value.split(",").map(x => x.trim()).filter(Boolean);
+  if (!profissionais.length) return aviso("Cadastre pelo menos um profissional.");
+  const inicio = $("#fInicio").value, fim = $("#fFim").value;
+  if (!inicio || !fim || mm(fim) < mm(inicio)) return aviso("Confira o horário de funcionamento.");
+  const emailDono = $("#fEmail").value.trim().toLowerCase(), senha = $("#fSenha").value;
+  if (senha && (senha.length < 6 || !emailDono)) return aviso("Para criar o acesso, informe o e-mail e uma senha com pelo menos 6 caracteres.");
+  const dados = {
+    nome, status: $("#fStatus").value, ordem: Number($("#fOrdem").value) || 99,
+    endereco: $("#fEndereco").value.trim(), mapsUrl: $("#fMaps").value.trim(),
+    whatsapp: zapNum($("#fZap").value), instagram: $("#fInsta").value.trim().replace(/^@/, ""),
+    inicio, fim, profissionais, servicos, emailDono
+  };
+  try {
+    await F.setDoc(dSalao(id), dados, { merge: true });
+    let msg = "Barbearia salva.";
+    if (senha) msg += " " + await criarAcesso(emailDono, senha);
+    $("#formSalao").classList.add("hidden");
+    aviso(msg);
+  } catch (err) { console.error(err); aviso("Não foi possível salvar. Verifique a conexão e as regras do Firestore."); }
+}
+
+// Cria o login do dono sem desconectar o master (usa uma segunda instância do Firebase).
+async function criarAcesso(email, senha) {
+  const app2 = AppMod.getApps().find(a => a.name === "cadastro") || AppMod.initializeApp(firebaseConfig, "cadastro");
+  const au2 = A.getAuth(app2);
+  try {
+    await A.createUserWithEmailAndPassword(au2, email, senha);
+    await A.signOut(au2);
+    return `Acesso criado para ${email}.`;
+  } catch (err) {
+    console.error(err);
+    if (err.code === "auth/email-already-in-use") return "Esse e-mail já tinha acesso; a senha antiga continua valendo. Para trocar, use “Esqueci a senha” na página da barbearia.";
+    if (err.code === "auth/invalid-email") return "Atenção: e-mail inválido, o acesso não foi criado.";
+    return "Atenção: não foi possível criar o acesso (" + (err.code || "erro") + ").";
+  }
+}
+
+async function criarSeed() {
+  let n = 0;
+  for (const [id, dados] of Object.entries(SEED)) {
+    if (saloes.find(s => s.id === id && s.nome)) continue;
+    await F.setDoc(dSalao(id), dados, { merge: true }); n++;
+  }
+  aviso(`${n} cadastro(s) criado(s). Agora toque em “Editar” em cada um para criar o acesso (senha).`);
+}
+
+// Copia para "ocupados" os agendamentos futuros que ainda não estão lá (dados vindos da v1.6).
+async function sincronizar(id) {
+  const s = await F.getDocs(F.query(cAg(id), F.where("data", ">=", hojeISO())));
+  let n = 0;
+  for (const d of s.docs) {
+    const a = d.data(); if (cancelado(a)) continue;
+    const r = F.doc(fire, "saloes", id, "ocupados", a.chave || d.id);
+    if ((await F.getDoc(r)).exists()) continue;
+    await F.setDoc(r, { data: a.data, horario: a.horario, profissional: a.profissional, protocolo: a.protocolo || "", criadoEm: F.serverTimestamp() });
+    n++;
+  }
+  aviso(n ? `${n} horário(s) sincronizado(s).` : "Tudo certo: nenhum horário precisava ser sincronizado.");
+}
+
+/* ================= AGENDA (barbeiro e master) ================= */
+function cardAgenda(p, salaoId) {
   const canc = cancelado(p);
-  return `<article class="bg-[#35393e] border border-[#454a50] rounded-xl p-3.5 space-y-1 ${canc ? "opacity-50" : ""}">
+  return `<article class="card !rounded-xl p-3.5 space-y-1 ${canc ? "opacity-50" : ""}">
     <div class="flex items-center justify-between">
       <span class="text-lg font-extrabold ${canc ? "line-through" : ""}">${esc(p.horario)}</span>
       ${canc ? `<span class="text-xs font-bold text-[#f3c9cd]">Cancelado</span>` : `<span class="font-mono text-xs text-[#9aa1a8]">${esc(p.protocolo)}</span>`}
     </div>
     <p class="font-semibold">${esc(p.nome)}</p>
-    <p class="text-sm"><a href="https://wa.me/55${dig(p.telefone).replace(/^55/, "")}" target="_blank" rel="noopener" class="text-[#8fd3ae] underline">${esc(p.telefone)}</a></p>
+    <p class="text-sm"><a href="https://wa.me/${zapNum(p.telefone)}" target="_blank" rel="noopener" class="text-[#8fd3ae] underline">${esc(p.telefone)}</a></p>
     <p class="text-sm text-[#aeb4ba]">${esc(p.servico)} · ${brl(p.preco)} · ${esc(p.profissional)}</p>
-    ${canc ? "" : `<button data-act="cancelar" data-id="${esc(p.id)}" data-rotulo="${esc(p.nome)} às ${esc(p.horario)}" class="mt-1 w-full border border-[#7a3a41] text-[#f3c9cd] font-bold rounded-xl py-2 text-sm">Cancelar agendamento</button>`}
+    ${canc ? "" : `<button data-act="cancelar" data-salao="${esc(salaoId)}" data-id="${esc(p.id)}" data-rotulo="${esc(p.nome)} às ${esc(p.horario)}" class="mt-1 w-full border border-[#7a3a41] text-[#f3c9cd] font-bold rounded-xl py-2 text-sm">Cancelar agendamento</button>`}
   </article>`;
 }
-
-function ouvirAgenda(role) {
-  if (!fs) return;
-  const a = AG[role]; if (a.unsub) a.unsub();
-  a.unsub = fs.onSnapshot(fs.query(colecao(), fs.where("data", "==", $(a.data).value)), s => {
+function ouvirAgenda(k, salaoId, data, alvo) {
+  const sig = salaoId + "|" + data;
+  if (unsubs[k] && unsubs[k].sig === sig) return;
+  off(k);
+  const u = F.onSnapshot(F.query(cAg(salaoId), F.where("data", "==", data)), s => {
     const l = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((x, y) => x.horario.localeCompare(y.horario));
-    $(a.lista).innerHTML = l.length ? l.map(cardAgenda).join("") : `<p class="text-center text-sm text-[#9aa1a8] py-6">Nenhum agendamento nesta data.</p>`;
+    $(alvo).innerHTML = l.length ? l.map(p => cardAgenda(p, salaoId)).join("") : `<p class="text-center text-sm text-[#9aa1a8] py-6">Nenhum agendamento nesta data.</p>`;
+  }, err => { console.error(err); $(alvo).innerHTML = `<p class="text-center text-sm text-[#f3c9cd] py-6">Sem permissão para ver esta agenda.</p>`; });
+  u.sig = sig; unsubs[k] = u;
+}
+async function cancelar(salaoId, id) {
+  const aRef = F.doc(fire, "saloes", salaoId, "agendamentos", id);
+  const a = (await F.getDoc(aRef)).data();
+  const oRef = F.doc(fire, "saloes", salaoId, "ocupados", a.chave || id);
+  const o = await F.getDoc(oRef);
+  const b = F.writeBatch(fire);
+  b.update(aRef, { status: "Cancelado", canceladoEm: F.serverTimestamp() });
+  if (o.exists() && o.data().protocolo === a.protocolo) b.delete(oRef);   // libera o horário
+  await b.commit();
+}
+
+/* ================= BARBEARIA (cliente) ================= */
+function abrirSalao() {
+  ver("salao"); aba("cliente");
+  unsubs.salao = F.onSnapshot(dSalao(SALAO_ID), s => {
+    if (!s.exists() || !s.data().nome) { off("dia"); return ver("erro", "Barbearia não encontrada."); }
+    const primeira = !salao;
+    salao = { id: s.id, ...s.data() };
+    document.title = salao.nome + " · Técnicos de Bolso";
+    desenharHome(); desenharServicos(); desenharEstado(); desenharAuth();
+    if (primeira) {
+      ver("salao"); desenharCalendario(); ouvirDia();
+      const c = lerComprovante(); if (c) acompanharMeu(c);
+    }
+  }, erroConexao);
+}
+function ouvirDia() {
+  off("dia");
+  unsubs.dia = F.onSnapshot(F.query(cOc(salao.id), F.where("data", "==", diaSel)), s => {
+    ocupadosDia = new Set(s.docs.map(d => d.data()).map(o => o.profissional + "|" + o.horario));
+    desenharHoras();
   }, erroConexao);
 }
 
 // Transação: dois clientes nunca conseguem o mesmo horário. Horário cancelado volta a ficar livre.
-async function gravar(o) {
-  const ref = fs.doc(fire, "saloes", SALAO, "agendamentos", o.chave);
-  const cfg = fs.doc(fire, "saloes", SALAO);
-  await fs.runTransaction(fire, async tx => {
-    const c = await tx.get(cfg), s = await tx.get(ref);
-    if (c.exists() && (c.data().sistemaBloqueado || c.data().barbeariaFechada)) throw new Error("bloqueado");
-    if (s.exists() && !cancelado(s.data())) throw new Error("ocupado");
-    tx.set(ref, { ...o, status: "Agendado", criadoEm: fs.serverTimestamp() });
+async function gravar(o, agId) {
+  const ocRef = F.doc(fire, "saloes", salao.id, "ocupados", o.chave);
+  const agRef = F.doc(fire, "saloes", salao.id, "agendamentos", agId);
+  await F.runTransaction(fire, async tx => {
+    const g = await tx.get(dGeral()), s = await tx.get(dSalao(salao.id)), oc = await tx.get(ocRef);
+    if ((g.exists() && g.data().bloqueado) || s.data()?.barbeariaFechada) throw new Error("bloqueado");
+    if (oc.exists()) throw new Error("ocupado");
+    tx.set(ocRef, { data: o.data, horario: o.horario, profissional: o.profissional, protocolo: o.protocolo, criadoEm: F.serverTimestamp() });
+    tx.set(agRef, { ...o, status: "Agendado", criadoEm: F.serverTimestamp() });
   });
 }
 
-/* ========= COMPROVANTE DO CLIENTE ========= */
-const lerComprovante = () => { try { return JSON.parse(localStorage.getItem("tdb_comprovante") || "null"); } catch { return null; } };
+const chaveComp = () => "tdb_comp_" + (salao?.id || SALAO_ID);
+const lerComprovante = () => { try { return JSON.parse(localStorage.getItem(chaveComp()) || "null"); } catch { return null; } };
 function linkZap(c) {
   const linhas = [`Novo agendamento (${c.protocolo})`, c.nome && `Cliente: ${c.nome}`, c.telefone && `Telefone: ${c.telefone}`,
     `Serviço: ${c.servico}`, `Data: ${dBR(c.data).slice(0, 5)} às ${c.horario}`, `Profissional: ${c.profissional}`].filter(Boolean);
-  return `https://wa.me/${WHATSAPP_BARBEARIA}?text=${encodeURIComponent(linhas.join("\n"))}`;
+  return `https://wa.me/${salao.whatsapp}?text=${encodeURIComponent(linhas.join("\n"))}`;
 }
 function mostrarComprovante(c, foiCancelado) {
   $("#selo").textContent = foiCancelado ? "Agendamento cancelado" : "Agendamento confirmado";
   $("#selo").className = "text-xs font-bold " + (foiCancelado ? "text-[#f3c9cd]" : "text-[#8fd3ae]");
   $("#protocolo").textContent = c.protocolo;
   $("#comprovanteTxt").textContent = `${c.servico} com ${c.profissional} em ${dBR(c.data)} às ${c.horario}.` + (foiCancelado ? " Este horário foi cancelado pela barbearia." : "");
-  $("#zapBox").classList.toggle("hidden", !!foiCancelado);
-  if (!foiCancelado) $("#btnZap").href = linkZap(c);
+  const zap = !foiCancelado && !!salao?.whatsapp;
+  $("#zapBox").classList.toggle("hidden", !zap);
+  if (zap) $("#btnZap").href = linkZap(c);
   $("#comprovante").classList.remove("hidden");
 }
 // Acompanha em tempo real: se a barbearia cancelar, o cliente vê o aviso no próprio aparelho.
 function acompanharMeu(c) {
-  if (!fs || !c.chave) return mostrarComprovante(c, false);
-  if (unsubMeu) unsubMeu();
-  unsubMeu = fs.onSnapshot(fs.doc(fire, "saloes", SALAO, "agendamentos", c.chave), s => {
+  off("meu");
+  unsubs.meu = F.onSnapshot(F.doc(fire, "saloes", salao.id, "ocupados", c.chave), s => {
     const d = s.exists() ? s.data() : null;
-    mostrarComprovante(c, !d || d.protocolo !== c.protocolo || cancelado(d));
+    mostrarComprovante(c, !d || d.protocolo !== c.protocolo);
   }, () => mostrarComprovante(c, false));
 }
 
-/* ========= TELAS ========= */
 function desenharCalendario() {
   const { y, m } = mes, hoje = hojeISO(), max = maxISO();
   const primeiro = new Date(y, m, 1), total = new Date(y, m + 1, 0).getDate();
@@ -365,82 +715,126 @@ function desenharCalendario() {
   $("#calendario").innerHTML = cel;
 }
 function desenharHome() {
-  $("#infoHorario").textContent = `${INICIO} às ${FIM}`;
-  $("#infoProf").textContent = PROFISSIONAIS.join(", ");
-  $("#linkMapa").textContent = ENDERECO; $("#linkMapa").href = MAPS_URL;
-  $("#linkZapContato").href = `https://wa.me/${WHATSAPP_CONTATO}`;
-  $("#linkInsta").href = `https://www.instagram.com/${INSTAGRAM}/`;
-  $("#homeServicos").innerHTML = SERVICOS.map(s => `<div class="flex justify-between gap-3 py-2.5 text-sm"><span>${esc(s.nome)}${s.nota ? `<span class="block text-[11px] text-[#9aa1a8]">${esc(s.nota)}</span>` : ""}</span><span class="font-bold">${brl(s.preco)}</span></div>`).join("");
+  const s = salao;
+  $("#salaoNome").textContent = s.nome;
+  $("#bannerTeste").classList.toggle("hidden", s.status === "ativa");
+  $("#infoHorario").textContent = `${s.inicio || "09:00"} às ${s.fim || "20:00"}`;
+  $("#infoProf").textContent = (s.profissionais || []).join(", ");
+  $("#linhaEndereco").classList.toggle("hidden", !s.endereco);
+  $("#linkMapa").textContent = s.endereco || "";
+  $("#linkMapa").href = s.mapsUrl || `https://www.google.com/maps/search/${encodeURIComponent(s.endereco || "")}`;
+  $("#linkZapContato").classList.toggle("hidden", !s.whatsapp);
+  $("#linkZapContato").href = `https://wa.me/${s.whatsapp}`;
+  $("#linkInsta").classList.toggle("hidden", !s.instagram);
+  $("#linkInsta").href = `https://www.instagram.com/${s.instagram}/`;
+  $("#homeServicos").innerHTML = (s.servicos || []).map(x => `<div class="flex justify-between gap-3 py-2.5 text-sm"><span>${esc(x.nome)}${x.nota ? `<span class="block text-[11px] text-[#9aa1a8]">${esc(x.nota)}</span>` : ""}</span><span class="font-bold">${brl(x.preco)}</span></div>`).join("");
+  const sel = $("#prof"), atual = sel.value, profs = s.profissionais || [];
+  sel.innerHTML = profs.map(p => `<option>${esc(p)}</option>`).join("");
+  if (profs.includes(atual)) sel.value = atual;
+}
+function mostrarSucesso(c) {
+  const quando = new Date(c.data + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
+  $("#sucQuando").textContent = `${quando} às ${c.horario}`;
+  $("#sucServico").textContent = c.servico; $("#sucProf").textContent = c.profissional; $("#sucProto").textContent = c.protocolo;
+  $("#sucZap").classList.toggle("hidden", !salao?.whatsapp);
+  if (salao?.whatsapp) $("#sucBtnZap").href = linkZap(c);
+  mostrarTela("sucesso");
 }
 function mostrarTela(v) {
-  $("#home").classList.toggle("hidden", v !== "home");
-  $("#agendar").classList.toggle("hidden", v !== "agendar");
+  ["home", "agendar", "sucesso"].forEach(x => $("#" + x).classList.toggle("hidden", v !== x));
   window.scrollTo({ top: 0 });
 }
 function desenharServicos() {
-  $("#servicos").innerHTML = SERVICOS.map((s, i) => `<button type="button" data-serv="${i}" class="w-full flex items-center justify-between gap-3 px-3.5 py-3 text-left ${i === servSel ? "bg-[#454a50]" : "bg-[#35393e]"}"><span><span class="text-sm font-semibold">${esc(s.nome)}</span>${s.nota ? `<span class="block text-[11px] text-[#9aa1a8]">${esc(s.nota)}</span>` : ""}</span><span class="text-sm font-bold">${brl(s.preco)}</span></button>`).join("");
+  const lista = salao?.servicos || [];
+  if (servSel >= lista.length) servSel = 0;
+  $("#servicos").innerHTML = lista.map((s, i) => `<button type="button" data-serv="${i}" class="w-full flex items-center justify-between gap-3 px-3.5 py-3 text-left ${i === servSel ? "bg-[#454a50]" : "bg-[#35393e]"}"><span><span class="text-sm font-semibold">${esc(s.nome)}</span>${s.nota ? `<span class="block text-[11px] text-[#9aa1a8]">${esc(s.nota)}</span>` : ""}</span><span class="text-sm font-bold">${brl(s.preco)}</span></button>`).join("");
 }
 function desenharHoras() {
+  if (!salao) return;
   const prof = $("#prof").value, agora = new Date(), min = agora.getHours() * 60 + agora.getMinutes();
-  const oc = new Set(agDia.filter(p => p.profissional === prof && !cancelado(p)).map(p => p.horario));
-  const livre = h => !indisponivel() && !oc.has(h) && !(diaSel === hojeISO() && mm(h) <= min);
+  const livre = h => !indisponivel() && !ocupadosDia.has(prof + "|" + h) && !(diaSel === hojeISO() && mm(h) <= min);
+  const slots = slotsDe(salao);
   if (horaSel && !livre(horaSel)) horaSel = null;
   $("#diaTxt").textContent = "· " + dBR(diaSel).slice(0, 5);
-  $("#horas").innerHTML = SLOTS.map(h => livre(h)
+  $("#horas").innerHTML = slots.map(h => livre(h)
     ? `<button type="button" data-hora="${h}" class="py-2.5 rounded-lg text-sm font-semibold border ${h === horaSel ? "bg-[#e8eaec] text-[#1f2225] border-[#e8eaec]" : "bg-[#35393e] border-[#454a50]"}">${h}</button>`
     : `<span class="py-2.5 rounded-lg text-sm text-center bg-[#2f3337] text-[#6b7279] line-through">${h}</span>`).join("");
-  $("#semHoras").classList.toggle("hidden", SLOTS.some(livre));
+  $("#semHoras").classList.toggle("hidden", slots.some(livre));
 }
 function desenharEstado() {
-  // Cliente: início
+  // Master
+  $("#ponto").className = "w-3 h-3 rounded-full " + (travado ? "bg-[#e0707a]" : "bg-[#5fd39a]");
+  $("#statusSistema").textContent = travado ? "Sistema travado" : "Sistema em operação";
+  const t = $("#btnTrava");
+  t.textContent = travado ? "Reabrir sistema" : "TRAVAR SISTEMA";
+  t.className = "w-full font-extrabold rounded-xl py-3.5 " + (travado ? "bg-[#e8eaec] text-[#1f2225]" : "bg-[#c0392b] text-white");
+  if (!salao) return;
+  // Cliente
   const fechado = indisponivel();
   $("#statusDot").className = "w-2 h-2 rounded-full " + (fechado ? "bg-[#e0707a]" : "bg-[#5fd39a]");
   $("#statusTxt").textContent = fechado ? "Agendamentos fechados" : "Agendamentos abertos";
   const ba = $("#btnAgendar");
   ba.disabled = fechado;
   ba.textContent = fechado ? "Agendamentos indisponíveis" : "Agendar horário";
-  ba.className = "w-full font-extrabold rounded-xl py-3.5 transition " + (fechado ? "bg-[#454a50] text-[#9aa1a8]" : "bg-[#e8eaec] text-[#1f2225] active:scale-[.99]");
-  // Cliente: agendamento
-  const av = $("#aviso");
-  av.classList.toggle("hidden", !indisponivel());
-  av.textContent = sistemaTravado ? "Os agendamentos estão temporariamente indisponíveis." : "A barbearia não está recebendo agendamentos no momento.";
-  $("#fs").disabled = indisponivel();
-  // Barbearia (o Administrador é soberano: se travou, a barbearia não consegue reabrir)
+  ba.className = fechado ? "w-full font-extrabold rounded-xl py-3.5 bg-[#454a50] text-[#9aa1a8]" : "btn active:scale-[.99] transition";
+  $("#aviso").classList.toggle("hidden", !fechado);
+  $("#aviso").textContent = travado ? "Os agendamentos estão temporariamente indisponíveis." : "A barbearia não está recebendo agendamentos no momento.";
+  $("#fs").disabled = fechado;
+  // Barbeiro (o master é soberano: se travou, a barbearia não consegue reabrir)
   const b = $("#btnBarb");
-  if (sistemaTravado) {
+  if (travado) {
     $("#barbStatus").textContent = "Travado pelo administrador";
     b.textContent = "Travado"; b.disabled = true; b.className = "shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold bg-[#454a50] text-[#9aa1a8] opacity-60";
-  } else if (barbeariaFechada) {
+  } else if (salao.barbeariaFechada) {
     $("#barbStatus").textContent = "Fechado: clientes não conseguem agendar";
     b.textContent = "Abrir"; b.disabled = false; b.className = "shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold bg-[#5fd39a] text-[#10261b]";
   } else {
     $("#barbStatus").textContent = "Aberto: clientes podem agendar";
     b.textContent = "Fechar"; b.disabled = false; b.className = "shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold border border-[#7a3a41] text-[#f3c9cd]";
   }
-  // Administrador
-  $("#ponto").className = "w-3 h-3 rounded-full " + (sistemaTravado ? "bg-[#e0707a]" : "bg-[#5fd39a]");
-  $("#statusSistema").textContent = sistemaTravado ? "Sistema travado" : "Sistema em operação";
-  $("#statusBarb").textContent = "Agendamentos da barbearia: " + (barbeariaFechada ? "fechados" : "abertos");
-  const t = $("#btnTrava");
-  t.textContent = sistemaTravado ? "Reabrir sistema" : "TRAVAR SISTEMA";
-  t.className = "w-full font-extrabold rounded-xl py-3.5 " + (sistemaTravado ? "bg-[#e8eaec] text-[#1f2225]" : "bg-[#c0392b] text-white");
   desenharHoras();
 }
+function desenharAuth() {
+  // Master
+  const m = isMaster();
+  $("#masterLogin").classList.toggle("hidden", m);
+  $("#masterPainel").classList.toggle("hidden", !m);
+  if (m) desenharMaster(); else off("mAg");
+  // Barbeiro
+  if (salao) {
+    const ok = m || isDono();
+    $("#donoLogin").classList.toggle("hidden", ok);
+    $("#donoPainel").classList.toggle("hidden", !ok);
+    $("#donoQuem").textContent = m ? "Conectado como master" : "Conectado como " + salao.nome;
+    if (ok) ouvirAgenda("dAg", salao.id, $("#dAgData").value, "#dAgLista"); else off("dAg");
+  }
+}
 function aba(n) {
-  ["cliente", "barbearia", "admin"].forEach(x => {
+  ["cliente", "barbeiro"].forEach(x => {
     $("#tab-" + x).classList.toggle("hidden", x !== n);
-    const b = document.querySelector(`[data-tab="${x}"]`);
-    b.className = "tabbtn py-2.5 rounded-lg text-sm " + (x === n ? "bg-[#454a50] text-white font-bold" : "text-[#9aa1a8] font-medium");
+    document.querySelector(`[data-tab="${x}"]`).className = "tabbtn px-3 py-1.5 rounded-lg text-xs " + (x === n ? "bg-[#454a50] text-white font-bold" : "text-[#9aa1a8] font-medium");
   });
 }
-function sessao(r) {
-  document.querySelector(`[data-login="${r}"]`).classList.toggle("hidden", auth[r]);
-  document.querySelector(`[data-panel="${r}"]`).classList.toggle("hidden", !auth[r]);
-}
-function aviso(t) { $("#modalTxt").textContent = t; $("#modal").classList.remove("hidden"); }
 
-/* ========= EVENTOS ========= */
+/* ================= LOGIN ================= */
+const msgErroLogin = err => ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials"].includes(err.code)
+  ? "Senha incorreta. Tente novamente." : err.code === "auth/too-many-requests" ? "Muitas tentativas. Aguarde alguns minutos." : "Não foi possível entrar. Verifique a internet.";
+async function entrar(email, campo) {
+  if (!A) return aviso("Sem conexão. Tente novamente em instantes.");
+  if (!email) return aviso("Esta barbearia ainda não tem acesso cadastrado. Fale com o administrador.");
+  try { await A.signInWithEmailAndPassword(AU, email, $(campo).value); $(campo).value = ""; }
+  catch (err) { console.error(err); aviso(msgErroLogin(err)); }
+}
+async function esqueci(email) {
+  if (!email) return aviso("Informe o e-mail.");
+  try { await A.sendPasswordResetEmail(AU, email); aviso("Enviamos um link para redefinir a senha ao e-mail cadastrado. Confira também o spam."); }
+  catch (err) { console.error(err); aviso("Não foi possível enviar o e-mail de redefinição."); }
+}
+
+/* ================= EVENTOS ================= */
 document.addEventListener("click", async e => {
+  const cf = e.target.closest("[data-conf]");
+  if (cf) { $("#confirmBox").classList.add("hidden"); if (resolverConf) resolverConf(cf.dataset.conf === "1"); resolverConf = null; return; }
   const t = e.target.closest("[data-tab],[data-dia],[data-mes],[data-hora],[data-serv],[data-act]"); if (!t) return;
   const d = t.dataset;
   if (d.tab) return aba(d.tab);
@@ -448,59 +842,79 @@ document.addEventListener("click", async e => {
   if (d.dia) { diaSel = d.dia; horaSel = null; desenharCalendario(); desenharHoras(); ouvirDia(); }
   if (d.hora) { horaSel = d.hora; desenharHoras(); }
   if (d.serv) { servSel = +d.serv; desenharServicos(); }
-  if (d.act === "fechar") $("#modal").classList.add("hidden");
-  if (d.act === "agendar" && !indisponivel()) mostrarTela("agendar");
-  if (d.act === "inicio") mostrarTela("home");
-  if (d.act === "novo") { try { localStorage.removeItem("tdb_comprovante"); } catch {} if (unsubMeu) unsubMeu(); $("#comprovante").classList.add("hidden"); if (!indisponivel()) mostrarTela("agendar"); }
-  if (d.act === "login") {
-    const box = document.querySelector(`[data-login="${d.role}"]`), campo = box.querySelector("[data-pass]");
-    if (campo.value === SENHAS[d.role]) {
-      auth[d.role] = true; campo.value = ""; sessao(d.role); ouvirAgenda(d.role);
-    } else aviso("Senha incorreta. Tente novamente.");
-  }
-  if (d.act === "logout") { auth[d.role] = false; sessao(d.role); }
-  if (d.act === "cancelar" && fs) {
-    if (!confirm(`Cancelar o agendamento de ${d.rotulo}? O horário volta a ficar disponível para novos clientes.`)) return;
-    try { await fs.updateDoc(fs.doc(fire, "saloes", SALAO, "agendamentos", d.id), { status: "Cancelado", canceladoEm: fs.serverTimestamp() }); }
-    catch (err) { console.error(err); aviso("Não foi possível cancelar. Verifique a conexão e as regras do Firestore."); }
-  }
-  if (d.act === "barb" && fs && !sistemaTravado) {
-    try { await fs.setDoc(fs.doc(fire, "saloes", SALAO), { barbeariaFechada: !barbeariaFechada }, { merge: true }); }
-    catch (err) { console.error(err); aviso("Não foi possível alterar. Verifique a conexão e as regras do Firestore."); }
-  }
-  if (d.act === "trava" && fs) {
-    const novo = !sistemaTravado;
-    if (!confirm(novo ? "Travar o sistema? Ninguém conseguirá agendar até você reabrir." : "Reabrir o sistema?")) return;
-    try { await fs.setDoc(fs.doc(fire, "saloes", SALAO), { sistemaBloqueado: novo }, { merge: true }); }
-    catch (err) { console.error(err); aviso("Não foi possível alterar o sistema. Verifique a conexão e as regras do Firestore."); }
+  switch (d.act) {
+    case "fechar": $("#modal").classList.add("hidden"); break;
+    case "irMaster": location.hash = "master"; ver("master"); break;
+    case "irVitrine": history.replaceState(null, "", location.pathname); ver("vitrine"); break;
+    case "loginMaster": entrar($("#mEmail").value.trim().toLowerCase(), "#mSenha"); break;
+    case "esqueciMaster": esqueci($("#mEmail").value.trim().toLowerCase()); break;
+    case "loginDono": entrar(String(salao?.emailDono || "").toLowerCase(), "#dSenha"); break;
+    case "esqueciDono": if (salao?.emailDono) esqueci(salao.emailDono); else aviso("Esta barbearia ainda não tem acesso cadastrado."); break;
+    case "sair": A && A.signOut(AU); break;
+    case "agendar": if (!indisponivel()) mostrarTela("agendar"); break;
+    case "inicio": mostrarTela("home"); break;
+    case "novo":
+      try { localStorage.removeItem(chaveComp()); } catch {}
+      off("meu"); $("#comprovante").classList.add("hidden"); if (!indisponivel()) mostrarTela("agendar"); break;
+    case "cancelar":
+      if (!(await confirmar(`Cancelar o agendamento de ${d.rotulo}? O horário volta a ficar disponível para novos clientes.`, "Cancelar horário"))) return;
+      try { await cancelar(d.salao, d.id); } catch (err) { console.error(err); aviso("Não foi possível cancelar. Verifique a conexão e as regras do Firestore."); }
+      break;
+    case "barb":
+      if (!salao || travado) return;
+      try { await F.updateDoc(dSalao(salao.id), { barbeariaFechada: !salao.barbeariaFechada }); }
+      catch (err) { console.error(err); aviso("Não foi possível alterar. Verifique a conexão e as regras do Firestore."); }
+      break;
+    case "trava": {
+      const novo = !travado;
+      if (!(await confirmar(novo ? "Travar o sistema? Nenhuma barbearia receberá agendamentos até você reabrir." : "Reabrir o sistema?", novo ? "Travar" : "Reabrir"))) return;
+      try { await F.setDoc(dGeral(), { bloqueado: novo }, { merge: true }); }
+      catch (err) { console.error(err); aviso("Não foi possível alterar o sistema. Verifique a conexão e as regras do Firestore."); }
+      break;
+    }
+    case "seed": try { await criarSeed(); } catch (err) { console.error(err); aviso("Não foi possível criar os cadastros. Verifique as regras do Firestore."); } break;
+    case "novaSalao": abrirForm(null); break;
+    case "editar": abrirForm(d.id); break;
+    case "addServ": {
+      $("#fServList").insertAdjacentHTML("beforeend", linhaServico());
+      $("#fServList").lastElementChild.querySelector(".sNome").focus();
+      break;
+    }
+    case "rmServ": t.closest(".servRow").remove(); break;
+    case "fecharForm": $("#formSalao").classList.add("hidden"); break;
+    case "sync": try { await sincronizar(d.id); } catch (err) { console.error(err); aviso("Não foi possível sincronizar."); } break;
   }
 });
 
-$("#dataAgenda").addEventListener("change", () => ouvirAgenda("barbearia"));
-$("#dataAdmin").addEventListener("change", () => ouvirAgenda("admin"));
+$("#formSalao").addEventListener("submit", salvarForm);
+$("#prof").addEventListener("change", () => { horaSel = null; desenharHoras(); });
+$("#dAgData").addEventListener("change", () => salao && ouvirAgenda("dAg", salao.id, $("#dAgData").value, "#dAgLista"));
+$("#mAgData").addEventListener("change", () => $("#mAgSalao").value && ouvirAgenda("mAg", $("#mAgSalao").value, $("#mAgData").value, "#mAgLista"));
+$("#mAgSalao").addEventListener("change", () => ouvirAgenda("mAg", $("#mAgSalao").value, $("#mAgData").value, "#mAgLista"));
+window.addEventListener("hashchange", () => { if (!SALAO_ID) ver(location.hash === "#master" ? "master" : "vitrine"); });
 
 $("#form").addEventListener("submit", async e => {
   e.preventDefault();
-  if (!fs) return aviso("Sem conexão com o banco de dados. Tente novamente em instantes.");
+  if (!F || !salao) return aviso("Sem conexão com o banco de dados. Tente novamente em instantes.");
   if (indisponivel()) return aviso("Os agendamentos estão temporariamente indisponíveis.");
   if (!horaSel) return aviso("Escolha um horário disponível.");
   if (dig($("#fone").value).length < 10) return aviso("Digite o telefone com DDD, por exemplo 11 91234-5678.");
-  const prof = $("#prof").value, sv = SERVICOS[servSel], btn = e.submitter;
+  const prof = $("#prof").value, sv = salao.servicos[servSel], btn = e.submitter;
   const protocolo = "TDB-" + Math.floor(100000 + Math.random() * 900000);
+  const chave = `${slug(prof)}_${diaSel}_${horaSel.replace(":", "")}`;
   const o = {
-    chave: `${slug(prof)}_${diaSel}_${horaSel.replace(":", "")}`,
-    nome: $("#nome").value.trim(), telefone: $("#fone").value.trim(), profissional: prof,
+    chave, nome: $("#nome").value.trim(), telefone: $("#fone").value.trim(), profissional: prof,
     servico: sv.nome, preco: sv.preco, data: diaSel, horario: horaSel, protocolo
   };
   btn.disabled = true; btn.textContent = "Agendando…";
   try {
-    await Promise.race([gravar(o), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]);
-    const c = { chave: o.chave, protocolo, servico: o.servico, profissional: prof, data: diaSel, horario: o.horario, nome: o.nome, telefone: o.telefone };
-    try { localStorage.setItem("tdb_comprovante", JSON.stringify(c)); } catch {}
-    acompanharMeu(c); horaSel = null; desenharHoras(); mostrarTela("home");
+    await Promise.race([gravar(o, `${chave}_${protocolo}`), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]);
+    const c = { chave, protocolo, servico: o.servico, profissional: prof, data: diaSel, horario: o.horario, nome: o.nome, telefone: o.telefone };
+    try { localStorage.setItem(chaveComp(), JSON.stringify(c)); } catch {}
+    acompanharMeu(c); horaSel = null; desenharHoras(); mostrarSucesso(c);
   } catch (err) {
     console.error(err);
-    aviso(err.message === "ocupado" ? "Horário Indisponível"
+    aviso(err.message === "ocupado" ? "Horário indisponível. Escolha outro."
         : err.message === "bloqueado" ? "Os agendamentos estão temporariamente indisponíveis."
         : "Não foi possível agendar. Verifique a internet e tente novamente.");
     horaSel = null; desenharHoras();
@@ -508,12 +922,9 @@ $("#form").addEventListener("submit", async e => {
   btn.disabled = false; btn.textContent = "Agendar";
 });
 
-/* ========= INÍCIO ========= */
-document.querySelectorAll(".ver").forEach(el => el.textContent = VERSAO);
-$("#prof").innerHTML = PROFISSIONAIS.map(p => `<option>${esc(p)}</option>`).join("");
-$("#dataAgenda").value = hojeISO(); $("#dataAdmin").value = hojeISO();
-desenharHome(); desenharCalendario(); desenharServicos(); desenharEstado(); aba("cliente");
-{ const c = lerComprovante(); if (c && c.protocolo) mostrarComprovante(c, false); }
+/* ================= INÍCIO ================= */
+$("#mEmail").value = MASTER_EMAIL;
+$("#dAgData").value = hojeISO(); $("#mAgData").value = hojeISO();
 iniciar();
 </script>
 </body>
