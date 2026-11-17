@@ -34,6 +34,17 @@
   </div>
 </div>
 
+<!-- Janela de confirmação (substitui a caixinha do navegador) -->
+<div id="confirmBox" class="hidden fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-5">
+  <div class="card max-w-sm w-full p-6 text-center space-y-4">
+    <p id="confirmTxt" class="text-sm leading-relaxed"></p>
+    <div class="grid grid-cols-2 gap-2">
+      <button data-conf="0" class="btn2 !py-3 font-bold">Voltar</button>
+      <button data-conf="1" id="confirmOk" class="btn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <main class="max-w-md mx-auto px-4 pt-6 pb-16">
 
   <p id="carregando" class="text-center text-sm text-[#9aa1a8] py-16">Carregando…</p>
@@ -191,6 +202,26 @@
         </div>
       </div>
 
+      <!-- TELA DE SUCESSO (após agendar) -->
+      <div id="sucesso" class="hidden space-y-5 pt-2 text-center">
+        <div class="w-16 h-16 rounded-full bg-[#1f3a2c] border border-[#2f6b4a] mx-auto flex items-center justify-center text-[#8fd3ae] text-3xl font-extrabold">✓</div>
+        <h2 class="text-2xl font-extrabold">Horário reservado!</h2>
+        <div class="card px-4 py-1 divide-y divide-[#454a50] text-sm text-left">
+          <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Quando</span><span id="sucQuando" class="text-right font-semibold capitalize"></span></div>
+          <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Serviço</span><span id="sucServico" class="text-right"></span></div>
+          <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Profissional</span><span id="sucProf" class="text-right"></span></div>
+          <div class="flex justify-between gap-4 py-2.5"><span class="text-[#9aa1a8]">Protocolo</span><span id="sucProto" class="text-right font-mono text-xs"></span></div>
+        </div>
+        <div id="sucZap" class="space-y-2">
+          <a id="sucBtnZap" href="#" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 bg-[#25a35a] text-white font-extrabold rounded-xl py-4 text-lg active:scale-[.99] transition">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>
+            Enviar confirmação no WhatsApp
+          </a>
+          <p class="text-xs text-[#9aa1a8]">Toque no botão e depois em <b class="text-[#e8eaec]">enviar</b> no WhatsApp para avisar a barbearia.</p>
+        </div>
+        <button data-act="inicio" class="text-sm underline text-[#aeb4ba]">Voltar ao início</button>
+      </div>
+
       <div id="agendar" class="hidden space-y-5">
         <div class="flex items-center gap-3">
           <button data-act="inicio" class="text-sm text-[#aeb4ba] underline">‹ Início</button>
@@ -274,7 +305,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.0";                        // sobe 0.1 a cada alteração publicada (v2.1, v2.2...)
+const VERSAO = "v2.1";                        // sobe 0.1 a cada alteração publicada (v2.1, v2.2...)
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 
 // Produção: banco real (o mesmo da v1.6)
@@ -347,6 +378,13 @@ const emailUser = () => (user?.email || "").toLowerCase();
 const zapNum = s => { let z = dig(s); if (z && !z.startsWith("55")) z = "55" + z; return z; };
 const slotsDe = s => { const r = []; for (let m = mm(s.inicio || "09:00"); m <= mm(s.fim || "20:00"); m += PASSO) r.push(hh(m)); return r; };
 function aviso(t) { $("#modalTxt").textContent = t; $("#modal").classList.remove("hidden"); }
+// Janela de confirmação própria (não usa a caixinha do navegador, que pode ser bloqueada no iPhone)
+let resolverConf = null;
+function confirmar(t, ok = "Confirmar") {
+  $("#confirmTxt").textContent = t; $("#confirmOk").textContent = ok;
+  $("#confirmBox").classList.remove("hidden");
+  return new Promise(r => { resolverConf = r; });
+}
 
 /* ================= ESTADO ================= */
 let F = null, A = null, AppMod = null, fire = null, AU = null, user = null;
@@ -672,9 +710,16 @@ function desenharHome() {
   sel.innerHTML = profs.map(p => `<option>${esc(p)}</option>`).join("");
   if (profs.includes(atual)) sel.value = atual;
 }
+function mostrarSucesso(c) {
+  const quando = new Date(c.data + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
+  $("#sucQuando").textContent = `${quando} às ${c.horario}`;
+  $("#sucServico").textContent = c.servico; $("#sucProf").textContent = c.profissional; $("#sucProto").textContent = c.protocolo;
+  $("#sucZap").classList.toggle("hidden", !salao?.whatsapp);
+  if (salao?.whatsapp) $("#sucBtnZap").href = linkZap(c);
+  mostrarTela("sucesso");
+}
 function mostrarTela(v) {
-  $("#home").classList.toggle("hidden", v !== "home");
-  $("#agendar").classList.toggle("hidden", v !== "agendar");
+  ["home", "agendar", "sucesso"].forEach(x => $("#" + x).classList.toggle("hidden", v !== x));
   window.scrollTo({ top: 0 });
 }
 function desenharServicos() {
@@ -766,6 +811,8 @@ async function esqueci(email) {
 
 /* ================= EVENTOS ================= */
 document.addEventListener("click", async e => {
+  const cf = e.target.closest("[data-conf]");
+  if (cf) { $("#confirmBox").classList.add("hidden"); if (resolverConf) resolverConf(cf.dataset.conf === "1"); resolverConf = null; return; }
   const t = e.target.closest("[data-tab],[data-dia],[data-mes],[data-hora],[data-serv],[data-act]"); if (!t) return;
   const d = t.dataset;
   if (d.tab) return aba(d.tab);
@@ -788,7 +835,7 @@ document.addEventListener("click", async e => {
       try { localStorage.removeItem(chaveComp()); } catch {}
       off("meu"); $("#comprovante").classList.add("hidden"); if (!indisponivel()) mostrarTela("agendar"); break;
     case "cancelar":
-      if (!confirm(`Cancelar o agendamento de ${d.rotulo}? O horário volta a ficar disponível para novos clientes.`)) return;
+      if (!(await confirmar(`Cancelar o agendamento de ${d.rotulo}? O horário volta a ficar disponível para novos clientes.`, "Cancelar horário"))) return;
       try { await cancelar(d.salao, d.id); } catch (err) { console.error(err); aviso("Não foi possível cancelar. Verifique a conexão e as regras do Firestore."); }
       break;
     case "barb":
@@ -798,7 +845,7 @@ document.addEventListener("click", async e => {
       break;
     case "trava": {
       const novo = !travado;
-      if (!confirm(novo ? "Travar o sistema? Nenhuma barbearia receberá agendamentos até você reabrir." : "Reabrir o sistema?")) return;
+      if (!(await confirmar(novo ? "Travar o sistema? Nenhuma barbearia receberá agendamentos até você reabrir." : "Reabrir o sistema?", novo ? "Travar" : "Reabrir"))) return;
       try { await F.setDoc(dGeral(), { bloqueado: novo }, { merge: true }); }
       catch (err) { console.error(err); aviso("Não foi possível alterar o sistema. Verifique a conexão e as regras do Firestore."); }
       break;
@@ -836,7 +883,7 @@ $("#form").addEventListener("submit", async e => {
     await Promise.race([gravar(o, `${chave}_${protocolo}`), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]);
     const c = { chave, protocolo, servico: o.servico, profissional: prof, data: diaSel, horario: o.horario, nome: o.nome, telefone: o.telefone };
     try { localStorage.setItem(chaveComp(), JSON.stringify(c)); } catch {}
-    acompanharMeu(c); horaSel = null; desenharHoras(); mostrarTela("home");
+    acompanharMeu(c); horaSel = null; desenharHoras(); mostrarSucesso(c);
   } catch (err) {
     console.error(err);
     aviso(err.message === "ocupado" ? "Horário indisponível. Escolha outro."
