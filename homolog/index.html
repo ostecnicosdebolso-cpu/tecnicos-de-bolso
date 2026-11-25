@@ -92,6 +92,11 @@
   .semHora{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border:2px dashed var(--line2);border-radius:16px;background:transparent;color:var(--ink);text-align:left;cursor:pointer}
   .semHora .mais{width:40px;height:40px;border-radius:20px;background:var(--pri-l);color:var(--pri);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;flex-shrink:0}
   .heroLogo{width:56px;height:56px;min-width:56px;border-radius:28px;background:#fff;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  .area{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;white-space:nowrap}
+  .area.cli{background:rgba(255,255,255,.18);color:#fff}
+  .area.cli2{background:var(--pri-l);color:var(--pri-d)}
+  .area.emp{background:#DCFCE7;color:#166534}
+  .area.adm{background:#1A1A2E;color:#fff}
   .logo{width:72px;height:72px;border-radius:36px;background:var(--pri);display:flex;align-items:center;justify-content:center;color:#fff;margin:0 auto}
 </style>
 </head>
@@ -134,13 +139,13 @@
     </div>
     <a id="btnTeste" class="btn" href="#" target="_blank" rel="noopener">Teste grátis por 7 dias</a>
     <div class="card cardp stack">
-      <p class="tt" style="font-size:17px;font-weight:700">Já tenho conta</p>
+      <p class="tt" style="font-size:17px;font-weight:700">Entrar na Área da Empresa</p>
       <div><label class="lbl" for="lEmail">E-mail</label><input id="lEmail" type="email" class="field" autocomplete="username" placeholder="seu@email.com"></div>
       <div><label class="lbl" for="lSenha">Senha</label><input id="lSenha" type="password" class="field" autocomplete="current-password" placeholder="Sua senha"></div>
       <button data-act="entrar" class="btn2">Entrar</button>
       <button data-act="esqueci" class="link" style="align-self:center">Esqueci a senha</button>
     </div>
-    <p class="sm muted" style="text-align:center">Dono, barbeiro ou administrador: todos entram por aqui.<br><span class="ver"></span></p>
+    <p class="sm muted" style="text-align:center">Dono, barbeiro ou administrador: todos entram por aqui.<br>Cliente não precisa de conta: é só usar o link da barbearia.<br><span class="ver"></span></p>
   </div>
 </section>
 
@@ -148,7 +153,7 @@
 <section id="vBarbeiro" class="hidden" style="padding-bottom:96px">
   <div class="topbar"><div class="wrap pad stack" style="gap:12px">
     <div class="row">
-      <div class="grow"><p id="bOla" class="sm muted">Painel da barbearia</p><p id="bNome" class="tt" style="font-size:20px;font-weight:800;line-height:1.2"></p></div>
+      <div class="grow"><span class="area emp"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l1-5h16l1 5"></path><path d="M4 9v11h16V9"></path><path d="M10 20v-6h4v6"></path></svg>Área da Empresa</span><p id="bOla" class="sm muted" style="margin-top:6px">Painel da barbearia</p><p id="bNome" class="tt" style="font-size:20px;font-weight:800;line-height:1.2"></p></div>
       <button id="btnAbrir" data-act="barb" class="pill" style="border:none;min-height:44px;cursor:pointer"></button>
       <button data-act="sair" class="iconbtn" aria-label="Sair" title="Sair"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5M21 12H9"></path></svg></button>
     </div>
@@ -246,7 +251,7 @@
 
 <!-- ================= MASTER ================= -->
 <section id="vMaster" class="hidden wrap pad stack" style="padding-bottom:40px">
-  <div class="row" style="justify-content:space-between"><h2 style="font-size:22px;font-weight:800">Administrador</h2><button data-act="sair" class="link">Sair</button></div>
+  <div class="row" style="justify-content:space-between"><div class="stack" style="gap:6px"><span class="area adm"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"></path></svg>Área do Administrador</span><h2 style="font-size:22px;font-weight:800">Painel geral</h2></div><button data-act="sair" class="link">Sair</button></div>
   <div class="card cardp stack" style="gap:10px">
     <div class="row"><span id="ponto" class="dot" style="width:12px;height:12px;border-radius:6px;background:#16A34A"></span><p id="statusSistema" style="font-weight:700">Sistema em operação</p></div>
     <p id="statusConexao" class="xs muted">Conectando…</p>
@@ -305,13 +310,13 @@
   <div id="home">
     <div id="hero" style="background:linear-gradient(160deg,#5B3DF5 0%,#4221EE 55%,#2A139C 100%);color:#fff;padding:22px 22px 64px;border-radius:0 0 28px 28px">
       <div class="wrap stack" style="gap:16px">
-        <p class="xs" style="font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#DDD6FE">Agende pelo celular</p>
+        <span class="area cli"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Área do Cliente</span>
         <div class="row" style="gap:14px;align-items:flex-start"><div id="sLogo" class="heroLogo" aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:var(--pri);font-family:Montserrat,sans-serif;font-weight:800;font-size:20px"></div><div class="stack grow" style="gap:6px"><h1 id="sNome" style="font-size:26px;font-weight:800;line-height:1.15"></h1><p id="sBairro" style="font-size:15px;color:#DDD6FE"></p></div></div>
         <span id="sStatus" class="pill" style="align-self:flex-start;background:#fff"></span>
       </div>
     </div>
     <div class="wrap" style="padding:0 16px 24px">
-      <div id="comprovante" class="card cardp stack hidden" style="margin:-44px 0 14px;gap:10px;border:2px solid var(--pri)"></div>
+      <div id="comprovante" class="card cardp stack hidden" style="margin:-44px 0 14px;gap:12px;border:2px solid var(--pri)"></div>
       <div id="servCard" class="card" style="padding:6px 18px;margin-top:-44px">
         <p class="tt" style="font-size:16px;font-weight:700;margin:12px 0 2px">Serviços</p>
         <div id="sServicos"></div>
@@ -319,7 +324,7 @@
       <div class="stack" style="margin-top:18px;gap:12px">
         <button id="btnAgendar" data-act="agendar" class="btn">Agendar horário</button>
         <div id="sContatos" class="grid3"></div>
-        <p class="xs muted" style="text-align:center;margin-top:12px">Agenda por Técnicos de Bolso · <span class="ver"></span><br><a href="./" style="color:#5C5F75">Área do barbeiro (entrar)</a></p>
+        <p class="xs muted" style="text-align:center;margin-top:12px">Agenda por Técnicos de Bolso · <span class="ver"></span><br><a href="./" style="color:#5C5F75">Área da Empresa (entrar)</a></p>
       </div>
     </div>
   </div>
@@ -328,7 +333,7 @@
   <div id="agendar" class="hidden">
     <div class="topbar"><div class="wrap row" style="padding:14px 16px">
       <button class="iconbtn" data-act="inicio" aria-label="Voltar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
-      <div><p id="agTitulo" class="tt" style="font-size:18px;font-weight:700">Agendar horário</p><p id="agSub" class="sm muted"></p></div>
+      <div class="grow"><p id="agTitulo" class="tt" style="font-size:18px;font-weight:700">Agendar horário</p><p id="agSub" class="sm muted"></p></div><span class="area cli2"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Cliente</span>
     </div></div>
     <div id="avisoFechado" class="wrap hidden" style="padding:14px 16px 0"><p class="card cardp" style="background:var(--bad-l);border-color:#FECACA;color:#7F1D1D;text-align:center;font-size:14px"></p></div>
     <fieldset id="fs" style="border:none;margin:0;padding:0">
@@ -336,7 +341,7 @@
         <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span style="color:var(--pri)">1.</span> Serviço</p><div id="servicos" class="row" style="flex-wrap:wrap;gap:8px"></div></div>
         <div id="boxProf" class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span style="color:var(--pri)">2.</span> Profissional</p><div id="profs" class="row" style="flex-wrap:wrap;gap:8px"></div></div>
         <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nDia" style="color:var(--pri)">3.</span> Dia</p><div id="dias" class="days"></div></div>
-        <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nHora" style="color:var(--pri)">4.</span> Horário <span id="diaTxt" style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:var(--muted)"></span></p><div id="horas" class="grid4"></div><p id="semHoras" class="sm muted hidden">Sem horários livres neste dia. Escolha outra data.</p><p class="xs muted">Horários riscados já passaram ou estão ocupados.</p></div>
+        <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nHora" style="color:var(--pri)">4.</span> Horário <span id="diaTxt" style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:var(--muted)"></span></p><div id="horas" class="grid4"></div><div id="semHoras" class="card cardp stack hidden" style="gap:10px;text-align:center;background:var(--warn-l);border-color:#FED7AA"><p id="semHorasTxt" style="font-weight:700;color:var(--warn)"></p><button type="button" id="btnProxDia" class="btn"></button></div><p id="legRiscados" class="xs muted">Horários riscados já passaram ou estão ocupados.</p></div>
         <div id="boxDados" class="stack" style="gap:12px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nDados" style="color:var(--pri)">5.</span> Seus dados</p>
           <div><label class="lbl" for="nome">Nome</label><input id="nome" class="field" autocomplete="name" placeholder="Como podemos te chamar?"></div>
           <div><label class="lbl" for="fone">WhatsApp com DDD</label><input id="fone" class="field" inputmode="tel" autocomplete="tel" placeholder="(11) 91234-5678"></div>
@@ -350,8 +355,9 @@
   </div>
 
   <!-- Sucesso -->
-  <div id="sucesso" class="hidden wrap" style="padding:48px 22px 28px">
+  <div id="sucesso" class="hidden wrap" style="padding:20px 22px 28px">
     <div class="stack" style="gap:22px">
+      <span class="area cli2"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Área do Cliente</span>
       <div class="stack" style="align-items:center;gap:12px;text-align:center">
         <div style="width:80px;height:80px;border-radius:40px;background:var(--ok-l);display:flex;align-items:center;justify-content:center;color:var(--ok)"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></div>
         <h1 id="sucTit" style="font-size:28px;font-weight:800">Horário reservado!</h1>
@@ -380,7 +386,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.4.3";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.4.6";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -446,7 +452,15 @@ const slug = s => String(s || "").toLowerCase().normalize("NFD").replace(/[^a-z0
 const cancelado = p => p.status === "Cancelado";
 const zapNum = s => { let z = dig(s); if (z && !z.startsWith("55")) z = "55" + z; return z; };
 const intervaloDe = s => Number(s.intervalo) || 15;
-const slotsDe = s => { const r = [], p = intervaloDe(s); for (let m = mm(s.inicio || "09:00"); m <= mm(s.fim || "20:00"); m += p) r.push(hh(m)); return r; };
+/* v2.4.6: horário de cada barbearia. Se o último horário for antes da abertura (ex.: 18:00 às 02:00),
+   o expediente vira a meia-noite: o dia mostra a madrugada (00:00 até o último horário) e depois a noite (da abertura até 23:59) */
+const slotsDe = s => {
+  const r = [], p = intervaloDe(s), ini = mm(s.inicio || "09:00"), fim = mm(s.fim || "20:00");
+  if (fim >= ini) { for (let m = ini; m <= fim; m += p) r.push(hh(m)); return r; }
+  for (let m = ini; m < 1440; m += p) r.push(hh(m));
+  const madr = []; for (let m = (ini + Math.ceil((1440 - ini) / p) * p) - 1440; m <= fim; m += p) madr.push(hh(m));
+  return madr.concat(r);
+};
 const fechadoNoDia = (s, d) => (s.diasFechados || []).includes(diaSemana(d));
 const token = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, "0")).join("");
 const linkCliente = id => location.origin + location.pathname + "?b=" + encodeURIComponent(id);
@@ -584,6 +598,7 @@ function abrirEspaco(id) {
     meuSalao = { id: s.id, ...s.data() };
     $("#bNome").textContent = meuSalao.nome;
     $("#bOla").textContent = papel === "barbeiro" ? "Olá, " + eu.nome + "!" : "Painel da barbearia";
+    $("#bOla").classList.toggle("hidden", papel !== "barbeiro");
     desenharEstado(); desenharCompartilhar(); desenharEquipe();
   }, erroConexao);
   unsubs.cfg = F.onSnapshot(dConfig(id), s => { config = s.exists() ? s.data() : {}; desenharEquipe(); }, erroConexao);
@@ -1104,7 +1119,7 @@ function abrirSalao() {
     if (!profSel || !(salao.profissionais || []).includes(profSel)) profSel = (salao.profissionais || [])[0] || "";
     if (primeira) { diaSel = proximoDiaAberto(hojeISO()); }
     desenharHome(); desenharServicos(); desenharProfs(); desenharDias(); desenharEstado();
-    if (primeira) { ver("salao"); ouvirDia(); const c = lerComprovante(); if (c) acompanharMeu(c); }
+    if (primeira) { ver("salao"); ouvirDia(); acompanharMeus(); }
   }, erroConexao);
 }
 function proximoDiaAberto(d) { for (let i = 0; i < 14; i++) { const x = somaDias(d, i); if (!fechadoNoDia(salao, x)) return x; } return d; }
@@ -1157,7 +1172,17 @@ function desenharHoras() {
   const slots = slotsDe(salao);
   if (horaSel && !livre(horaSel)) horaSel = null;
   $("#horas").innerHTML = slots.map(h => livre(h) ? `<button type="button" class="slot ${h === horaSel ? "on" : ""}" data-hora="${h}">${h}</button>` : `<button type="button" class="slot off" disabled>${h}</button>`).join("");
-  $("#semHoras").classList.toggle("hidden", slots.some(livre));
+  /* v2.4.5: dia lotado → esconde a grade riscada e sugere o próximo dia aberto */
+  const lotado = !indisponivel() && !slots.some(livre);
+  $("#semHoras").classList.toggle("hidden", !lotado);
+  $("#horas").classList.toggle("hidden", lotado);
+  $("#legRiscados").classList.toggle("hidden", lotado);
+  if (lotado) {
+    const prox = proximoDiaAberto(somaDias(diaSel, 1));
+    $("#semHorasTxt").textContent = (diaSel === hojeISO() ? "Hoje" : cap1(dataLonga(diaSel).split(",")[0])) + " não tem mais horário livre" + (profSel && (salao.profissionais || []).length > 1 ? " com " + profSel : "") + ".";
+    const b = $("#btnProxDia"); b.dataset.dia = prox;
+    b.textContent = "Ver horários de " + (prox === somaDias(hojeISO(), 1) ? "amanhã" : DIAS_SEM[diaSemana(prox)].toLowerCase()) + ", " + dBR(prox).slice(0, 5);
+  }
   resumo();
 }
 function resumo() {
@@ -1166,7 +1191,12 @@ function resumo() {
   $("#resumo1").textContent = sv ? `${sv.nome} · ${DIAS_SEM[diaSemana(diaSel)].toLowerCase()} ${dBR(diaSel).slice(0, 5)}${horaSel ? " · " + horaSel : ""}` : "";
   $("#resumo2").textContent = horaSel ? (profSel ? "com " + profSel : "") : "Escolha um horário";
   $("#resumoPreco").textContent = sv ? brl(sv.preco) : "";
-  $("#btnConfirmar").textContent = remarcando ? "Confirmar remarcação" : "Confirmar agendamento";
+  /* v2.4.5: o botão só acende depois de escolher o horário */
+  const btn = $("#btnConfirmar");
+  if (btn.textContent !== "Salvando…") {
+    btn.disabled = indisponivel() || !horaSel;
+    btn.textContent = !horaSel && !indisponivel() ? "Escolha um horário acima" : remarcando ? "Confirmar remarcação" : "Confirmar agendamento";
+  }
 }
 function mostrarTela(v) { ["home", "agendar", "sucesso"].forEach(x => $("#" + x).classList.toggle("hidden", v !== x)); window.scrollTo({ top: 0 }); }
 function desenharEstado() {
@@ -1186,7 +1216,7 @@ function desenharEstado() {
   st.innerHTML = fechado ? `<span class="dot" style="background:#DC2626"></span>Agendamentos indisponíveis` : fHoje ? `<span class="dot" style="background:#F59E0B"></span>Fechado hoje · agende para outro dia` : `<span class="dot" style="background:#16A34A"></span>Aberto hoje · ${esc(salao.inicio || "09:00")} às ${esc(salao.fim || "20:00")}`;
   st.style.color = fechado ? "#7F1D1D" : fHoje ? "#92400E" : "#166534";
   $("#btnAgendar").disabled = fechado;
-  $("#btnAgendar").textContent = fechado ? "Agendamentos indisponíveis" : "Agendar horário";
+  $("#btnAgendar").textContent = fechado ? "Agendamentos indisponíveis" : lerMeus().some(c => (estadoMeu[c.protocolo] || "ativo") === "ativo") ? "Agendar outro horário" : "Agendar horário";
   $("#avisoFechado").classList.toggle("hidden", !fechado);
   $("#avisoFechado p").textContent = travado ? "Os agendamentos estão temporariamente indisponíveis." : "A barbearia não está recebendo agendamentos no momento.";
   $("#fs").disabled = fechado; $("#btnConfirmar").disabled = fechado;
@@ -1220,35 +1250,69 @@ async function cancelarPeloCliente(c) {
   await b.commit();
 }
 
+/* v2.4.5: o aparelho guarda TODAS as reservas do cliente nesta barbearia (antes guardava só a última) */
 const chaveComp = () => "tdb_comp_" + (salao?.id || SALAO_ID);
-const lerComprovante = () => { try { return JSON.parse(localStorage.getItem(chaveComp()) || "null"); } catch { return null; } };
-const salvarComprovante = c => { try { c ? localStorage.setItem(chaveComp(), JSON.stringify(c)) : localStorage.removeItem(chaveComp()); } catch {} };
+const chaveComps = () => "tdb_comps_" + (salao?.id || SALAO_ID);
+function lerMeus() {
+  let l = [];
+  try { l = JSON.parse(localStorage.getItem(chaveComps()) || "[]") || []; } catch {}
+  try { const velho = JSON.parse(localStorage.getItem(chaveComp()) || "null"); if (velho?.protocolo && !l.some(x => x.protocolo === velho.protocolo)) l.push(velho); localStorage.removeItem(chaveComp()); } catch {}
+  return l.filter(x => x && x.protocolo && x.data >= hojeISO());
+}
+const salvarMeus = l => { try { l.length ? localStorage.setItem(chaveComps(), JSON.stringify(l)) : localStorage.removeItem(chaveComps()); } catch {} };
+const acharMeu = p => lerMeus().find(x => x.protocolo === p);
+function guardarMeu(c, protoAntigo) {
+  const l = lerMeus().filter(x => x.protocolo !== c.protocolo && x.protocolo !== protoAntigo);
+  l.push(c); salvarMeus(l);
+}
+function trocarMeu(c) { salvarMeus(lerMeus().map(x => x.protocolo === c.protocolo ? c : x)); }
+function tirarMeu(p) { salvarMeus(lerMeus().filter(x => x.protocolo !== p)); delete estadoMeu[p]; off("mc_" + p); }
+const estadoMeu = {};
 function linkZap(c, remarcado) {
   const linhas = [`${remarcado ? "Agendamento remarcado" : "Novo agendamento"} (${c.protocolo})`, `Cliente: ${c.nome}`, `Telefone: ${c.telefone}`,
     `Serviço: ${c.servico}`, `Data: ${dBR(c.data).slice(0, 5)} às ${c.horario}`, c.profissional && `Profissional: ${c.profissional}`].filter(Boolean);
   return `https://wa.me/${salao.whatsapp}?text=${encodeURIComponent(linhas.join("\n"))}`;
 }
-function mostrarComprovante(c, estado) {
-  const box = $("#comprovante"), canc = estado !== "ativo";
-  const txtCanc = estado === "cliente" ? "Você cancelou este horário." : "Este horário foi cancelado pela barbearia.";
-  box.innerHTML = `<div class="row" style="justify-content:space-between"><span class="xs" style="font-weight:800;color:${canc ? "var(--bad)" : "var(--ok)"}">${canc ? "Agendamento cancelado" : "Seu próximo horário"}</span><span class="xs muted" style="font-family:ui-monospace,monospace">${esc(c.protocolo)}</span></div>
-    <p style="font-size:16px;font-weight:700">${esc(cap1(dataLonga(c.data)))} às ${esc(c.horario)}</p>
-    <p class="sm muted">${esc(c.servico)}${c.profissional ? " com " + esc(c.profissional) : ""}${canc ? " · " + txtCanc : ""}</p>
-    ${canc ? `<button class="btn2" data-act="novo">Fazer novo agendamento</button>`
-           : `<div class="grid2"><button class="btn3" data-act="remarcar">Remarcar</button><button class="btn3" data-act="cancelarMeu" style="color:var(--bad);border-color:#FECACA">Cancelar</button></div>`}`;
+function itemMeu(c) {
+  const est = estadoMeu[c.protocolo] || "ativo", canc = est !== "ativo";
+  const txtCanc = est === "cliente" ? "Você cancelou este horário." : "Cancelado pela barbearia.";
+  const p = esc(c.protocolo);
+  return `<div class="stack" style="gap:8px;padding:12px;border-radius:14px;background:${canc ? "var(--bad-l)" : "var(--bg)"};${canc ? "opacity:.85" : ""}">
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div class="grow"><p style="font-size:16px;font-weight:800${canc ? ";text-decoration:line-through" : ""}">${esc(rotuloDia(c.data))} · ${esc(c.horario)}</p>
+      <p class="sm muted">${esc(c.servico)}${c.profissional ? " com " + esc(c.profissional) : ""}</p></div>
+      <span class="xs muted" style="font-family:ui-monospace,monospace;white-space:nowrap">${p}</span>
+    </div>
+    ${canc ? `<div class="row" style="justify-content:space-between"><span class="sm" style="font-weight:700;color:var(--bad)">${txtCanc}</span><button class="link" data-act="tirarMeu" data-proto="${p}" style="padding:4px">Tirar da lista</button></div>`
+           : `<div class="grid2"><button class="btn3" data-act="remarcar" data-proto="${p}">Remarcar</button><button class="btn3" data-act="cancelarMeu" data-proto="${p}" style="color:var(--bad);border-color:#FECACA">Cancelar</button></div>`}
+  </div>`;
+}
+function desenharMeus() {
+  const box = $("#comprovante");
+  const l = lerMeus().sort((a, b) => (a.data + a.horario).localeCompare(b.data + b.horario));
+  const ativos = l.filter(c => (estadoMeu[c.protocolo] || "ativo") === "ativo").length;
+  /* v2.4.6: quem já tem horário marcado vê só os horários dele; a lista de serviços aparece ao tocar em agendar */
+  $("#servCard").classList.toggle("hidden", ativos > 0);
+  if (!indisponivel()) $("#btnAgendar").textContent = ativos > 0 ? "Agendar outro horário" : "Agendar horário";
+  if (!l.length) { box.classList.add("hidden"); $("#servCard").style.marginTop = "-44px"; return; }
+  box.innerHTML = `<div class="row" style="justify-content:space-between"><p class="tt" style="font-size:17px;font-weight:800">${ativos === 1 ? "Seu horário marcado" : ativos > 1 ? `Seus ${ativos} horários marcados` : "Seus horários"}</p></div>
+    ${l.map(itemMeu).join("")}`;
   box.classList.remove("hidden");
   $("#servCard").style.marginTop = "0";
 }
-function acompanharMeu(c) {
-  off("meu");
-  if (!c.chave) return;
-  unsubs.meu = F.onSnapshot(F.doc(fire, "saloes", salao.id, "ocupados", c.chave), s => {
-    const d = s.exists() ? s.data() : null;
-    const ativo = d && d.protocolo === c.protocolo;
-    const passou = c.data < hojeISO();
-    if (passou && ativo) { salvarComprovante(null); $("#comprovante").classList.add("hidden"); $("#servCard").style.marginTop = "-44px"; return; }
-    mostrarComprovante(c, ativo ? "ativo" : ((lerComprovante() || c).canceladoPorMim ? "cliente" : "barbearia"));
-  }, () => mostrarComprovante(c, "ativo"));
+function acompanharMeus() {
+  Object.keys(unsubs).filter(k => k.startsWith("mc_")).forEach(off);
+  const l = lerMeus(); salvarMeus(l);
+  l.forEach(c => {
+    if (!c.chave) return;
+    unsubs["mc_" + c.protocolo] = F.onSnapshot(F.doc(fire, "saloes", salao.id, "ocupados", c.chave), s => {
+      const d = s.exists() ? s.data() : null;
+      const ativo = d && d.protocolo === c.protocolo;
+      estadoMeu[c.protocolo] = ativo ? "ativo" : ((acharMeu(c.protocolo) || c).canceladoPorMim ? "cliente" : "barbearia");
+      desenharMeus();
+    }, () => { estadoMeu[c.protocolo] = "ativo"; desenharMeus(); });
+  });
+  desenharMeus();
 }
 function mostrarSucesso(c, remarcado) {
   $("#sucTit").textContent = remarcado ? "Horário remarcado!" : "Horário reservado!";
@@ -1273,14 +1337,14 @@ async function confirmarAgendamento() {
   try {
     const r = await Promise.race([gravar(o, tok, antigo), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]);
     const c = { ...o, protocolo: r.protocolo, agId: r.agId, token: tok };
-    salvarComprovante(c); remarcando = null; horaSel = null;
-    acompanharMeu(c); desenharHoras(); mostrarSucesso(c, !!antigo);
+    guardarMeu(c, antigo?.protocolo); remarcando = null; horaSel = null;
+    acompanharMeus(); desenharHoras(); mostrarSucesso(c, !!antigo);
   } catch (err) {
     console.error(err);
     aviso(err.message === "ocupado" ? "Esse horário acabou de ser ocupado. Escolha outro." : err.message === "bloqueado" ? "Os agendamentos estão temporariamente indisponíveis." : "Não foi possível salvar. Verifique a internet e tente novamente.");
     horaSel = null; desenharHoras();
   }
-  btn.disabled = false; resumo();
+  btn.disabled = false; btn.textContent = ""; resumo();
 }
 
 /* ================= EVENTOS ================= */
@@ -1300,7 +1364,7 @@ document.addEventListener("click", async e => {
   const t = e.target.closest("[data-nav],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
   const d = t.dataset;
   if (d.nav) return navegar(d.nav);
-  if (d.dia) { diaSel = d.dia; horaSel = null; desenharDias(); ouvirDia(); desenharHoras(); return; }
+  if (d.dia) { diaSel = d.dia; horaSel = null; desenharDias(); ouvirDia(); desenharHoras(); if (t.id === "btnProxDia") { const on = $("#dias .day.on"); if (on) on.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }); } return; }
   if (d.hora) { horaSel = d.hora; desenharHoras(); return; }
   if (d.serv) { servSel = +d.serv; desenharServicos(); return; }
   if (d.prof) { profSel = d.prof; horaSel = null; desenharProfs(); desenharHoras(); return; }
@@ -1312,21 +1376,21 @@ document.addEventListener("click", async e => {
     case "agendar": if (!indisponivel()) { remarcando = null; resumo(); $("#agTitulo").textContent = "Agendar horário"; $("#agSub").textContent = salao.nome; mostrarTela("agendar"); } break;
     case "inicio": remarcando = null; mostrarTela("home"); break;
     case "confirmar": confirmarAgendamento(); break;
-    case "novo": salvarComprovante(null); off("meu"); $("#comprovante").classList.add("hidden"); $("#servCard").style.marginTop = "-44px"; if (!indisponivel()) mostrarTela("agendar"); break;
+    case "tirarMeu": tirarMeu(d.proto); desenharMeus(); break;
     case "remarcar": {
-      const c = lerComprovante(); if (!c) return;
+      const c = acharMeu(d.proto); if (!c) return;
       remarcando = { agId: c.agId, chave: c.chave, token: c.token, protocolo: c.protocolo };
       $("#nome").value = c.nome || ""; $("#fone").value = c.telefone || "";
       $("#agTitulo").textContent = "Remarcar horário"; $("#agSub").textContent = `Seu horário atual: ${dBR(c.data).slice(0, 5)} às ${c.horario}. Ele será liberado ao confirmar o novo.`;
       resumo(); mostrarTela("agendar"); break;
     }
     case "cancelarMeu": {
-      const c = lerComprovante(); if (!c) return;
+      const c = acharMeu(d.proto); if (!c) return;
       if (!(await confirmar(`Cancelar seu horário de ${dBR(c.data).slice(0, 5)} às ${c.horario}?`, "Cancelar horário"))) return;
-      c.canceladoPorMim = true; salvarComprovante(c);
-      try { await cancelarPeloCliente(c); mostrarComprovante(c, "cliente");
+      c.canceladoPorMim = true; trocarMeu(c);
+      try { await cancelarPeloCliente(c); estadoMeu[c.protocolo] = "cliente"; desenharMeus();
         if (salao.whatsapp) aviso("Horário cancelado. Se quiser, avise a barbearia pelo WhatsApp."); }
-      catch (err) { console.error(err); delete c.canceladoPorMim; salvarComprovante(c); aviso("Não foi possível cancelar. Tente novamente ou fale com a barbearia pelo WhatsApp."); }
+      catch (err) { console.error(err); delete c.canceladoPorMim; trocarMeu(c); aviso("Não foi possível cancelar. Tente novamente ou fale com a barbearia pelo WhatsApp."); }
       break;
     }
     case "cancelar":
