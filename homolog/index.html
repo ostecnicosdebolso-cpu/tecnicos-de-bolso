@@ -89,6 +89,12 @@
   .diaSel{position:relative;flex:1;min-width:0;min-height:48px;border:1px solid var(--line2);border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:16px;color:var(--ink)}
   .diaSel input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;cursor:pointer;font-size:16px}
   .diaSel svg{color:var(--pri);flex-shrink:0}
+  .per{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#fff;border:1px solid var(--line2);border-radius:14px;padding:4px;gap:4px}
+  .per button{min-height:42px;border:0;border-radius:10px;background:none;font:inherit;font-weight:700;font-size:15px;color:var(--muted);cursor:pointer}
+  .per button[aria-pressed=true]{background:var(--pri);color:#fff}
+  .per button:focus-visible{outline:3px solid var(--pri-l);outline-offset:1px}
+  .diaRow{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:0;border-bottom:1px solid var(--line);background:none;font:inherit;text-align:left;cursor:pointer;color:var(--ink)}
+  .diaRow:last-child{border-bottom:0}
   .semHora{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border:2px dashed var(--line2);border-radius:16px;background:transparent;color:var(--ink);text-align:left;cursor:pointer}
   .semHora .mais{width:40px;height:40px;border-radius:20px;background:var(--pri-l);color:var(--pri);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;flex-shrink:0}
   .heroLogo{width:56px;height:56px;min-width:56px;border-radius:28px;background:#fff;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15)}
@@ -210,27 +216,28 @@
 
   <!-- Caixa (só o dono) -->
   <div id="bCaixa" class="wrap pad stack hidden">
+    <div class="per" role="group" aria-label="Período do caixa"><button data-per="dia" aria-pressed="true">Dia</button><button data-per="semana" aria-pressed="false">Semana</button><button data-per="mes" aria-pressed="false">Mês</button></div>
     <div class="row">
-      <button class="iconbtn" data-act="cxAnt" aria-label="Dia anterior"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+      <button class="iconbtn" data-act="cxAnt" aria-label="Período anterior"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
       <label class="diaSel"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg><span id="cxDataTxt"></span><input id="cxData" type="date" aria-label="Escolher o dia"></label>
-      <button class="iconbtn" data-act="cxProx" aria-label="Próximo dia"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg></button>
+      <button class="iconbtn" data-act="cxProx" aria-label="Próximo período"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg></button>
     </div>
     <div class="resumo">
       <div class="lin" style="font-size:14px;opacity:.9"><span id="cxTitulo">Hoje a barbearia faturou</span></div>
       <b id="cxEntrou" style="font-family:Montserrat,sans-serif;font-size:34px;line-height:1;margin-top:-6px">R$ 0</b>
       <div class="lin"><span>Comissão dos barbeiros</span><b id="cxCom">− R$ 0</b></div>
-      <div class="lin"><span>Despesas do dia</span><b id="cxSaiu">− R$ 0</b></div>
+      <div class="lin"><span id="cxDespLbl">Despesas do dia</span><b id="cxSaiu">− R$ 0</b></div>
       <div class="casa"><span style="font-weight:700">Fica para a casa</span><b id="cxSaldo">R$ 0</b></div>
     </div>
     <button id="cxAvulso" data-act="avulso" class="btn ok hidden">+ Registrar atendimento</button>
-    <div class="grid2">
+    <div id="cxBotoes" class="grid2">
       <button data-act="novaEntrada" class="btn2" style="border-color:var(--ok);color:var(--ok)">+ Entrou dinheiro</button>
       <button data-act="novaSaida" class="btn2" style="border-color:var(--bad);color:var(--bad)">− Saiu dinheiro</button>
     </div>
     <p id="cxDica" class="xs muted" style="text-align:center;margin-top:-6px">Os cortes entram sozinhos quando você toca em “Concluir atendimento”. Aqui é só para o que vem de fora, como venda de pomada ou conta de luz.</p>
     <details class="mais"><summary>Quanto pagar a cada barbeiro</summary><div id="cxProfs" class="corpo"></div></details>
     <details class="mais"><summary>Pix, dinheiro e cartão</summary><div id="cxFormas" class="corpo"></div></details>
-    <details class="mais"><summary id="cxListaTit">Tudo o que entrou e saiu</summary><div id="cxLista" class="corpo" style="padding:0"></div></details>
+    <details id="cxListaBox" class="mais"><summary id="cxListaTit">Tudo o que entrou e saiu</summary><div id="cxLista" class="corpo" style="padding:0"></div></details>
     <details id="cxFechBox" class="mais"><summary id="cxFechTit">Conferir a gaveta no fim do dia</summary><div id="cxFech" class="corpo stack" style="gap:10px;padding-top:12px;padding-bottom:16px"></div></details>
   </div>
 
@@ -408,7 +415,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.5.0";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.5.1";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -503,7 +510,7 @@ let verCanc = false, agendaDono = [], agBalcao = [];
 /* v2.4.1: espaço do dono e da equipe */
 let papel = null, eu = null, espacoId = null, config = {}, equipeDocs = [];
 let cxAt = [], cxMov = [], cxFech = null, numAt = [], folhaCtx = null, verifEnviado = false;
-let planoAtual = null;   // v2.5.0: plano que o menu está mostrando
+let planoAtual = null, cxPer = "dia";   // v2.5.1: período do caixa (dia, semana ou mês)   // v2.5.0: plano que o menu está mostrando
 const SALAO_ID = slug(new URLSearchParams(location.search).get("b"));
 const unsubs = {};
 const off = k => { if (unsubs[k]) { unsubs[k](); delete unsubs[k]; } };
@@ -823,17 +830,44 @@ function msgComprovante(at) {
 }
 
 /* ----- caixa do dia (só o dono) ----- */
+/* v2.5.1: período do caixa. Semana = segunda a domingo. */
+const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+function periodoCx(dia) {
+  if (cxPer === "semana") { const ini = somaDias(dia, -((diaSemana(dia) + 6) % 7)); return [ini, somaDias(ini, 6)]; }
+  if (cxPer === "mes") { const [y, m] = dia.split("-").map(Number); return [dia.slice(0, 8) + "01", iso(new Date(y, m, 0, 12))]; }
+  return [dia, dia];
+}
+function rotuloPer(dia) {
+  const [ini, fim] = periodoCx(dia), hoje = hojeISO();
+  if (cxPer === "semana") return { sel: `${dBR(ini).slice(0, 5)} a ${dBR(fim).slice(0, 5)}`, tit: hoje >= ini && hoje <= fim ? "Nesta semana a barbearia faturou" : `De ${dBR(ini).slice(0, 5)} a ${dBR(fim).slice(0, 5)} a barbearia faturou` };
+  if (cxPer === "mes") { const n = MESES[+dia.slice(5, 7) - 1]; return { sel: cap1(n) + " de " + dia.slice(0, 4), tit: hoje.slice(0, 7) === dia.slice(0, 7) ? "Neste mês a barbearia faturou" : `Em ${n} a barbearia faturou` }; }
+  return null;
+}
+function moverCx(n) {
+  const d = $("#cxData").value || hojeISO();
+  if (cxPer === "mes") { const [y, m] = d.split("-").map(Number); $("#cxData").value = iso(new Date(y, m - 1 + n, 1, 12)); }
+  else $("#cxData").value = somaDias(d, cxPer === "semana" ? 7 * n : n);
+  ouvirCaixa();
+}
+function trocarPer(p) {
+  cxPer = p;
+  document.querySelectorAll(".per button").forEach(b => b.setAttribute("aria-pressed", b.dataset.per === p));
+  ouvirCaixa();
+}
 function ouvirCaixa() {
   if (papel !== "dono" || !espacoId) return;
   if (!$("#cxData").value) $("#cxData").value = hojeISO();
   rotularDia("cxData");
-  const id = espacoId, dia = $("#cxData").value;
+  const id = espacoId, dia = $("#cxData").value, [ini, fim] = periodoCx(dia), r = rotuloPer(dia);
+  if (r) $("#cxDataTxt").textContent = r.sel;
   off("cxA"); off("cxM"); off("cxF");
   cxAt = []; cxMov = []; cxFech = null; desenharCaixa();
   const erro = err => { console.error(err); $("#cxLista").innerHTML = `<p class="pad muted">Sem permissão para ver o caixa. Confira as regras do Firestore.</p>`; };
-  unsubs.cxA = F.onSnapshot(F.query(cAt(id), F.where("data", "==", dia)), s => { cxAt = s.docs.map(d => ({ id: d.id, col: "atendimentos", ...d.data() })); desenharCaixa(); }, erro);
-  unsubs.cxM = F.onSnapshot(F.query(cMov(id), F.where("data", "==", dia)), s => { cxMov = s.docs.map(d => ({ id: d.id, col: "movimentos", ...d.data() })); desenharCaixa(); }, erro);
-  unsubs.cxF = F.onSnapshot(dCaixa(id, dia), s => { cxFech = s.exists() ? s.data() : null; desenharCaixa(); }, erro);
+  /* um dia: igual antes. Semana ou mês: faixa de datas no mesmo campo "data" (não precisa de índice novo no Firebase) */
+  const filtro = ini === fim ? [F.where("data", "==", ini)] : [F.where("data", ">=", ini), F.where("data", "<=", fim)];
+  unsubs.cxA = F.onSnapshot(F.query(cAt(id), ...filtro), s => { cxAt = s.docs.map(d => ({ id: d.id, col: "atendimentos", ...d.data() })); desenharCaixa(); }, erro);
+  unsubs.cxM = F.onSnapshot(F.query(cMov(id), ...filtro), s => { cxMov = s.docs.map(d => ({ id: d.id, col: "movimentos", ...d.data() })); desenharCaixa(); }, erro);
+  if (cxPer === "dia") unsubs.cxF = F.onSnapshot(dCaixa(id, dia), s => { cxFech = s.exists() ? s.data() : null; desenharCaixa(); }, erro);
 }
 function contasCaixa() {
   const at = cxAt.filter(x => !x.estornado), mv = cxMov.filter(x => !x.estornado);
@@ -848,8 +882,12 @@ function desenharCaixa() {
   if (papel !== "dono") return;
   const k = contasCaixa(), dia = $("#cxData").value || hojeISO();
   /* v2.4.7: resumo simples — faturou, comissão, despesas, fica para a casa */
-  const hoje = dia === hojeISO();
-  $("#cxTitulo").textContent = hoje ? "Hoje a barbearia faturou" : `Em ${dBR(dia).slice(0, 5)} a barbearia faturou`;
+  const hoje = dia === hojeISO(), r = rotuloPer(dia), umDia = !r;
+  $("#cxTitulo").textContent = r ? r.tit : hoje ? "Hoje a barbearia faturou" : `Em ${dBR(dia).slice(0, 5)} a barbearia faturou`;
+  /* lançar e conferir gaveta só na visão de um dia; semana e mês são para olhar o acumulado */
+  $("#cxDespLbl").textContent = umDia ? "Despesas do dia" : cxPer === "mes" ? "Despesas do mês" : "Despesas da semana";
+  ["#cxBotoes", "#cxDica", "#cxFechBox"].forEach(q => $(q).classList.toggle("hidden", !umDia));
+  $("#cxAvulso").classList.toggle("hidden", !umDia || temAgenda(meuSalao));
   $("#cxEntrou").textContent = brlC(k.entrou); $("#cxCom").textContent = "− " + brlC(k.com); $("#cxSaiu").textContent = "− " + brlC(k.desp);
   $("#cxSaldo").textContent = brlC(k.entrou - k.com - k.desp);
   $("#cxFormas").innerHTML = FORMAS.map(([f, t]) => `<div class="listrow"><span>${t}</span><b>${brlC(k.porForma[f])}</b></div>`).join("") + `<p class="xs muted" style="padding:4px 0 8px">Já descontado o que saiu em cada forma.</p>`;
@@ -860,7 +898,8 @@ function desenharCaixa() {
   $("#cxProfs").innerHTML = nomes.length ? nomes.map(n => { const g = grupos[n], pagar = g.com - g.vale;
       return `<div class="listrow"><div><p style="font-weight:700">${esc(n)}</p><p class="xs muted">${g.qtd} corte${g.qtd === 1 ? "" : "s"} · ganhou ${brlC(g.com)}${g.vale ? ` · já pegou ${brlC(g.vale)} de vale` : ""}</p></div>
         ${!g.com && !g.vale ? `<span class="sm muted">sem comissão</span>` : `<div style="text-align:right;flex-shrink:0"><p class="xs muted">${pagar >= 0 ? "Pagar" : "Ficou devendo"}</p><b style="font-size:17px;white-space:nowrap;color:${pagar >= 0 ? "var(--ok)" : "var(--bad)"}">${brlC(Math.abs(pagar))}</b></div>`}</div>`; }).join("")
-    : `<p class="sm muted" style="padding:12px 0">Nenhum atendimento neste dia.</p>`;
+    : `<p class="sm muted" style="padding:12px 0">Nenhum atendimento ${umDia ? "neste dia" : "no período"}.</p>`;
+  if (!umDia) return desenharDiaADia(k);
   const nLanc = [...cxAt, ...cxMov].filter(x => !x.estornado).length;
   $("#cxListaTit").textContent = `Tudo o que entrou e saiu (${nLanc})`;
   const itens = [...cxAt, ...cxMov].sort((a, b) => String(a.hora).localeCompare(String(b.hora)));
@@ -880,6 +919,23 @@ function desenharCaixa() {
        <button class="btn3" data-act="fecharCaixa">Conferir de novo</button>`
     : `<p class="sm muted">Opcional. No fim do dia, conte as notas e moedas da gaveta e o app diz se bateu, sobrou ou faltou.</p><button class="btn" data-act="fecharCaixa">Contar a gaveta de ${dia === hojeISO() ? "hoje" : dBR(dia).slice(0, 5)}</button>`;
   $("#cxFechTit").textContent = f ? (f.diferencaCent === 0 ? "Gaveta conferida: bateu ✓" : `Gaveta conferida: ${f.diferencaCent > 0 ? "sobrou" : "faltou"} ${brlC(Math.abs(f.diferencaCent))}`) : "Conferir a gaveta no fim do dia";
+}
+/* v2.5.1: na semana e no mês, a lista vira "dia a dia"; tocar num dia abre o caixa daquele dia */
+function desenharDiaADia(k) {
+  const dias = {}, soma = (d, campo, v) => { const g = dias[d] ||= { ent: 0, com: 0, desp: 0, qtd: 0 }; g[campo] += v; };
+  k.at.forEach(x => { soma(x.data, "ent", x.valorCent || 0); soma(x.data, "com", x.repasseCent || 0); soma(x.data, "qtd", 1); });
+  cxMov.filter(x => !x.estornado).forEach(x => {
+    if (x.tipo === "entrada") soma(x.data, "ent", x.valorCent || 0);
+    else if (x.categoria !== "vale" && x.categoria !== "retirada") soma(x.data, "desp", x.valorCent || 0);
+  });
+  const l = Object.keys(dias).sort().reverse(), n = l.length;
+  const media = n ? Math.round(k.entrou / n) : 0;
+  $("#cxListaTit").textContent = n ? `Dia a dia · média de ${brlC(media)} por dia trabalhado` : "Dia a dia";
+  $("#cxLista").innerHTML = n ? l.map(d => { const g = dias[d];
+    return `<button class="diaRow" data-cxdia="${d}"><div class="grow"><p style="font-weight:700">${esc(rotuloDia(d))}</p><p class="xs muted">${g.qtd} atendimento${g.qtd === 1 ? "" : "s"}${g.desp ? " · despesas " + brlC(g.desp) : ""}</p></div>
+      <div style="text-align:right"><b style="white-space:nowrap">${brlC(g.ent)}</b><p class="xs muted" style="white-space:nowrap">fica ${g.ent - g.com - g.desp < 0 ? "− " + brlC(g.com + g.desp - g.ent) : brlC(g.ent - g.com - g.desp)}</p></div></button>`; }).join("")
+    : `<p class="pad muted" style="text-align:center">Nada lançado no período.</p>`;
+  $("#cxListaBox").open = true;
 }
 const CAT_ENTRADA = [["produto", "Venda de produto"], ["outro_ent", "Outra entrada"]];
 const CAT_SAIDA = [["despesa", "Conta ou compra"], ["vale", "Vale para barbeiro"], ["retirada", "Retirada do dono"], ["outro_sai", "Outra saída"]];
@@ -1438,9 +1494,11 @@ document.addEventListener("click", async e => {
     if (f.fcat != null) folhaCtx.cat = f.fcat;
     return desenharFolha();
   }
-  const t = e.target.closest("[data-nav],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
+  const t = e.target.closest("[data-nav],[data-per],[data-cxdia],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
   const d = t.dataset;
   if (d.nav) return navegar(d.nav);
+  if (d.per) return trocarPer(d.per);
+  if (d.cxdia) { $("#cxData").value = d.cxdia; return trocarPer("dia"); }
   if (d.dia) { diaSel = d.dia; horaSel = null; desenharDias(); ouvirDia(); desenharHoras(); if (t.id === "btnProxDia") { const on = $("#dias .day.on"); if (on) on.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }); } return; }
   if (d.hora) { horaSel = d.hora; desenharHoras(); return; }
   if (d.serv) { servSel = +d.serv; desenharServicos(); return; }
@@ -1485,8 +1543,8 @@ document.addEventListener("click", async e => {
     case "estornar": estornar(d.col, d.id); break;
     case "fecharCaixa": abrirFechar(); break;
     case "salvarFechamento": salvarFechamento(t); break;
-    case "cxAnt": $("#cxData").value = somaDias($("#cxData").value || hojeISO(), -1); ouvirCaixa(); break;
-    case "cxProx": $("#cxData").value = somaDias($("#cxData").value || hojeISO(), 1); ouvirCaixa(); break;
+    case "cxAnt": moverCx(-1); break;
+    case "cxProx": moverCx(1); break;
     case "salvarEquipe": salvarEquipe(t); break;
     case "darAcesso": abrirFolha({ tipo: "acesso", prof: d.pnome, email: "" }); break;
     case "salvarAcesso": salvarAcesso(t); break;
