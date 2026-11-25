@@ -191,8 +191,19 @@
       <div id="pnLinhas" class="stack" style="gap:12px"></div>
     </div>
     <div id="pnKpis" class="grid3"></div>
+    <button id="pnAssin" data-nav="bAssin" class="card cardp hidden" style="text-align:left;border:1px solid var(--line);font:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%"></button>
     <div id="pnFormasBox" class="card cardp"><p class="cap" style="margin-bottom:6px">De onde veio o dinheiro</p><div id="pnFormas"></div></div>
     <div class="stack" style="gap:8px"><p id="pnListaTit" class="cap" style="margin-left:2px">Agenda de hoje</p><div id="pnLista" class="card" style="overflow:hidden"></div></div>
+  </div>
+
+  <!-- v2.5.3: Assinantes (clube mensal, só o dono) -->
+  <div id="bAssin" class="wrap pad stack hidden">
+    <div class="stack" style="gap:4px"><p class="tt" style="font-size:20px;font-weight:800">Assinantes</p><p id="asResumo" class="sm muted"></p></div>
+    <button data-act="novoAssin" class="btn">+ Novo assinante</button>
+    <div class="per" role="group" aria-label="Mostrar"><button data-asf="renovar" aria-pressed="true">A renovar</button><button data-asf="emdia" aria-pressed="false">Em dia</button><button data-asf="todos" aria-pressed="false">Todos</button></div>
+    <input id="asBusca" class="field" placeholder="Buscar pelo nome" aria-label="Buscar assinante pelo nome" autocomplete="off">
+    <div id="asLista" class="stack" style="gap:10px"></div>
+    <details id="asPlanosBox" class="mais"><summary>Planos do clube</summary><div class="corpo stack" style="gap:10px;padding-bottom:14px"><div id="asPlanos" class="stack" style="gap:0"></div><button data-act="novoPlanoClube" class="btn2">+ Novo plano</button></div></details>
   </div>
 
   <!-- Agenda -->
@@ -208,6 +219,7 @@
       <div class="stat"><span id="bProxLbl" class="xs muted">Próximo horário</span><b id="bProx">—</b></div>
     </div>
     <div id="bLista" class="card" style="overflow:hidden"></div>
+    <button id="bDivulgar" data-nav="bCompartilhar" class="btn3 hidden" style="width:100%">Divulgar o link da agenda</button>
     <button id="bAvulso" data-act="avulso" class="semHora"><span class="mais">+</span><span class="grow"><b style="display:block;font-size:15px">Chegou cliente sem horário?</b><span class="sm muted">Toque aqui para registrar o atendimento</span></span></button>
     <div class="row" style="justify-content:space-between">
       <button id="btnVerCanc" data-act="verCanc" class="link" style="padding-left:0"></button>
@@ -434,7 +446,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.5.2";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.5.3";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -492,7 +504,7 @@ function txtParaCent(t) {
   return isFinite(n) && n >= 0 ? Math.round(n * 100) : null;
 }
 const FORMAS = [["pix", "Pix"], ["dinheiro", "Dinheiro"], ["cartao", "Cartão"]];
-const nomeForma = f => (FORMAS.find(x => x[0] === f) || [f, f || "—"])[1];
+const nomeForma = f => f === "assinatura" ? "Assinatura" : (FORMAS.find(x => x[0] === f) || [f, f || "—"])[1];
 const agoraHH = () => { const d = new Date(); return hh(d.getHours() * 60 + d.getMinutes()); };
 const mm = h => +h.slice(0, 2) * 60 + +h.slice(3);
 const hh = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
@@ -529,6 +541,7 @@ let verCanc = false, agendaDono = [], agBalcao = [];
 /* v2.4.1: espaço do dono e da equipe */
 let papel = null, eu = null, espacoId = null, config = {}, equipeDocs = [];
 let cxAt = [], cxMov = [], cxFech = null, numAt = [], folhaCtx = null, verifEnviado = false;
+let asList = [], plClube = [], asFiltro = "renovar";
 let planoAtual = null, cxPer = "dia", pnPer = "dia", pnAt = [], pnMov = [], pnAg = [];   // v2.5.1: período do caixa (dia, semana ou mês)   // v2.5.0: plano que o menu está mostrando
 const SALAO_ID = slug(new URLSearchParams(location.search).get("b"));
 const unsubs = {};
@@ -573,7 +586,7 @@ function ver(v, msg) {
 }
 
 /* ================= ENTRAR E ROTEAR ================= */
-const offEspaco = () => ["cfg", "eq", "cxA", "cxM", "cxF", "nM", "agB", "pnA", "pnM", "pnG"].forEach(off);
+const offEspaco = () => ["cfg", "eq", "cxA", "cxM", "cxF", "nM", "agB", "pnA", "pnM", "pnG", "asP", "asS"].forEach(off);
 async function rotear() {
   off("saloes"); off("meu"); off("dAg"); off("mAg"); offEspaco();
   papel = null; eu = null; espacoId = null; config = {}; equipeDocs = [];
@@ -628,6 +641,7 @@ const ICO = {
   caixa: '<rect x="2" y="6" width="20" height="13" rx="2"></rect><circle cx="12" cy="12.5" r="2.5"></circle><path d="M6 6V4h12v2"></path>',
   equipe: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"></path>',
   numeros: '<path d="M3 3v18h18"></path><path d="M7 15l4-4 3 3 5-6"></path>',
+  assin: '<path d="M12 2l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 16.8 6.1 20l1.3-6.5L2.5 8.9l6.6-.8z"></path>',
   painel: '<rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect>'
 };
 /* ================= v2.5.0: PLANOS ================= */
@@ -640,12 +654,13 @@ const temCaixa = s => planoDe(s) !== "agenda";
 const temAssin = s => temCaixa(s) && s?.assinantes === true;
 const nomePlano = s => "Plano " + PLANOS[planoDe(s)] + (temAssin(s) ? " + Assinantes" : "");
 const svgNav = p => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
-const TELAS = ["bPainel", "bAgenda", "bCompartilhar", "bCaixa", "bEquipe", "bNumeros"];
+const TELAS = ["bPainel", "bAssin", "bAgenda", "bCompartilhar", "bCaixa", "bEquipe", "bNumeros"];
 function itensNav() {
   const ag = temAgenda(meuSalao), cx = temCaixa(meuSalao);
   const l = papel === "barbeiro"
     ? [ag && ["bAgenda", "Agenda", ICO.agenda], cx && ["bNumeros", "Meus números", ICO.numeros]]
-    : [["bPainel", "Painel", ICO.painel], ag && ["bAgenda", "Agenda", ICO.agenda], cx && ["bCaixa", "Caixa", ICO.caixa], ["bEquipe", "Equipe", ICO.equipe], ag && ["bCompartilhar", "Compartilhar", ICO.compartilhar]];
+    : [["bPainel", "Painel", ICO.painel], ag && ["bAgenda", "Agenda", ICO.agenda], temAssin(meuSalao) && ["bAssin", "Assinantes", ICO.assin], cx && ["bCaixa", "Caixa", ICO.caixa], ["bEquipe", "Equipe", ICO.equipe],
+       ag && !temAssin(meuSalao) && ["bCompartilhar", "Compartilhar", ICO.compartilhar]];   // com Assinantes, "Compartilhar" vira botão dentro da Agenda (menu com 5 no máximo)
   return l.filter(Boolean);
 }
 /* monta o menu e as telas conforme o plano; roda de novo se o master trocar o plano com o app aberto */
@@ -660,7 +675,8 @@ function aplicarPlano() {
   $("#nAvulso").classList.toggle("hidden", !soCaixa);
   $("#cxDica").textContent = soCaixa ? "Atendimento vai no botão acima. “Entrou” e “Saiu” são para o que vem de fora, como venda de pomada ou conta de luz."
     : "Os cortes entram sozinhos quando você toca em “Concluir atendimento”. Aqui é só para o que vem de fora, como venda de pomada ou conta de luz.";
-  ouvirAgendaDono(); desenharEquipe(true); ouvirPainel();
+  $("#bDivulgar").classList.toggle("hidden", papel !== "dono" || !temAssin(meuSalao) || soCaixa);
+  ouvirAgendaDono(); desenharEquipe(true); ouvirAssin(); ouvirPainel();
 }
 function montarNav() {
   const itens = itensNav();
@@ -773,7 +789,8 @@ function lerFolha() {
 }
 function desenharFolha() {
   const c = folhaCtx; if (!c) return;
-  const h = c.tipo === "atend" ? folhaAtend(c) : c.tipo === "mov" ? folhaMov(c) : c.tipo === "fechar" ? folhaFechar(c) : c.tipo === "acesso" ? folhaAcesso(c) : c.tipo === "feito" ? c.html : "";
+  const h = c.tipo === "atend" ? folhaAtend(c) : c.tipo === "mov" ? folhaMov(c) : c.tipo === "fechar" ? folhaFechar(c) : c.tipo === "acesso" ? folhaAcesso(c)
+    : c.tipo === "plano" ? folhaPlano(c) : c.tipo === "assin" ? folhaAssin(c) : c.tipo === "pagar" ? folhaPagar(c) : c.tipo === "feito" ? c.html : "";
   $("#folha .in").innerHTML = h;
 }
 function pctComissao(profId) {
@@ -802,9 +819,9 @@ function folhaAtend(c) {
     ${c.ag ? `<p class="sm muted">${esc(c.ag.horario)} · ${esc(c.ag.nome)} · ${esc(c.ag.servico)}</p>` : ""}
     ${c.ag ? "" : `<div class="stack" style="gap:8px"><p class="lbl">${n++}. Serviço</p><div class="row" style="flex-wrap:wrap;gap:8px">${servs.map((x, i) => `<button type="button" class="chip ${c.serv === i ? "on" : ""}" data-fserv="${i}">${esc(x.nome)} · ${brl(x.preco)}</button>`).join("")}</div></div>`}
     ${profs.length > 1 ? `<div class="stack" style="gap:8px"><p class="lbl">${n++}. Quem atendeu</p><div class="row" style="flex-wrap:wrap;gap:8px">${chips(profs.map(p => [p, p]), c.prof, "fprof")}</div></div>` : ""}
-    <div class="stack" style="gap:8px"><p class="lbl">${n++}. Forma de pagamento</p><div class="grid3">${chips(FORMAS, c.forma, "fforma")}</div></div>
-    <div><label class="lbl" for="fValor">Valor cobrado (R$)</label><input id="fValor" data-campo="valor" class="field" inputmode="decimal" placeholder="ex.: 45 ou 45,50" value="${esc(c.valor)}"></div>
-    ${c.ag ? "" : `<details ${c.cliNome || c.cliFone ? "open" : ""}><summary class="sm" style="cursor:pointer;font-weight:600;color:#4338CA;padding:8px 0">Nome e WhatsApp do cliente (opcional, para o comprovante)</summary>
+    <div class="stack" style="gap:8px"><p class="lbl">${n++}. Forma de pagamento</p><div class="${temAssin(meuSalao) ? "grid2" : "grid3"}">${chips(temAssin(meuSalao) ? [...FORMAS, ["assinatura", "Assinatura"]] : FORMAS, c.forma, "fforma")}</div></div>
+    ${c.forma === "assinatura" ? blocoUsoAssin(c) : `<div><label class="lbl" for="fValor">Valor cobrado (R$)</label><input id="fValor" data-campo="valor" class="field" inputmode="decimal" placeholder="ex.: 45 ou 45,50" value="${esc(c.valor)}"></div>`}
+    ${c.ag || c.forma === "assinatura" ? "" : `<details ${c.cliNome || c.cliFone ? "open" : ""}><summary class="sm" style="cursor:pointer;font-weight:600;color:#4338CA;padding:8px 0">Nome e WhatsApp do cliente (opcional, para o comprovante)</summary>
       <div class="stack" style="gap:8px;margin-top:6px"><input class="field" data-campo="cliNome" placeholder="Nome" value="${esc(c.cliNome || "")}"><input class="field" data-campo="cliFone" inputmode="tel" placeholder="WhatsApp com DDD" value="${esc(c.cliFone || "")}"></div></details>`}
     ${botoesFolha("salvarAtend", "Confirmar", "ok")}`;
 }
@@ -821,32 +838,44 @@ async function salvarAtend(btn) {
   }
   if (!c.prof) return aviso("Escolha quem atendeu.");
   if (!c.forma) return aviso("Escolha a forma de pagamento.");
-  const valorCent = txtParaCent(c.valor);
+  /* v2.5.3: atendimento pela assinatura não entra dinheiro (o dinheiro entrou no pagamento do clube); só gera o repasse */
+  const assin = c.forma === "assinatura" ? asList.find(a => a.id === c.assin) : null;
+  if (c.forma === "assinatura") {
+    if (!assin) return aviso("Escolha o assinante.");
+    const pode = podeUsar(assin); if (pode !== true) return aviso(pode);
+    if (!servicoNoPlano(assin, servico)) return aviso(`${servico} não está incluído no plano ${assin.planoNome}. Cobre como avulso (Pix, dinheiro ou cartão).`);
+  }
+  const valorCent = assin ? 0 : txtParaCent(c.valor);
   if (valorCent == null) return aviso("Confira o valor cobrado (ex.: 45 ou 45,50).");
-  const profId = papel === "barbeiro" ? eu.profId : slug(c.prof), pct = pctComissao(profId);
+  const profId = papel === "barbeiro" ? eu.profId : slug(c.prof), pct = assin ? 0 : pctComissao(profId);
   const data = c.ag ? c.ag.data : hojeISO();
   const at = { data, mes: data.slice(0, 7), hora: c.ag ? c.ag.horario : agoraHH(), profId, profNome: c.prof, servico, valorCent, forma: c.forma,
-    origem: c.ag ? "agenda" : "balcao", comissaoPct: pct, repasseCent: Math.round(valorCent * pct / 100),
-    clienteNome: c.ag ? c.ag.nome : (c.cliNome || "").trim(), clienteTelefone: c.ag ? c.ag.telefone : (c.cliFone || "").trim(),
+    origem: c.ag ? "agenda" : "balcao", comissaoPct: pct, repasseCent: assin ? repasseDoUso(assin) : Math.round(valorCent * pct / 100),
+    clienteNome: c.ag ? c.ag.nome : assin ? assin.nome : (c.cliNome || "").trim(), clienteTelefone: c.ag ? c.ag.telefone : assin ? assin.telefone || "" : (c.cliFone || "").trim(),
     criadoPor: emailUser(), criadoEm: F.serverTimestamp(), estornado: false };
   if (c.ag) at.agendamentoId = c.ag.id;
+  if (assin) Object.assign(at, { assinanteId: assin.id, cicloId: assin.cicloAtualId, usoN: (assin.usados || 0) + 1, usoDe: assin.n });
   btn.disabled = true;
   try {
     const ref = F.doc(cAt(s.id)), b = F.writeBatch(fire);
     b.set(ref, at);
     if (c.ag) b.update(F.doc(fire, "saloes", s.id, "agendamentos", c.ag.id), { status: "Concluído", atendimentoId: ref.id, concluidoEm: F.serverTimestamp() });
+    if (assin) {   // as regras só deixam o barbeiro somar 1 em "usados" (e nunca passar de n)
+      b.update(dAssin(s.id, assin.id), { usados: at.usoN, atualizadoEm: F.serverTimestamp() });
+      b.update(dCiclo(s.id, assin.id, assin.cicloAtualId), { usados: at.usoN });
+    }
     await b.commit();
   } catch (err) { console.error(err); btn.disabled = false; return aviso("Não foi possível registrar. Verifique a internet e tente novamente."); }
   const tel = zapNum(at.clienteTelefone);
   abrirFolha({ tipo: "feito", html: `<div class="stack" style="align-items:center;text-align:center;gap:6px"><p class="tt" style="font-size:20px;font-weight:800;color:var(--ok)">Atendimento registrado</p>
-      <p style="font-size:16px">${esc(servico)} · <b>${brlC(valorCent)}</b> em ${esc(nomeForma(at.forma))}</p>
-      <p class="sm muted">${esc(at.profNome)}${pct ? ` · comissão de ${String(pct).replace(".", ",")}%: ${brlC(at.repasseCent)}` : ""}</p></div>
+      <p style="font-size:16px">${esc(servico)} · ${assin ? `<b>Assinatura</b> · usou ${at.usoN} de ${at.usoDe}` : `<b>${brlC(valorCent)}</b> em ${esc(nomeForma(at.forma))}`}</p>
+      <p class="sm muted">${esc(at.profNome)}${assin ? ` · repasse da assinatura: ${brlC(at.repasseCent)}` : pct ? ` · comissão de ${String(pct).replace(".", ",")}%: ${brlC(at.repasseCent)}` : ""}</p></div>
     ${tel.length >= 12 ? `<a class="btn ok" href="https://wa.me/${tel}?text=${encodeURIComponent(msgComprovante(at))}" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>` : ""}
     <button type="button" class="btn2" data-act="fecharFolha">Fechar</button>` });
 }
 function msgComprovante(at) {
   return [`Comprovante · ${meuSalao.nome}`, `${dBR(at.data)} às ${at.hora}`, at.clienteNome ? `Cliente: ${at.clienteNome}` : null, `Serviço: ${at.servico}`,
-    `Profissional: ${at.profNome}`, `Valor: ${brlC(at.valorCent)} (${nomeForma(at.forma)})`, "", "Obrigado pela preferência!"].filter(x => x !== null).join("\n");
+    `Profissional: ${at.profNome}`, at.forma === "assinatura" ? `Assinatura: usou ${at.usoN} de ${at.usoDe} deste mês` : `Valor: ${brlC(at.valorCent)} (${nomeForma(at.forma)})`, "", "Obrigado pela preferência!"].filter(x => x !== null).join("\n");
 }
 
 /* ----- caixa do dia (só o dono) ----- */
@@ -929,7 +958,7 @@ function desenharCaixa() {
     const tit = ehAt ? `${x.servico} · ${x.profNome}` : `${nomeCategoria(x.categoria)}${x.profNome ? " · " + x.profNome : ""}`;
     const sub = [x.hora, nomeForma(x.forma), ehAt ? x.clienteNome : x.descricao, ehAt && x.repasseCent ? `barbeiro ganha ${brlC(x.repasseCent)}` : "", x.estornado ? "DESFEITO" : ""].filter(Boolean).join(" · ");
     return `<div class="mov ${x.estornado ? "est" : ""}"><div class="grow"><p style="font-weight:600;font-size:15px">${esc(tit)}</p><p class="xs muted">${esc(sub)}</p></div>
-      <span class="v ${saida ? "sai" : "ent"}">${saida ? "− " : ""}${brlC(x.valorCent)}</span>
+      <span class="v ${saida ? "sai" : "ent"}">${x.forma === "assinatura" ? "assin." : (saida ? "− " : "") + brlC(x.valorCent)}</span>
       ${x.estornado ? "" : `<button class="iconbtn" data-act="estornar" data-col="${x.col}" data-id="${esc(x.id)}" aria-label="Desfazer lançamento" title="Desfazer" style="color:var(--bad);width:38px;height:38px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>`}</div>`;
   }).join("") : `<p class="pad muted" style="text-align:center">Nenhum lançamento neste dia.</p>`;
   const f = cxFech;
@@ -941,6 +970,183 @@ function desenharCaixa() {
     : `<p class="sm muted">Opcional. No fim do dia, conte as notas e moedas da gaveta e o app diz se bateu, sobrou ou faltou.</p><button class="btn" data-act="fecharCaixa">Contar a gaveta de ${dia === hojeISO() ? "hoje" : dBR(dia).slice(0, 5)}</button>`;
   $("#cxFechTit").textContent = f ? (f.diferencaCent === 0 ? "Gaveta conferida: bateu ✓" : `Gaveta conferida: ${f.diferencaCent > 0 ? "sobrou" : "faltou"} ${brlC(Math.abs(f.diferencaCent))}`) : "Conferir a gaveta no fim do dia";
 }
+/* ================= v2.5.3: ASSINANTES (clube mensal) =================
+   Como a assinatura é dividida (desenho da v2.4): no pagamento, a casa fica com X% (padrão 60%) e o resto
+   é dividido em N partes; cada uso repassa uma parte para quem atendeu. O pagamento entra no Caixa uma vez;
+   o uso não entra dinheiro de novo. Vale 30 dias ou N usos, o que vier primeiro. Uso não feito fica com a casa. */
+const cPlanos = id => F.collection(fire, "saloes", id, "planos");
+const cAssin = id => F.collection(fire, "saloes", id, "assinantes");
+const dAssin = (id, a) => F.doc(fire, "saloes", id, "assinantes", a);
+const dCiclo = (id, a, c) => F.doc(fire, "saloes", id, "assinantes", a, "ciclos", c);
+function ouvirAssin() {
+  off("asP"); off("asS"); asList = []; plClube = [];
+  if (!espacoId || !temAssin(meuSalao)) return;
+  const erro = err => { console.error(err); $("#asLista").innerHTML = `<p class="pad muted">Sem permissão para ver os assinantes. Confira as regras do Firestore.</p>`; };
+  unsubs.asP = F.onSnapshot(cPlanos(espacoId), s => { plClube = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => p.ativo !== false).sort((a, b) => a.valorCent - b.valorCent); desenharAssin(); }, erro);
+  unsubs.asS = F.onSnapshot(cAssin(espacoId), s => { asList = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR")); desenharAssin(); desenharPainel(); }, erro);
+}
+function situacaoAs(a) {
+  const hoje = hojeISO();
+  if (a.ativo === false) return { k: "pausado", t: "Pausado", c: "var(--muted)", renovar: false };
+  if (!a.cicloAtualId) return { k: "pagar", t: "Aguardando pagamento", c: "var(--bad)", renovar: true };
+  if (a.vencimento < hoje) return { k: "vencido", t: "Venceu em " + dBR(a.vencimento).slice(0, 5), c: "var(--bad)", renovar: true };
+  if ((a.usados || 0) >= (a.n || 0)) return { k: "usou", t: "Usou tudo deste mês", c: "var(--warn)", renovar: true };
+  if (a.vencimento <= somaDias(hoje, 7)) return { k: "vence", t: "Vence em " + dBR(a.vencimento).slice(0, 5), c: "var(--warn)", renovar: true };
+  return { k: "ok", t: "Em dia até " + dBR(a.vencimento).slice(0, 5), c: "var(--ok)", renovar: false };
+}
+function podeUsar(a) {
+  const st = situacaoAs(a);
+  if (st.k === "ok" || st.k === "vence") return true;
+  if (st.k === "usou") return `${a.nome} já usou os ${a.n} atendimentos deste mês. Registre a renovação em Assinantes ou cobre como avulso.`;
+  if (st.k === "pausado") return `A assinatura de ${a.nome} está pausada.`;
+  return `A assinatura de ${a.nome} não está paga (${st.t.toLowerCase()}). Registre o pagamento em Assinantes ou cobre como avulso.`;
+}
+const planoDoAs = a => plClube.find(p => p.id === a.planoId);
+function servicoNoPlano(a, servico) { const p = planoDoAs(a), l = p?.servicos || []; return !l.length || l.includes(servico); }
+/* uso k de n: as primeiras partes repassam o valor arredondado e a última fica com o que sobra (a soma dá exato) */
+function repasseDoUso(a) {
+  const k = (a.usados || 0) + 1, n = a.n || 1, parte = a.parteAtendimentosCent || 0, base = Math.round(parte / n);
+  return k < n ? base : parte - base * (n - 1);
+}
+function contaPlano(valorCent, perc, n) {
+  const casa = Math.round(valorCent * perc / 100), parte = valorCent - casa;
+  return { casa, parte, por: n > 0 ? Math.round(parte / n) : 0 };
+}
+function blocoUsoAssin(c) {
+  const servico = c.ag ? c.ag.servico : (meuSalao.servicos || [])[c.serv]?.nome;
+  let lista = asList.filter(a => a.ativo !== false);
+  const busca = (c.asBusca || "").trim().toLowerCase();
+  if (busca) lista = lista.filter(a => String(a.nome).toLowerCase().includes(busca));
+  if (c.assin == null && c.ag) { const t = zapNum(c.ag.telefone || ""), nm = String(c.ag.nome || "").toLowerCase();
+    const achou = asList.find(a => a.ativo !== false && ((t && zapNum(a.telefone || "") === t) || String(a.nome).toLowerCase() === nm)); if (achou) c.assin = achou.id; }
+  const a = asList.find(x => x.id === c.assin);
+  let info = "";
+  if (a) { const pode = podeUsar(a);
+    info = pode !== true ? `<p class="sm" style="color:var(--bad);font-weight:600">${esc(pode)}</p>`
+      : servico && !servicoNoPlano(a, servico) ? `<p class="sm" style="color:var(--bad);font-weight:600">${esc(servico)} não está no plano ${esc(a.planoNome)}. Cobre como avulso.</p>`
+      : `<p class="sm" style="color:var(--ok);font-weight:600">${esc(a.nome)} · ${esc(a.planoNome)} · vai usar ${(a.usados || 0) + 1} de ${a.n}. Quem atender recebe ${brlC(repasseDoUso(a))}.</p>`; }
+  return `<div class="stack" style="gap:8px"><p class="lbl">Qual assinante</p>
+    ${asList.length > 6 ? `<input class="field" data-campo="asBusca" placeholder="Buscar nome e tocar fora" value="${esc(c.asBusca || "")}">` : ""}
+    <div class="row" style="flex-wrap:wrap;gap:8px">${lista.length ? lista.slice(0, 20).map(x => `<button type="button" class="chip ${x.id === c.assin ? "on" : ""}" data-fassin="${esc(x.id)}">${esc(x.nome)}</button>`).join("") : `<p class="sm muted">Nenhum assinante encontrado.</p>`}</div>${info}</div>`;
+}
+function desenharAssin() {
+  if (papel !== "dono" || !meuSalao) return;
+  document.querySelectorAll("[data-asf]").forEach(b => b.setAttribute("aria-pressed", b.dataset.asf === asFiltro));
+  const ativos = asList.filter(a => a.ativo !== false), ren = ativos.filter(a => situacaoAs(a).renovar);
+  const mesAtual = hojeISO().slice(0, 7);
+  $("#asResumo").textContent = `${ativos.length} assinante${ativos.length === 1 ? "" : "s"} · ${ativos.length - ren.length} em dia · ${ren.length} a renovar`;
+  const busca = ($("#asBusca").value || "").trim().toLowerCase();
+  let l = asFiltro === "renovar" ? ren : asFiltro === "emdia" ? ativos.filter(a => !situacaoAs(a).renovar) : asList;
+  if (busca) l = l.filter(a => String(a.nome).toLowerCase().includes(busca));
+  $("#asLista").innerHTML = !plClube.length ? `<div class="card cardp stack" style="gap:8px"><p style="font-weight:700">Comece criando um plano do clube</p><p class="sm muted">Exemplo: "Corte mensal", R$ 120, 4 cortes por mês. Abra "Planos do clube" logo abaixo.</p></div>`
+    : l.length ? l.map(cardAssin).join("") : `<p class="muted" style="text-align:center;padding:12px">${asFiltro === "renovar" ? "Ninguém para renovar agora." : "Nenhum assinante aqui."}</p>`;
+  if (!plClube.length) $("#asPlanosBox").open = true;
+  $("#asPlanos").innerHTML = plClube.map(p => { const k = contaPlano(p.valorCent, p.percBarbearia, p.atendimentosPorCiclo);
+    return `<div class="listrow"><div><p style="font-weight:700">${esc(p.nome)} · ${brlC(p.valorCent)}</p><p class="xs muted">${p.atendimentosPorCiclo} por mês · casa ${p.percBarbearia}% · ${brlC(k.por)} por atendimento para quem atender${(p.servicos || []).length ? " · " + esc(p.servicos.join(", ")) : ""}</p></div><button class="btn3" data-act="editPlano" data-id="${esc(p.id)}">Editar</button></div>`; }).join("")
+    || `<p class="sm muted" style="padding:8px 0">Nenhum plano ainda.</p>`;
+}
+function cardAssin(a) {
+  const st = situacaoAs(a), n = a.n || 0, u = a.usados || 0;
+  const tel = zapNum(a.telefone || "");
+  const lembrete = `Olá, ${a.nome}! Sua assinatura ${a.planoNome} na ${meuSalao.nome} ${st.k === "vencido" ? "venceu em " + dBR(a.vencimento).slice(0, 5) : st.k === "usou" ? "já usou os " + n + " atendimentos deste mês" : st.k === "pagar" ? "está aguardando o pagamento" : "vence em " + dBR(a.vencimento || hojeISO()).slice(0, 5)}. Para renovar é só responder aqui. Obrigado!`;
+  return `<div class="card cardp stack" style="gap:10px">
+    <div class="row" style="align-items:flex-start"><div class="grow"><p style="font-weight:700;font-size:16px">${esc(a.nome)}</p><p class="sm muted">${esc(a.planoNome || "")} · ${brlC(a.valorProprioCent ?? planoDoAs(a)?.valorCent ?? 0)}</p></div>
+      <span class="xs" style="font-weight:700;color:${st.c};text-align:right">${esc(st.t)}</span></div>
+    ${a.cicloAtualId ? `<div><div style="display:flex;gap:4px">${Array.from({ length: n }, (_, i) => `<i style="flex:1;height:8px;border-radius:4px;background:${i < u ? "var(--pri)" : "var(--line)"}"></i>`).join("")}</div><p class="xs muted" style="margin-top:4px">Usou ${u} de ${n}</p></div>` : ""}
+    <div class="grid3">
+      <button class="btn3" data-act="pagarAssin" data-id="${esc(a.id)}" style="${st.renovar ? "background:var(--ok-l);color:#166534;border-color:#BBF7D0" : ""}">${a.cicloAtualId ? "Renovar" : "Marcar pago"}</button>
+      ${tel.length >= 12 ? `<a class="btn3" href="https://wa.me/${tel}?text=${encodeURIComponent(lembrete)}" target="_blank" rel="noopener">Lembrar</a>` : `<span class="btn3" style="opacity:.5">Sem WhatsApp</span>`}
+      <button class="btn3" data-act="editAssin" data-id="${esc(a.id)}">Editar</button>
+    </div></div>`;
+}
+/* ----- folhas: plano do clube, assinante, pagamento ----- */
+function folhaPlano(c) {
+  const servs = (meuSalao.servicos || []).map(x => x.nome), sel = c.servicos || [];
+  const v = txtParaCent(c.valor || "") || 0, perc = Number(String(c.perc || "").replace(",", ".")) || 0, n = parseInt(c.n, 10) || 0, k = contaPlano(v, perc, n);
+  return `<p class="tt" style="font-size:19px;font-weight:800">${c.id ? "Editar plano" : "Novo plano do clube"}</p>
+    <div><label class="lbl" for="plNome">Nome do plano</label><input id="plNome" data-campo="nome" class="field" placeholder="ex.: Corte mensal" value="${esc(c.nome || "")}"></div>
+    <div class="grid2"><div><label class="lbl" for="plValor">Valor por mês (R$)</label><input id="plValor" data-campo="valor" class="field" inputmode="decimal" placeholder="ex.: 120" value="${esc(c.valor || "")}"></div>
+      <div><label class="lbl" for="plN">Atendimentos por mês</label><input id="plN" data-campo="n" class="field" inputmode="numeric" placeholder="ex.: 4" value="${esc(c.n || "")}"></div></div>
+    <div><label class="lbl" for="plPerc">Quanto fica com a casa (%)</label><input id="plPerc" data-campo="perc" class="field" inputmode="decimal" value="${esc(c.perc ?? "60")}"></div>
+    <div class="card cardp" style="background:var(--bg);border:none"><p id="plPrev" class="sm">${v && n ? `A casa fica com <b>${brlC(k.casa)}</b>. Cada atendimento repassa <b>${brlC(k.por)}</b> para quem atender.` : "Preencha valor e atendimentos para ver a divisão."}</p></div>
+    <div class="stack" style="gap:8px"><p class="lbl">Serviços incluídos (nenhum marcado = todos)</p><div class="row" style="flex-wrap:wrap;gap:8px">${servs.map(x => `<button type="button" class="chip ${sel.includes(x) ? "on" : ""}" data-fpserv="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>
+    ${c.id ? `<button type="button" class="btn3" data-act="removerPlano">Tirar este plano da lista</button>` : ""}
+    ${botoesFolha("salvarPlano", "Salvar plano")}`;
+}
+async function salvarPlano(btn) {
+  const c = folhaCtx; lerFolha();
+  const nome = (c.nome || "").trim(), valorCent = txtParaCent(c.valor || ""), n = parseInt(c.n, 10), perc = Number(String(c.perc || "").replace(",", "."));
+  if (!nome) return aviso("Dê um nome ao plano.");
+  if (!valorCent) return aviso("Confira o valor do plano (ex.: 120 ou 120,50).");
+  if (!(n >= 1 && n <= 31)) return aviso("Atendimentos por mês: um número de 1 a 31.");
+  if (!(perc >= 0 && perc <= 100)) return aviso("A parte da casa precisa ser de 0 a 100%.");
+  btn.disabled = true;
+  try { await F.setDoc(c.id ? F.doc(fire, "saloes", espacoId, "planos", c.id) : F.doc(cPlanos(espacoId)), { nome, valorCent, atendimentosPorCiclo: n, percBarbearia: perc, servicos: c.servicos || [], ativo: true, atualizadoEm: F.serverTimestamp() }, { merge: true }); fecharFolha(); }
+  catch (err) { console.error(err); btn.disabled = false; aviso("Não foi possível salvar o plano. Verifique a internet."); }
+}
+function folhaAssin(c) {
+  return `<p class="tt" style="font-size:19px;font-weight:800">${c.id ? "Editar assinante" : "Novo assinante"}</p>
+    <div><label class="lbl" for="asNome">Nome</label><input id="asNome" data-campo="nome" class="field" value="${esc(c.nome || "")}"></div>
+    <div><label class="lbl" for="asFone">WhatsApp com DDD</label><input id="asFone" data-campo="fone" class="field" inputmode="tel" value="${esc(c.fone || "")}"></div>
+    <div class="stack" style="gap:8px"><p class="lbl">Plano</p><div class="row" style="flex-wrap:wrap;gap:8px">${plClube.map(p => `<button type="button" class="chip ${c.plano === p.id ? "on" : ""}" data-fplano="${esc(p.id)}">${esc(p.nome)} · ${brlC(p.valorCent)}</button>`).join("")}</div></div>
+    <div><label class="lbl" for="asProprio">Preço diferente para este cliente (opcional, R$)</label><input id="asProprio" data-campo="proprio" class="field" inputmode="decimal" placeholder="deixe vazio para usar o preço do plano" value="${esc(c.proprio || "")}"></div>
+    ${c.id ? `<button type="button" class="btn3" data-act="pausarAssin">${c.ativo === false ? "Reativar assinatura" : "Pausar assinatura"}</button>` : `<p class="xs muted">Depois de salvar, toque em "Marcar pago" quando ele pagar. É aí que o dinheiro entra no Caixa.</p>`}
+    ${botoesFolha("salvarAssin", "Salvar")}`;
+}
+async function salvarAssin(btn) {
+  const c = folhaCtx; lerFolha();
+  const nome = (c.nome || "").trim(), p = plClube.find(x => x.id === c.plano);
+  if (!nome) return aviso("Digite o nome do assinante.");
+  if (!p) return aviso("Escolha o plano.");
+  const proprio = (c.proprio || "").trim() ? txtParaCent(c.proprio) : null;
+  if ((c.proprio || "").trim() && !proprio) return aviso("Confira o preço diferente (ex.: 100 ou 99,90).");
+  const dados = { nome, telefone: zapNum(c.fone || ""), planoId: p.id, planoNome: p.nome, valorProprioCent: proprio, atualizadoEm: F.serverTimestamp() };
+  btn.disabled = true;
+  try {
+    if (c.id) await F.updateDoc(dAssin(espacoId, c.id), dados);
+    else await F.setDoc(F.doc(cAssin(espacoId)), { ...dados, ativo: true, usados: 0, n: 0, cicloAtualId: null, vencimento: null, criadoPor: emailUser(), criadoEm: F.serverTimestamp() });
+    fecharFolha(); if (!c.id) { asFiltro = "renovar"; desenharAssin(); }
+  } catch (err) { console.error(err); btn.disabled = false; aviso("Não foi possível salvar. Verifique a internet."); }
+}
+function folhaPagar(c) {
+  const a = asList.find(x => x.id === c.id), p = planoDoAs(a) || {};
+  const v = txtParaCent(c.valor || "") || 0, k = contaPlano(v, p.percBarbearia ?? 60, p.atendimentosPorCiclo || 0);
+  const sobra = a.cicloAtualId && a.vencimento >= hojeISO() ? Math.max(0, (a.n || 0) - (a.usados || 0)) : 0;
+  return `<p class="tt" style="font-size:19px;font-weight:800">${a.cicloAtualId ? "Renovar assinatura" : "Marcar pago"}</p>
+    <p class="sm muted">${esc(a.nome)} · ${esc(p.nome || a.planoNome || "")}</p>
+    <div class="stack" style="gap:8px"><p class="lbl">Forma de pagamento</p><div class="grid3">${chips(FORMAS, c.forma, "fforma")}</div></div>
+    <div><label class="lbl" for="pgValor">Valor pago (R$)</label><input id="pgValor" data-campo="valor" class="field" inputmode="decimal" value="${esc(c.valor || "")}"></div>
+    <div class="card cardp" style="background:var(--bg);border:none"><p class="sm">Vale até <b>${dBR(somaDias(hojeISO(), 30)).slice(0, 5)}</b> ou <b>${p.atendimentosPorCiclo || "?"}</b> atendimentos. A casa fica com ${brlC(k.casa)} e cada atendimento repassa ${brlC(k.por)}.</p>
+      ${sobra ? `<p class="sm" style="color:var(--warn);margin-top:6px">Ainda sobravam ${sobra} atendimento${sobra === 1 ? "" : "s"} do mês atual. Eles ficam com a casa.</p>` : ""}</div>
+    ${botoesFolha("salvarPagar", "Confirmar pagamento", "ok")}`;
+}
+async function salvarPagar(btn) {
+  const c = folhaCtx; lerFolha();
+  const a = asList.find(x => x.id === c.id), p = planoDoAs(a);
+  if (!p) return aviso("O plano deste assinante não existe mais. Toque em Editar e escolha um plano.");
+  if (!c.forma) return aviso("Escolha a forma de pagamento.");
+  const valor = txtParaCent(c.valor || ""); if (!valor) return aviso("Confira o valor pago.");
+  const n = p.atendimentosPorCiclo, perc = p.percBarbearia ?? 60, k = contaPlano(valor, perc, n), hoje = hojeISO(), venc = somaDias(hoje, 30);
+  const cRef = F.doc(F.collection(fire, "saloes", espacoId, "assinantes", a.id, "ciclos")), b = F.writeBatch(fire);
+  b.set(cRef, { pagoEm: hoje, valorPagoCent: valor, forma: c.forma, percBarbearia: perc, parteBarbeariaCent: k.casa, parteAtendimentosCent: k.parte, n, porAtendimentoCent: k.por, usados: 0, vencimento: venc,
+    planoId: p.id, planoNome: p.nome, criadoPor: emailUser(), criadoEm: F.serverTimestamp() });
+  if (a.cicloAtualId) {   // o mês anterior fecha; o que não foi usado fica com a casa (bolsão)
+    const naoUsados = Math.max(0, (a.n || 0) - (a.usados || 0)), parte = a.parteAtendimentosCent || 0, base = Math.round(parte / (a.n || 1));
+    const bolsao = naoUsados ? parte - base * (a.usados || 0) : 0;
+    b.update(dCiclo(espacoId, a.id, a.cicloAtualId), { encerradoEm: hoje, bolsaoCent: bolsao, destinoBolsao: "casa" });
+  }
+  b.set(F.doc(cMov(espacoId)), { data: hoje, mes: hoje.slice(0, 7), hora: agoraHH(), tipo: "entrada", categoria: "assinatura", valorCent: valor, forma: c.forma, descricao: `${a.nome} · ${p.nome}`,
+    assinanteId: a.id, cicloId: cRef.id, criadoPor: emailUser(), criadoEm: F.serverTimestamp(), estornado: false });
+  b.update(dAssin(espacoId, a.id), { cicloAtualId: cRef.id, usados: 0, n, vencimento: venc, porAtendimentoCent: k.por, parteAtendimentosCent: k.parte, planoNome: p.nome, atualizadoEm: F.serverTimestamp() });
+  btn.disabled = true;
+  try { await b.commit(); } catch (err) { console.error(err); btn.disabled = false; return aviso("Não foi possível registrar o pagamento. Verifique a internet."); }
+  const tel = zapNum(a.telefone || ""), msg = `Pagamento recebido · ${meuSalao.nome}\n${a.nome}, sua assinatura ${p.nome} está ativa até ${dBR(venc)}.\nInclui ${n} atendimento${n === 1 ? "" : "s"}. Valor: ${brlC(valor)} (${nomeForma(c.forma)}).\nObrigado!`;
+  abrirFolha({ tipo: "feito", html: `<div class="stack" style="align-items:center;text-align:center;gap:6px"><p class="tt" style="font-size:20px;font-weight:800;color:var(--ok)">Pagamento registrado</p>
+      <p style="font-size:16px">${esc(a.nome)} · <b>${brlC(valor)}</b> em ${esc(nomeForma(c.forma))}</p><p class="sm muted">Já entrou no Caixa de hoje. Vale até ${dBR(venc).slice(0, 5)}.</p></div>
+    ${tel.length >= 12 ? `<a class="btn ok" href="https://wa.me/${tel}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>` : ""}
+    <button type="button" class="btn2" data-act="fecharFolha">Fechar</button>` });
+}
+
 /* ================= v2.5.2: PAINEL DO DIA (dono) =================
    Uma tela só com o que o dono quer ver: quanto entrou, quanto fica, a agenda e o dia a dia.
    Usa os mesmos dados do Caixa e da Agenda; não grava nada. */
@@ -982,9 +1188,12 @@ function desenharPainel() {
   }
   const k = (v, t, c) => `<div class="stat"><span class="xs muted">${t}</span><b ${c ? `style="color:${c}"` : ""}>${v}</b></div>`;
   $("#pnKpis").innerHTML = cx
-    ? k(at.length, "Atendimentos") + k(at.length ? brlC(Math.round(soma(at) / at.length)) : "—", "Ticket médio") + (ag ? k(brlC(aReceber), "A receber", "var(--pri)") : k(brlC(gastos), "Despesas"))
+    ? k(at.length, "Atendimentos") + k(at.some(x => x.forma !== "assinatura") ? brlC(Math.round(soma(at) / at.filter(x => x.forma !== "assinatura").length)) : "—", "Ticket médio") + (ag ? k(brlC(aReceber), "A receber", "var(--pri)") : k(brlC(gastos), "Despesas"))
     : k(marc.filter(p => p.status === "Concluído").length, "Concluídos") + k(pend.length, "Ainda vêm") + k(pnAg.filter(cancelado).length, "Cancelados", "var(--bad)");
   $("#pnFormasBox").classList.toggle("hidden", !cx);
+  $("#pnAssin").classList.toggle("hidden", !temAssin(meuSalao));
+  if (temAssin(meuSalao)) { const ativos = asList.filter(a => a.ativo !== false), ren = ativos.filter(a => situacaoAs(a).renovar);
+    $("#pnAssin").innerHTML = `<div><p style="font-weight:700">Assinantes</p><p class="sm muted">${ativos.length - ren.length} em dia · <span style="color:${ren.length ? "var(--bad)" : "inherit"};font-weight:${ren.length ? 700 : 400}">${ren.length} a renovar</span></p></div><span aria-hidden="true" style="font-size:20px;color:var(--muted)">›</span>`; }
   if (cx) {
     const f = FORMAS.map(([c, t]) => [t, soma(at.filter(x => x.forma === c)) + soma(entMov.filter(x => x.forma === c))]), mx = Math.max(1, ...f.map(x => x[1]));
     $("#pnFormas").innerHTML = f.map(([t, v]) => `<div class="pbar"><span>${t}</span><i style="width:${Math.max(v ? 4 : 0, Math.round(v / mx * 100))}%"></i><b>${brlC(v)}</b></div>`).join("");
@@ -994,9 +1203,9 @@ function desenharPainel() {
     const itens = [];
     if (ag) marc.forEach(p => { const feito = p.status === "Concluído", a = feito && pnAt.find(x => x.agendamentoId === p.id);
       itens.push([p.horario, `<div class="pitem"><span class="h">${esc(p.horario)}</span><div><p style="font-weight:600">${esc(p.nome)}</p><p class="xs muted">${esc(p.servico)}${p.profissional ? " · " + esc(p.profissional) : ""}</p></div>
-        <div style="text-align:right"><b style="white-space:nowrap">${a ? brlC(a.valorCent) : brl(p.preco)}</b><p class="st" style="color:${feito ? "var(--ok)" : "var(--muted)"}">${feito ? "feito" : p.horario < agoraHH() ? "atrasado" : "marcado"}</p></div></div>`]); });
+        <div style="text-align:right"><b style="white-space:nowrap">${a ? (a.forma === "assinatura" ? "assinatura" : brlC(a.valorCent)) : brl(p.preco)}</b><p class="st" style="color:${feito ? "var(--ok)" : "var(--muted)"}">${feito ? "feito" : p.horario < agoraHH() ? "atrasado" : "marcado"}</p></div></div>`]); });
     if (cx) at.filter(x => !ag || x.origem !== "agenda").forEach(x => itens.push([x.hora || "", `<div class="pitem"><span class="h">${esc(x.hora || "")}</span><div><p style="font-weight:600">${esc(x.clienteNome || "Cliente")}</p><p class="xs muted">${esc(x.servico)} · ${esc(x.profNome || "")}</p></div>
-        <div style="text-align:right"><b style="white-space:nowrap">${brlC(x.valorCent)}</b><p class="st" style="color:var(--ok)">${ag ? "sem horário" : esc(nomeForma(x.forma))}</p></div></div>`]));
+        <div style="text-align:right"><b style="white-space:nowrap">${x.forma === "assinatura" ? "assinatura" : brlC(x.valorCent)}</b><p class="st" style="color:var(--ok)">${ag ? "sem horário" : esc(nomeForma(x.forma))}</p></div></div>`]));
     itens.sort((a, b) => a[0].localeCompare(b[0]));
     $("#pnLista").innerHTML = itens.length ? itens.map(i => i[1]).join("") : `<p class="pad muted" style="text-align:center">Nada ${ag ? "marcado" : "lançado"} para hoje ainda.</p>`;
   } else {
@@ -1032,7 +1241,7 @@ function desenharDiaADia(k) {
 }
 const CAT_ENTRADA = [["produto", "Venda de produto"], ["outro_ent", "Outra entrada"]];
 const CAT_SAIDA = [["despesa", "Conta ou compra"], ["vale", "Vale para barbeiro"], ["retirada", "Retirada do dono"], ["outro_sai", "Outra saída"]];
-const nomeCategoria = c => ([...CAT_ENTRADA, ...CAT_SAIDA].find(x => x[0] === c) || [c, "Lançamento"])[1];
+const nomeCategoria = c => ([...CAT_ENTRADA, ...CAT_SAIDA, ["assinatura", "Pagamento de assinatura"]].find(x => x[0] === c) || [c, "Lançamento"])[1];
 function folhaMov(c) {
   const cats = c.mov === "entrada" ? CAT_ENTRADA : CAT_SAIDA, profs = meuSalao.profissionais || [];
   return `<p class="tt" style="font-size:19px;font-weight:800">${c.mov === "entrada" ? "Entrou dinheiro" : "Saiu dinheiro"}</p>
@@ -1062,7 +1271,21 @@ async function estornar(col, id) {
   const l = col === "atendimentos" ? cxAt : cxMov, x = l.find(i => i.id === id); if (!x) return;
   const nome = col === "atendimentos" ? `${x.servico} de ${x.profNome}` : nomeCategoria(x.categoria);
   if (!(await confirmar(`Desfazer ${nome} (${brlC(x.valorCent)})?\n\nUse quando foi lançado errado. Ele fica riscado e deixa de contar no caixa e na comissão.`, "Desfazer"))) return;
-  try { await F.updateDoc(F.doc(fire, "saloes", espacoId, col, id), { estornado: true, estornadoPor: emailUser(), estornadoEm: F.serverTimestamp(), motivoEstorno: "" }); }
+  try {
+    const b = F.writeBatch(fire);
+    b.update(F.doc(fire, "saloes", espacoId, col, id), { estornado: true, estornadoPor: emailUser(), estornadoEm: F.serverTimestamp(), motivoEstorno: "" });
+    /* v2.5.3: desfazer um uso de assinatura devolve o uso; desfazer o pagamento do clube volta o assinante para "aguardando pagamento" */
+    const a = x.assinanteId && asList.find(i => i.id === x.assinanteId);
+    if (a && col === "atendimentos" && x.forma === "assinatura" && a.cicloAtualId === x.cicloId) {
+      b.update(dAssin(espacoId, a.id), { usados: Math.max(0, (a.usados || 0) - 1), atualizadoEm: F.serverTimestamp() });
+      b.update(dCiclo(espacoId, a.id, x.cicloId), { usados: Math.max(0, (a.usados || 0) - 1) });
+    }
+    if (a && col === "movimentos" && x.categoria === "assinatura" && a.cicloAtualId === x.cicloId) {
+      b.update(dAssin(espacoId, a.id), { cicloAtualId: null, usados: 0, n: 0, vencimento: null, atualizadoEm: F.serverTimestamp() });
+      b.update(dCiclo(espacoId, a.id, x.cicloId), { encerradoEm: hojeISO(), estornado: true });
+    }
+    await b.commit();
+  }
   catch (err) { console.error(err); aviso("Não foi possível desfazer. Verifique a internet."); }
 }
 function folhaFechar(c) {
@@ -1578,20 +1801,24 @@ document.addEventListener("click", async e => {
   const cf = e.target.closest("[data-conf]");
   if (cf) { $("#confirmBox").classList.add("hidden"); if (resolverConf) resolverConf(cf.dataset.conf === "1"); resolverConf = null; return; }
   if (e.target.id === "folha") return fecharFolha();
-  const fs = e.target.closest("[data-fserv],[data-fprof],[data-fforma],[data-fcat]");
+  const fs = e.target.closest("[data-fserv],[data-fprof],[data-fforma],[data-fcat],[data-fassin],[data-fplano],[data-fpserv]");
   if (fs && folhaCtx) {
     const f = fs.dataset; lerFolha();
     if (f.fserv != null) { folhaCtx.serv = +f.fserv; const sv = (meuSalao.servicos || [])[+f.fserv]; if (sv) folhaCtx.valor = centParaTxt(Math.round(Number(sv.preco) * 100)); }
     if (f.fprof != null) folhaCtx.prof = f.fprof;
     if (f.fforma != null) folhaCtx.forma = f.fforma;
+    if (f.fassin != null) folhaCtx.assin = f.fassin;
+    if (f.fplano != null) folhaCtx.plano = f.fplano;
+    if (f.fpserv != null) { const l = folhaCtx.servicos ||= []; const i = l.indexOf(f.fpserv); i < 0 ? l.push(f.fpserv) : l.splice(i, 1); }
     if (f.fcat != null) folhaCtx.cat = f.fcat;
     return desenharFolha();
   }
-  const t = e.target.closest("[data-nav],[data-per],[data-pper],[data-cxdia],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
+  const t = e.target.closest("[data-nav],[data-per],[data-pper],[data-asf],[data-cxdia],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
   const d = t.dataset;
   if (d.nav) return navegar(d.nav);
   if (d.per) return trocarPer(d.per);
   if (d.pper) { pnPer = d.pper; return ouvirPainel(); }
+  if (d.asf) { asFiltro = d.asf; return desenharAssin(); }
   if (d.cxdia) { $("#cxData").value = d.cxdia; return trocarPer("dia"); }
   if (d.dia) { diaSel = d.dia; horaSel = null; desenharDias(); ouvirDia(); desenharHoras(); if (t.id === "btnProxDia") { const on = $("#dias .day.on"); if (on) on.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }); } return; }
   if (d.hora) { horaSel = d.hora; desenharHoras(); return; }
@@ -1640,6 +1867,28 @@ document.addEventListener("click", async e => {
     case "cxAnt": moverCx(-1); break;
     case "cxProx": moverCx(1); break;
     case "salvarEquipe": salvarEquipe(t); break;
+    /* v2.5.3: assinantes */
+    case "novoPlanoClube": abrirFolha({ tipo: "plano", perc: "60", servicos: [] }); break;
+    case "editPlano": { const p = plClube.find(x => x.id === d.id); if (p) abrirFolha({ tipo: "plano", id: p.id, nome: p.nome, valor: centParaTxt(p.valorCent), n: String(p.atendimentosPorCiclo), perc: String(p.percBarbearia), servicos: [...(p.servicos || [])] }); break; }
+    case "salvarPlano": salvarPlano(t); break;
+    case "removerPlano": {
+      const id = folhaCtx?.id; if (!id) break;
+      if (asList.some(a => a.planoId === id && a.ativo !== false)) { aviso("Ainda há assinantes neste plano. Troque o plano deles antes."); break; }
+      if (!(await confirmar("Tirar este plano da lista? Quem já pagou não é afetado.", "Tirar"))) break;
+      try { await F.updateDoc(F.doc(fire, "saloes", espacoId, "planos", id), { ativo: false }); fecharFolha(); } catch (err) { console.error(err); aviso("Não foi possível tirar o plano."); }
+      break;
+    }
+    case "novoAssin": if (!plClube.length) { $("#asPlanosBox").open = true; aviso("Crie primeiro um plano do clube, em \"Planos do clube\"."); break; }
+      abrirFolha({ tipo: "assin", plano: plClube.length === 1 ? plClube[0].id : null }); break;
+    case "editAssin": { const a = asList.find(x => x.id === d.id); if (a) abrirFolha({ tipo: "assin", id: a.id, nome: a.nome, fone: a.telefone || "", plano: a.planoId, proprio: a.valorProprioCent != null ? centParaTxt(a.valorProprioCent) : "", ativo: a.ativo }); break; }
+    case "salvarAssin": salvarAssin(t); break;
+    case "pausarAssin": {
+      const c = folhaCtx; if (!c?.id) break;
+      try { await F.updateDoc(dAssin(espacoId, c.id), { ativo: c.ativo === false, atualizadoEm: F.serverTimestamp() }); fecharFolha(); } catch (err) { console.error(err); aviso("Não foi possível alterar."); }
+      break;
+    }
+    case "pagarAssin": { const a = asList.find(x => x.id === d.id); if (a) abrirFolha({ tipo: "pagar", id: a.id, forma: null, valor: centParaTxt(a.valorProprioCent ?? planoDoAs(a)?.valorCent ?? 0) }); break; }
+    case "salvarPagar": salvarPagar(t); break;
     case "darAcesso": abrirFolha({ tipo: "acesso", prof: d.pnome, email: "" }); break;
     case "salvarAcesso": salvarAcesso(t); break;
     case "pausarAcesso": pausarAcesso(d.email); break;
@@ -1686,6 +1935,13 @@ $("#eDono").addEventListener("change", () => desenharEquipe(true, true));
 $("#mAgData").addEventListener("change", ouvirAgendaMaster);
 $("#mAgSalao").addEventListener("change", ouvirAgendaMaster);
 $("#fPlano").addEventListener("change", infoPlano);
+$("#asBusca").addEventListener("input", desenharAssin);
+/* v2.5.3: prévia da divisão do plano enquanto digita; busca de assinante na folha */
+document.addEventListener("input", e => {
+  if (!folhaCtx || !e.target.closest("#folha")) return;
+  if (folhaCtx.tipo === "plano" || folhaCtx.tipo === "pagar") { lerFolha(); const c = folhaCtx, el = e.target, pos = el.selectionStart; desenharFolha(); const n = document.getElementById(el.id); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (_) {} } }
+});
+document.addEventListener("change", e => { if (folhaCtx?.tipo === "atend" && e.target.dataset?.campo === "asBusca") { lerFolha(); desenharFolha(); } });
 
 /* ================= INÍCIO ================= */
 $("#mAgData").value = hojeISO();
