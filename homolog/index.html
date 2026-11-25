@@ -209,6 +209,7 @@
     <div id="pnKpis" class="grid3"></div>
     <button id="pnAssin" data-nav="bAssin" class="card cardp hidden" style="text-align:left;border:1px solid var(--line);font:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%"></button>
     <div id="pnFormasBox" class="card cardp"><p class="cap" style="margin-bottom:6px">De onde veio o dinheiro</p><div id="pnFormas"></div></div>
+    <button data-act="planilhaPainel" class="btn3" style="width:100%">Baixar planilha (Excel ou Google Planilhas)</button>
     </div><div class="colB stack" style="gap:8px"><p id="pnListaTit" class="cap" style="margin-left:2px">Agenda de hoje</p><div id="pnLista" class="card" style="overflow:hidden"></div></div>
   </div>
 
@@ -283,6 +284,7 @@
       <button data-act="novaSaida" class="btn2" style="border-color:var(--bad);color:var(--bad)">− Saiu dinheiro</button>
     </div>
     <p id="cxDica" class="xs muted" style="text-align:center;margin-top:-6px">Os cortes entram sozinhos quando você toca em “Concluir atendimento”. Aqui é só para o que vem de fora, como venda de pomada ou conta de luz.</p>
+    <button data-act="planilhaCaixa" class="btn3" style="width:100%">Baixar planilha (Excel ou Google Planilhas)</button>
     </div><div class="colB stack">
     <details class="mais"><summary>Quanto pagar a cada barbeiro</summary><div id="cxProfs" class="corpo"></div></details>
     <details class="mais"><summary>Pix, dinheiro e cartão</summary><div id="cxFormas" class="corpo"></div></details>
@@ -465,7 +467,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.5.4";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.5.5";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -1185,6 +1187,39 @@ async function salvarPagar(btn) {
       <p style="font-size:16px">${esc(a.nome)} · <b>${brlC(valor)}</b> em ${esc(nomeForma(c.forma))}</p><p class="sm muted">Já entrou no Caixa de hoje. Vale até ${dBR(venc).slice(0, 5)}.</p></div>
     ${tel.length >= 12 ? `<a class="btn ok" href="https://wa.me/${tel}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>` : ""}
     <button type="button" class="btn2" data-act="fecharFolha">Fechar</button>` });
+}
+
+/* ================= v2.5.5: BAIXAR PLANILHA =================
+   Gera um .csv (separado por ponto e vírgula, com acentos) que abre direto no Excel em português
+   e no Google Planilhas (Arquivo › Importar). Sem custo e sem ligar nada no Google. */
+function baixarPlanilha(origem) {
+  if (papel !== "dono" || !meuSalao) return;
+  const cx = temCaixa(meuSalao), naCaixa = origem === "caixa";
+  const at = naCaixa ? cxAt : pnAt, mv = naCaixa ? cxMov : pnMov, agd = naCaixa ? [] : pnAg;
+  const [ini, fim] = naCaixa ? periodoCx($("#cxData").value || hojeISO()) : periodoDe(pnPer, hojeISO());
+  const num = c => ((Number(c) || 0) / 100).toFixed(2).replace(".", ",");
+  const L = [];   // [chave para ordenar, linha]
+  at.forEach(x => L.push([x.data + (x.hora || ""), [dBR(x.data), x.hora || "", x.origem === "balcao" ? "Atendimento sem horário" : "Atendimento", x.servico, x.clienteNome || "", x.profNome || "",
+    nomeForma(x.forma), num(x.valorCent), num(x.repasseCent), x.estornado ? "Desfeito" : x.forma === "assinatura" ? `Assinatura: uso ${x.usoN || "?"} de ${x.usoDe || "?"}` : "OK"]]));
+  mv.forEach(x => L.push([x.data + (x.hora || ""), [dBR(x.data), x.hora || "", x.tipo === "entrada" ? "Entrada" : "Saída", nomeCategoria(x.categoria) + (x.descricao ? " · " + x.descricao : ""), "", x.profNome || "",
+    nomeForma(x.forma), (x.tipo === "saida" ? "-" : "") + num(x.valorCent), "", x.estornado ? "Desfeito" : "OK"]]));
+  /* agenda: no Completo, o que já foi concluído já está como atendimento; aqui entram os horários que ainda não viraram dinheiro */
+  agd.filter(p => !cx || p.status !== "Concluído").forEach(p => L.push([p.data + p.horario, [dBR(p.data), p.horario, "Horário na agenda", p.servico, p.nome, p.profissional || "",
+    "", num(Math.round(Number(p.preco || 0) * 100)), "", p.status]]));
+  if (!L.length) return aviso("Não há nada para baixar neste período.");
+  L.sort((a, b) => a[0].localeCompare(b[0]));
+  const cab = ["Data", "Hora", "Tipo", "Serviço ou descrição", "Cliente", "Profissional", "Forma", "Valor (R$)", "Comissão ou repasse (R$)", "Situação"];
+  const cel = (v, i) => { let t = String(v ?? "");
+    if (i !== 7 && /^[=+\-@]/.test(t)) t = "'" + t;   // texto que começa com = + - @ não vira fórmula
+    return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+  const csv = [cab, ...L.map(x => x[1])].map(l => l.map(cel).join(";")).join("\r\n");
+  const nome = `tecnicos-de-bolso_${slug(meuSalao.nome) || meuSalao.id}_${ini === fim ? ini : ini + "_a_" + fim}.csv`;
+  try {
+    const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a"); a.href = url; a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    aviso(`Planilha baixada: ${nome}\n\nAbra no Excel com dois cliques. No Google Planilhas: Arquivo › Importar › Fazer upload.`);
+  } catch (err) { console.error(err); aviso("Não foi possível baixar a planilha neste aparelho."); }
 }
 
 /* ================= v2.5.2: PAINEL DO DIA (dono) =================
@@ -1907,6 +1942,8 @@ document.addEventListener("click", async e => {
     case "cxAnt": moverCx(-1); break;
     case "cxProx": moverCx(1); break;
     case "salvarEquipe": salvarEquipe(t); break;
+    case "planilhaCaixa": baixarPlanilha("caixa"); break;
+    case "planilhaPainel": baixarPlanilha("painel"); break;
     /* v2.5.3: assinantes */
     case "novoPlanoClube": abrirFolha({ tipo: "plano", perc: "60", servicos: [] }); break;
     case "editPlano": { const p = plClube.find(x => x.id === d.id); if (p) abrirFolha({ tipo: "plano", id: p.id, nome: p.nome, valor: centParaTxt(p.valorCent), n: String(p.atendimentosPorCiclo), perc: String(p.percBarbearia), servicos: [...(p.servicos || [])] }); break; }
