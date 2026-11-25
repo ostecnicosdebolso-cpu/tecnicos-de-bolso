@@ -99,7 +99,23 @@
   .pbar i{display:block;height:10px;border-radius:6px;background:var(--pri)}
   .pbar b{white-space:nowrap}
   .pitem{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 16px;border-bottom:1px solid #F0F1F5}
-  .pitem:last-child{border-bottom:0}.pitem .h{font-family:Montserrat,sans-serif;font-weight:800}
+  .pitem:last-child{border-bottom:0}
+  /* v2.5.4: Completo no computador (só o dono do Plano Completo, tela a partir de 1024px) */
+  body.pc #vBarbeiro{padding:0 0 32px 232px}
+  body.pc #vBarbeiro .wrap{max-width:1180px}
+  body.pc .nav{top:0;bottom:0;left:0;right:auto;width:232px;border-top:0;border-right:1px solid var(--line);padding:24px 12px}
+  body.pc .nav .in{display:flex!important;flex-direction:column;gap:4px;max-width:none}
+  body.pc .nav button{flex-direction:row;justify-content:flex-start;gap:12px;padding:0 14px;min-height:48px;border-radius:12px;font-size:15px}
+  body.pc .nav button.on{background:var(--pri-l)}
+  body.pc .nav .in::before{content:"Técnicos de Bolso";font-weight:800;color:var(--pri-d);padding:0 14px 14px;font-size:15px}
+  body.pc #bPainel:not(.hidden),body.pc #bCaixa:not(.hidden){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;align-items:start}
+  body.pc .colB{position:sticky;top:16px}
+  body.pc #bPainel .colB #pnLista{max-height:calc(100vh - 80px);overflow:auto}
+  body.pc .sheet{align-items:center}
+  body.pc .sheet .in{border-radius:22px;max-width:540px;padding-bottom:20px}
+  .agCols{display:grid;gap:14px}
+  .agCol .card{overflow:hidden}
+  #bLista.cols{background:none;border:0;box-shadow:none;overflow:visible}.pitem .h{font-family:Montserrat,sans-serif;font-weight:800}
   .pitem .st{font-size:12px;font-weight:700}
   .semHora{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border:2px dashed var(--line2);border-radius:16px;background:transparent;color:var(--ink);text-align:left;cursor:pointer}
   .semHora .mais{width:40px;height:40px;border-radius:20px;background:var(--pri-l);color:var(--pri);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;flex-shrink:0}
@@ -183,7 +199,7 @@
   </div></div>
 
   <!-- v2.5.2: Painel do dia (só o dono) -->
-  <div id="bPainel" class="wrap pad stack hidden">
+  <div id="bPainel" class="wrap pad stack hidden"><div class="colA stack">
     <div class="per" role="group" aria-label="Período do painel"><button data-pper="dia" aria-pressed="true">Hoje</button><button data-pper="semana" aria-pressed="false">Semana</button><button data-pper="mes" aria-pressed="false">Mês</button></div>
     <div class="resumo">
       <div class="lin" style="font-size:14px;opacity:.9"><span id="pnTit">Entrou hoje</span><span id="pnPerTxt"></span></div>
@@ -193,7 +209,7 @@
     <div id="pnKpis" class="grid3"></div>
     <button id="pnAssin" data-nav="bAssin" class="card cardp hidden" style="text-align:left;border:1px solid var(--line);font:inherit;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%"></button>
     <div id="pnFormasBox" class="card cardp"><p class="cap" style="margin-bottom:6px">De onde veio o dinheiro</p><div id="pnFormas"></div></div>
-    <div class="stack" style="gap:8px"><p id="pnListaTit" class="cap" style="margin-left:2px">Agenda de hoje</p><div id="pnLista" class="card" style="overflow:hidden"></div></div>
+    </div><div class="colB stack" style="gap:8px"><p id="pnListaTit" class="cap" style="margin-left:2px">Agenda de hoje</p><div id="pnLista" class="card" style="overflow:hidden"></div></div>
   </div>
 
   <!-- v2.5.3: Assinantes (clube mensal, só o dono) -->
@@ -247,6 +263,7 @@
 
   <!-- Caixa (só o dono) -->
   <div id="bCaixa" class="wrap pad stack hidden">
+    <div class="colA stack">
     <div class="per" role="group" aria-label="Período do caixa"><button data-per="dia" aria-pressed="true">Dia</button><button data-per="semana" aria-pressed="false">Semana</button><button data-per="mes" aria-pressed="false">Mês</button></div>
     <div class="row">
       <button class="iconbtn" data-act="cxAnt" aria-label="Período anterior"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
@@ -266,10 +283,12 @@
       <button data-act="novaSaida" class="btn2" style="border-color:var(--bad);color:var(--bad)">− Saiu dinheiro</button>
     </div>
     <p id="cxDica" class="xs muted" style="text-align:center;margin-top:-6px">Os cortes entram sozinhos quando você toca em “Concluir atendimento”. Aqui é só para o que vem de fora, como venda de pomada ou conta de luz.</p>
+    </div><div class="colB stack">
     <details class="mais"><summary>Quanto pagar a cada barbeiro</summary><div id="cxProfs" class="corpo"></div></details>
     <details class="mais"><summary>Pix, dinheiro e cartão</summary><div id="cxFormas" class="corpo"></div></details>
     <details id="cxListaBox" class="mais"><summary id="cxListaTit">Tudo o que entrou e saiu</summary><div id="cxLista" class="corpo" style="padding:0"></div></details>
     <details id="cxFechBox" class="mais"><summary id="cxFechTit">Conferir a gaveta no fim do dia</summary><div id="cxFech" class="corpo stack" style="gap:10px;padding-top:12px;padding-bottom:16px"></div></details>
+    </div>
   </div>
 
   <!-- Equipe (só o dono) -->
@@ -446,7 +465,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.5.3";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.5.4";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -590,6 +609,7 @@ const offEspaco = () => ["cfg", "eq", "cxA", "cxM", "cxF", "nM", "agB", "pnA", "
 async function rotear() {
   off("saloes"); off("meu"); off("dAg"); off("mAg"); offEspaco();
   papel = null; eu = null; espacoId = null; config = {}; equipeDocs = [];
+  document.body.classList.remove("pc");
   if (!user) { meuSalao = null; fecharFolha(); return ver("landing"); }
   if (isMaster()) { ouvirSaloes(); return ver("master"); }
   const q = await F.getDocs(F.query(F.collection(fire, "saloes"), F.where("emailDono", "==", emailUser())));
@@ -664,6 +684,15 @@ function itensNav() {
   return l.filter(Boolean);
 }
 /* monta o menu e as telas conforme o plano; roda de novo se o master trocar o plano com o app aberto */
+/* v2.5.4: modo computador. Só para o dono do Plano Completo (é o que o plano vende) e tela larga */
+const telaLarga = window.matchMedia("(min-width: 1024px)");
+function ajustarPC() {
+  const pc = telaLarga.matches && papel === "dono" && planoDe(meuSalao) === "completo" && !$("#vBarbeiro").classList.contains("hidden");
+  document.body.classList.toggle("pc", pc);
+  if (pc) ["#cxListaBox", "#cxFormas", "#cxProfs"].forEach(q => { const d = $(q).closest("details"); if (d) d.open = true; });
+  if (papel === "dono") desenharAgendaDono();
+}
+telaLarga.addEventListener("change", ajustarPC);
 function aplicarPlano() {
   const atual = document.querySelector(".nav button.on")?.dataset.nav;
   montarNav();
@@ -676,7 +705,7 @@ function aplicarPlano() {
   $("#cxDica").textContent = soCaixa ? "Atendimento vai no botão acima. “Entrou” e “Saiu” são para o que vem de fora, como venda de pomada ou conta de luz."
     : "Os cortes entram sozinhos quando você toca em “Concluir atendimento”. Aqui é só para o que vem de fora, como venda de pomada ou conta de luz.";
   $("#bDivulgar").classList.toggle("hidden", papel !== "dono" || !temAssin(meuSalao) || soCaixa);
-  ouvirAgendaDono(); desenharEquipe(true); ouvirAssin(); ouvirPainel();
+  ouvirAgendaDono(); desenharEquipe(true); ouvirAssin(); ouvirPainel(); ajustarPC();
 }
 function montarNav() {
   const itens = itensNav();
@@ -755,6 +784,17 @@ function desenharAgendaDono() {
   const dia = $("#bData").value || hojeISO();
   const balcao = papel === "barbeiro" ? numAt.filter(x => x.data === dia && x.origem === "balcao" && !x.estornado) : agBalcao;
   const itens = lista.map(p => [p.horario, cardAg(p, espacoId, true)]).concat(balcao.map(x => [x.hora || "", cardBalcao(x)])).sort((a, b) => a[0].localeCompare(b[0]));
+  const profs = meuSalao?.profissionais || [];
+  const colunas = document.body.classList.contains("pc") && profs.length > 1 && itens.length;
+  $("#bLista").classList.toggle("cols", !!colunas);
+  if (colunas) {   // v2.5.4: no computador, uma coluna por profissional
+    const grupo = {}; profs.forEach(p => grupo[p] = []);
+    lista.forEach(p => (grupo[profs.includes(p.profissional) ? p.profissional : "Sem preferência"] ||= []).push([p.horario, cardAg(p, espacoId, true)]));
+    balcao.forEach(x => (grupo[profs.includes(x.profNome) ? x.profNome : "Sem preferência"] ||= []).push([x.hora || "", cardBalcao(x)]));
+    const nomes = Object.keys(grupo);
+    $("#bLista").innerHTML = `<div class="agCols" style="grid-template-columns:repeat(${nomes.length},minmax(0,1fr))">${nomes.map(n => { const l = grupo[n].sort((a, b) => a[0].localeCompare(b[0]));
+      return `<div class="agCol stack" style="gap:8px"><p class="cap" style="margin-left:2px">${esc(n)} · ${l.length}</p><div class="card">${l.length ? l.map(i => i[1]).join("") : `<p class="pad muted" style="text-align:center">Livre</p>`}</div></div>`; }).join("")}</div>`;
+  } else
   $("#bLista").innerHTML = itens.length ? itens.map(i => i[1]).join("") : `<p class="pad muted" style="text-align:center">Nenhum cliente neste dia.</p>`;
   $("#bQtd").textContent = ativos.length + balcao.length;
   const agora = agoraHH();
