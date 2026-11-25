@@ -163,7 +163,7 @@
     </div>
     <button id="bHoje" data-act="diaHoje" class="link hidden" style="align-self:center;margin-top:-6px">Voltar para hoje</button>
     <div class="grid2">
-      <div class="stat"><span class="xs muted">Clientes marcados</span><b id="bQtd">0</b></div>
+      <div class="stat"><span class="xs muted">Clientes do dia</span><b id="bQtd">0</b></div>
       <div class="stat"><span id="bProxLbl" class="xs muted">Próximo horário</span><b id="bProx">—</b></div>
     </div>
     <div id="bLista" class="card" style="overflow:hidden"></div>
@@ -380,7 +380,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.4.2";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.4.3";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -463,7 +463,7 @@ async function copiar(t) {
 let F = null, A = null, AppMod = null, fire = null, AU = null, user = null;
 let saloes = [], salao = null, travado = false, meuSalao = null;
 let diaSel = hojeISO(), horaSel = null, servSel = 0, profSel = null, ocupadosDia = new Set(), remarcando = null;
-let verCanc = false, agendaDono = [];
+let verCanc = false, agendaDono = [], agBalcao = [];
 /* v2.4.1: espaço do dono e da equipe */
 let papel = null, eu = null, espacoId = null, config = {}, equipeDocs = [];
 let cxAt = [], cxMov = [], cxFech = null, numAt = [], folhaCtx = null, verifEnviado = false;
@@ -510,7 +510,7 @@ function ver(v, msg) {
 }
 
 /* ================= ENTRAR E ROTEAR ================= */
-const offEspaco = () => ["cfg", "eq", "cxA", "cxM", "cxF", "nM"].forEach(off);
+const offEspaco = () => ["cfg", "eq", "cxA", "cxM", "cxF", "nM", "agB"].forEach(off);
 async function rotear() {
   off("saloes"); off("meu"); off("dAg"); off("mAg"); offEspaco();
   papel = null; eu = null; espacoId = null; config = {}; equipeDocs = [];
@@ -609,6 +609,12 @@ function ouvirAgendaDono() {
     if (papel === "barbeiro") agendaDono = agendaDono.filter(p => !p.profissional || p.profissional === eu.nome);
     desenharAgendaDono();
   }, err => { console.error(err); $("#bLista").innerHTML = `<p class="pad muted">Sem permissão para ver esta agenda.</p>`; });
+  /* v2.4.3: atendimentos sem horário (balcão) também aparecem na agenda do dia */
+  off("agB"); agBalcao = [];
+  if (papel === "dono") unsubs.agB = F.onSnapshot(F.query(cAt(id), F.where("data", "==", data)), s => {
+    agBalcao = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(x => x.origem === "balcao" && !x.estornado);
+    desenharAgendaDono();
+  }, err => console.error(err));
 }
 function cardAg(p, salaoId, espaco) {
   const c = cancelado(p), ok = p.status === "Concluído";
@@ -625,11 +631,21 @@ function cardAg(p, salaoId, espaco) {
     ${lado}
   </div>${concluir}</div>`;
 }
+function cardBalcao(x) {
+  return `<div style="border-bottom:1px solid #F0F1F5"><div class="ag">
+    <span class="h">${esc(x.hora || "")}</span>
+    <div class="grow"><p style="font-size:15px;font-weight:600">${esc(x.clienteNome || "Cliente")}</p><p class="sm muted">${esc(x.servico)} · ${brlC(x.valorCent)} · ${esc(x.profNome || "")}</p></div>
+    <span class="xs" style="font-weight:700;color:var(--ok);text-align:right">Feito<br><span style="color:var(--muted);font-weight:600">sem horário</span></span>
+  </div></div>`;
+}
 function desenharAgendaDono() {
   const ativos = agendaDono.filter(p => !cancelado(p)), canc = agendaDono.filter(cancelado);
   const lista = verCanc ? agendaDono : ativos;
-  $("#bLista").innerHTML = lista.length ? lista.map(p => cardAg(p, espacoId, true)).join("") : `<p class="pad muted" style="text-align:center">Nenhum agendamento neste dia.</p>`;
-  $("#bQtd").textContent = ativos.length;
+  const dia = $("#bData").value || hojeISO();
+  const balcao = papel === "barbeiro" ? numAt.filter(x => x.data === dia && x.origem === "balcao" && !x.estornado) : agBalcao;
+  const itens = lista.map(p => [p.horario, cardAg(p, espacoId, true)]).concat(balcao.map(x => [x.hora || "", cardBalcao(x)])).sort((a, b) => a[0].localeCompare(b[0]));
+  $("#bLista").innerHTML = itens.length ? itens.map(i => i[1]).join("") : `<p class="pad muted" style="text-align:center">Nenhum cliente neste dia.</p>`;
+  $("#bQtd").textContent = ativos.length + balcao.length;
   const agora = agoraHH();
   const pend = ativos.filter(p => p.status !== "Concluído");
   const prox = $("#bData").value === hojeISO() ? pend.find(p => p.horario >= agora) : pend[0];
@@ -941,6 +957,7 @@ function ouvirNumeros() {
   }, err => { console.error(err); $("#nLista").innerHTML = `<p class="pad muted">Sem permissão para ver seus números.</p>`; });
 }
 function desenharNumeros() {
+  desenharAgendaDono();
   const ok = numAt.filter(x => !x.estornado), hoje = ok.filter(x => x.data === hojeISO());
   const tot = l => l.reduce((t, x) => t + (x.valorCent || 0), 0), com = l => l.reduce((t, x) => t + (x.repasseCent || 0), 0);
   $("#nHojeQtd").textContent = hoje.length; $("#nHojeTot").textContent = brlC(tot(hoje)); $("#nHojeCom").textContent = brlC(com(hoje));
@@ -1161,7 +1178,7 @@ function desenharEstado() {
   if (meuSalao) {
     const b = $("#btnAbrir"), fech = meuSalao.barbeariaFechada;
     if (travado) { b.innerHTML = `<span class="dot" style="background:#6B6990"></span>Travado`; b.style.background = "#E9E7F7"; b.style.color = "#3A3860"; b.disabled = true; }
-    else { b.disabled = false; b.innerHTML = fech ? `<span class="dot" style="background:#DC2626"></span>Fechado · tocar para abrir` : `<span class="dot" style="background:#16A34A"></span>Aberto`; b.style.background = fech ? "var(--bad-l)" : "var(--ok-l)"; b.style.color = fech ? "#7F1D1D" : "#166534"; }
+    else { b.disabled = false; b.innerHTML = fech ? `<span class="dot" style="background:#DC2626"></span>Fechado · abrir` : `<span class="dot" style="background:#16A34A"></span>Aberto`; b.style.background = fech ? "var(--bad-l)" : "var(--ok-l)"; b.style.color = fech ? "#7F1D1D" : "#166534"; }
   }
   if (!salao) return;
   const fechado = indisponivel(), fHoje = fechadoNoDia(salao, hojeISO());
