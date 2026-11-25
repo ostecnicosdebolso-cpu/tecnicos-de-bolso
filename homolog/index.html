@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -75,6 +76,13 @@
   .servRow{border:1px solid var(--line);background:#FAFAFF;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px}
   .chk{display:flex;align-items:center;gap:6px;font-size:14px;min-height:40px}
   .chk input{width:20px;height:20px;accent-color:var(--pri)}
+  .sheet{position:fixed;inset:0;z-index:90;background:rgba(30,27,75,.55);display:flex;align-items:flex-end;justify-content:center}
+  .sheet .in{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:92vh;overflow:auto;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
+  .mov{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #EEEDFA}
+  .mov:last-child{border-bottom:none}
+  .mov.est{opacity:.5}.mov.est .v{text-decoration:line-through}
+  .mov .v{font-family:Montserrat,sans-serif;font-weight:800;white-space:nowrap}
+  .ent{color:var(--ok)}.sai{color:var(--bad)}
   .logo{width:72px;height:72px;border-radius:36px;background:var(--pri);display:flex;align-items:center;justify-content:center;color:#fff;margin:0 auto}
 </style>
 </head>
@@ -92,7 +100,7 @@
 <!-- Confirmação -->
 <div id="confirmBox" class="modalbg hidden">
   <div class="card cardp stack wrap" style="max-width:380px;text-align:center">
-    <p id="confirmTxt" style="font-size:15px;line-height:1.5"></p>
+    <p id="confirmTxt" style="font-size:15px;line-height:1.5;white-space:pre-line"></p>
     <div class="grid2">
       <button data-conf="0" class="btn2">Voltar</button>
       <button data-conf="1" id="confirmOk" class="btn">Confirmar</button>
@@ -100,7 +108,10 @@
   </div>
 </div>
 
-<p id="carregando" class="muted" style="text-align:center;padding:80px 16px">Carregando…</p>
+<!-- Folha (concluir, atendimento agora, entrada/saída, fechar caixa, dar acesso) -->
+<div id="folha" class="sheet hidden"><div class="in stack"></div></div>
+
+<p id="carregando"class="muted" style="text-align:center;padding:80px 16px">Carregando…</p>
 
 <!-- ================= INÍCIO / ENTRAR ================= -->
 <section id="vLanding" class="hidden wrap" style="padding:36px 20px 28px">
@@ -145,6 +156,7 @@
       <div class="stat"><span class="xs muted">Agendados</span><b id="bQtd">0</b></div>
       <div class="stat"><span class="xs muted">Próximo</span><b id="bProx">—</b></div>
     </div>
+    <button data-act="avulso" class="btn2">+ Atendimento agora (sem hora marcada)</button>
     <div id="bLista" class="card" style="overflow:hidden"></div>
     <div class="row" style="justify-content:space-between">
       <button id="btnVerCanc" data-act="verCanc" class="link" style="padding-left:0"></button>
@@ -170,22 +182,57 @@
     </div>
   </div>
 
-  <!-- Em breve -->
-  <div id="bBreve" class="wrap pad stack hidden">
-    <div class="card cardp stack" style="text-align:center;gap:8px;padding:32px 20px">
-      <p id="breveTit" class="tt" style="font-size:20px;font-weight:800"></p>
-      <p class="muted">Chega na próxima versão: assinaturas, caixa do dia e fechamento do mês.</p>
+  <!-- Caixa (só o dono) -->
+  <div id="bCaixa" class="wrap pad stack hidden">
+    <div class="row">
+      <button class="iconbtn" data-act="cxAnt" aria-label="Dia anterior"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+      <input id="cxData" type="date" class="field grow" style="text-align:center;font-weight:600">
+      <button class="iconbtn" data-act="cxProx" aria-label="Próximo dia"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg></button>
     </div>
+    <div class="grid3">
+      <div class="stat"><span class="xs muted">Entrou</span><b id="cxEntrou" class="ent">R$ 0</b></div>
+      <div class="stat"><span class="xs muted">Saiu</span><b id="cxSaiu" class="sai">R$ 0</b></div>
+      <div class="stat"><span class="xs muted">Saldo</span><b id="cxSaldo">R$ 0</b></div>
+    </div>
+    <div class="grid2">
+      <button data-act="novaEntrada" class="btn2" style="border-color:var(--ok);color:var(--ok)">+ Entrada</button>
+      <button data-act="novaSaida" class="btn2" style="border-color:var(--bad);color:var(--bad)">− Saída</button>
+    </div>
+    <div class="card" style="padding:4px 16px"><p class="cap" style="padding-top:12px">Por forma de pagamento</p><div id="cxFormas"></div></div>
+    <div class="card" style="padding:4px 16px"><p class="cap" style="padding-top:12px">Por profissional</p><div id="cxProfs"></div></div>
+    <div class="stack" style="gap:8px"><p class="cap" style="margin-left:2px">Lançamentos do dia</p><div id="cxLista" class="card" style="overflow:hidden"></div></div>
+    <div id="cxFech" class="card cardp stack" style="gap:10px"></div>
+  </div>
+
+  <!-- Equipe (só o dono) -->
+  <div id="bEquipe" class="wrap pad stack hidden">
+    <div class="stack" style="gap:4px"><p class="tt" style="font-size:20px;font-weight:800">Equipe</p><p class="sm muted">Comissão dos atendimentos avulsos e acesso de cada barbeiro.</p></div>
+    <div class="card cardp stack" style="gap:8px">
+      <label class="lbl" for="eDono">Qual destes profissionais é você, o dono?</label>
+      <select id="eDono" class="field"></select>
+      <p class="xs muted">O que o dono atende no avulso fica todo com a casa (comissão 0%).</p>
+    </div>
+    <div id="eLista" class="stack" style="gap:10px"></div>
+    <button data-act="salvarEquipe" class="btn">Salvar comissões</button>
+    <p class="xs muted" style="text-align:center">Para incluir ou renomear um profissional, fale com a Técnicos de Bolso.</p>
+  </div>
+
+  <!-- Meus números (barbeiro da equipe) -->
+  <div id="bNumeros" class="wrap pad stack hidden">
+    <p class="tt" style="font-size:20px;font-weight:800">Meus números</p>
+    <div class="card cardp stack" style="gap:10px"><p class="cap">Hoje</p>
+      <div class="grid3"><div class="stat"><span class="xs muted">Atendimentos</span><b id="nHojeQtd">0</b></div><div class="stat"><span class="xs muted">Total</span><b id="nHojeTot">R$ 0</b></div><div class="stat"><span class="xs muted">Minha parte</span><b id="nHojeCom" class="ent">R$ 0</b></div></div>
+    </div>
+    <div class="card cardp stack" style="gap:10px"><p id="nMesTit" class="cap">Este mês</p>
+      <div class="grid3"><div class="stat"><span class="xs muted">Atendimentos</span><b id="nMesQtd">0</b></div><div class="stat"><span class="xs muted">Total</span><b id="nMesTot">R$ 0</b></div><div class="stat"><span class="xs muted">Minha parte</span><b id="nMesCom" class="ent">R$ 0</b></div></div>
+    </div>
+    <div class="stack" style="gap:8px"><p class="cap" style="margin-left:2px">Atendimentos de hoje</p><div id="nLista" class="card" style="overflow:hidden"></div></div>
+    <p class="xs muted" style="text-align:center">Prévia calculada pelo sistema. O valor oficial é o do fechamento feito pelo dono.</p>
   </div>
 
   <div style="text-align:center;padding:8px"><button data-act="sair" class="link">Sair</button></div>
 
-  <nav class="nav"><div class="in">
-    <button data-nav="bAgenda" class="on"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>Agenda</button>
-    <button data-nav="bCompartilhar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"></path></svg>Compartilhar</button>
-    <button data-nav="bBreve" data-breve="Assinantes"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"></path></svg>Assinantes</button>
-    <button data-nav="bBreve" data-breve="Caixa"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="13" rx="2"></rect><circle cx="12" cy="12.5" r="2.5"></circle><path d="M6 6V4h12v2"></path></svg>Caixa</button>
-  </div></nav>
+  <nav class="nav"><div id="bNav" class="in"></div></nav>
 </section>
 
 <!-- ================= MASTER ================= -->
@@ -280,7 +327,7 @@
         <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span style="color:var(--pri)">1.</span> Serviço</p><div id="servicos" class="row" style="flex-wrap:wrap;gap:8px"></div></div>
         <div id="boxProf" class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span style="color:var(--pri)">2.</span> Profissional</p><div id="profs" class="row" style="flex-wrap:wrap;gap:8px"></div></div>
         <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nDia" style="color:var(--pri)">3.</span> Dia</p><div id="dias" class="days"></div></div>
-        <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nHora" style="color:var(--pri)">4.</span> Horário <span id="diaTxt" style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:var(--muted)"></span></p><div id="horas" class="grid4"></div><p id="semHoras" class="sm muted hidden">Sem horários livres neste dia. Escolha outra data.</p><p class="xs muted">Horários riscados já estão ocupados.</p></div>
+        <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nHora" style="color:var(--pri)">4.</span> Horário <span id="diaTxt" style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:var(--muted)"></span></p><div id="horas" class="grid4"></div><p id="semHoras" class="sm muted hidden">Sem horários livres neste dia. Escolha outra data.</p><p class="xs muted">Horários riscados já passaram ou estão ocupados.</p></div>
         <div id="boxDados" class="stack" style="gap:12px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nDados" style="color:var(--pri)">5.</span> Seus dados</p>
           <div><label class="lbl" for="nome">Nome</label><input id="nome" class="field" autocomplete="name" placeholder="Como podemos te chamar?"></div>
           <div><label class="lbl" for="fone">WhatsApp com DDD</label><input id="fone" class="field" inputmode="tel" autocomplete="tel" placeholder="(11) 91234-5678"></div>
@@ -302,7 +349,7 @@
         <p class="muted">Falta só um toque para avisar a barbearia.</p>
       </div>
       <div class="card" style="padding:4px 18px">
-        <div class="listrow"><span class="muted">Quando</span><b id="sucQuando" style="text-align:right;text-transform:capitalize"></b></div>
+        <div class="listrow"><span class="muted">Quando</span><b id="sucQuando" style="text-align:right"></b></div>
         <div class="listrow"><span class="muted">Serviço</span><span id="sucServico" style="font-weight:600"></span></div>
         <div class="listrow"><span class="muted">Com</span><span id="sucProf" style="font-weight:600"></span></div>
         <div class="listrow"><span class="muted">Protocolo</span><b id="sucProto" style="font-family:ui-monospace,monospace"></b></div>
@@ -324,7 +371,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.3";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.4.1";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -361,6 +408,20 @@ const somaDias = (s, n) => { const d = new Date(s + "T12:00:00"); d.setDate(d.ge
 const dBR = d => d.split("-").reverse().join("/");
 const diaSemana = s => new Date(s + "T12:00:00").getDay();
 const dataLonga = s => new Date(s + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
+const cap1 = s => String(s || "").charAt(0).toUpperCase() + String(s || "").slice(1);
+/* dinheiro do financeiro em centavos (2090 = R$ 20,90) */
+const brlC = c => brl((Number(c) || 0) / 100);
+const centParaTxt = c => c == null ? "" : (c / 100).toFixed(2).replace(".", ",").replace(/,00$/, "");
+function txtParaCent(t) {
+  let x = String(t ?? "").trim().replace(/R\$|\s/g, "");
+  if (!x) return null;
+  if (x.includes(",")) x = x.replace(/\./g, "").replace(",", ".");
+  const n = Number(x);
+  return isFinite(n) && n >= 0 ? Math.round(n * 100) : null;
+}
+const FORMAS = [["pix", "Pix"], ["dinheiro", "Dinheiro"], ["cartao", "Cartão"]];
+const nomeForma = f => (FORMAS.find(x => x[0] === f) || [f, f || "—"])[1];
+const agoraHH = () => { const d = new Date(); return hh(d.getHours() * 60 + d.getMinutes()); };
 const mm = h => +h.slice(0, 2) * 60 + +h.slice(3);
 const hh = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
 const slug = s => String(s || "").toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
@@ -385,6 +446,9 @@ let F = null, A = null, AppMod = null, fire = null, AU = null, user = null;
 let saloes = [], salao = null, travado = false, meuSalao = null;
 let diaSel = hojeISO(), horaSel = null, servSel = 0, profSel = null, ocupadosDia = new Set(), remarcando = null;
 let verCanc = false, agendaDono = [];
+/* v2.4.1: espaço do dono e da equipe */
+let papel = null, eu = null, espacoId = null, config = {}, equipeDocs = [];
+let cxAt = [], cxMov = [], cxFech = null, numAt = [], folhaCtx = null, verifEnviado = false;
 const SALAO_ID = slug(new URLSearchParams(location.search).get("b"));
 const unsubs = {};
 const off = k => { if (unsubs[k]) { unsubs[k](); delete unsubs[k]; } };
@@ -398,6 +462,12 @@ const cAg = id => F.collection(fire, "saloes", id, "agendamentos");
 const cOc = id => F.collection(fire, "saloes", id, "ocupados");
 const dGeral = () => F.doc(fire, "sistema", "geral");
 const dContador = id => F.doc(fire, "saloes", id, "contador", "protocolo");
+const dConfig = id => F.doc(fire, "saloes", id, "privado", "config");
+const cEquipe = id => F.collection(fire, "saloes", id, "equipe");
+const dAcesso = email => F.doc(fire, "acessos", email);
+const cAt = id => F.collection(fire, "saloes", id, "atendimentos");
+const cMov = id => F.collection(fire, "saloes", id, "movimentos");
+const dCaixa = (id, dia) => F.doc(fire, "saloes", id, "caixas", dia);
 
 async function iniciar() {
   document.querySelectorAll(".ver").forEach(el => el.textContent = VERSAO + (HOMOLOG ? " · homologação" : ""));
@@ -422,13 +492,38 @@ function ver(v, msg) {
 }
 
 /* ================= ENTRAR E ROTEAR ================= */
+const offEspaco = () => ["cfg", "eq", "cxA", "cxM", "cxF", "nM"].forEach(off);
 async function rotear() {
-  off("saloes"); off("meu"); off("dAg"); off("mAg");
-  if (!user) { meuSalao = null; return ver("landing"); }
+  off("saloes"); off("meu"); off("dAg"); off("mAg"); offEspaco();
+  papel = null; eu = null; espacoId = null; config = {}; equipeDocs = [];
+  if (!user) { meuSalao = null; fecharFolha(); return ver("landing"); }
   if (isMaster()) { ouvirSaloes(); return ver("master"); }
   const q = await F.getDocs(F.query(F.collection(fire, "saloes"), F.where("emailDono", "==", emailUser())));
-  if (q.empty) { ver("landing"); aviso("Esta conta ainda não está ligada a uma barbearia. Fale com a Técnicos de Bolso."); return A.signOut(AU); }
-  abrirEspaco(q.docs[0].id);
+  if (!q.empty) { papel = "dono"; return abrirEspaco(q.docs[0].id); }
+  /* v2.4.1: barbeiro da equipe (acessos/{email} diz qual barbearia abrir) */
+  let ac = null;
+  try { const s = await F.getDoc(dAcesso(emailUser())); if (s.exists()) ac = s.data(); } catch (err) { console.error(err); }
+  if (!ac?.salaoId) { ver("landing"); aviso("Esta conta ainda não está ligada a uma barbearia. Fale com a Técnicos de Bolso."); return A.signOut(AU); }
+  if (!user.emailVerified && !(await pedirConfirmacao())) return;
+  let eq = null;
+  try { const s = await F.getDoc(F.doc(fire, "saloes", ac.salaoId, "equipe", emailUser())); if (s.exists()) eq = s.data(); } catch (err) { console.error(err); }
+  if (!eq) { ver("landing"); aviso("Seu acesso ainda não foi liberado pelo dono da barbearia."); return A.signOut(AU); }
+  if (eq.ativo !== true) { ver("landing"); aviso("Seu acesso está pausado. Fale com o dono da barbearia."); return A.signOut(AU); }
+  papel = "barbeiro"; eu = eq;
+  abrirEspaco(ac.salaoId);
+}
+/* o barbeiro só entra depois de confirmar o e-mail (protege contra conta criada com o e-mail de outra pessoa) */
+async function pedirConfirmacao() {
+  ver("landing");
+  if (!verifEnviado) { verifEnviado = true; try { await A.sendEmailVerification(user); } catch (err) { console.error(err); } }
+  let txt = `Falta confirmar o seu e-mail.\n\nEnviamos um link para ${user.email}. Abra o e-mail (veja também o spam), toque no link e depois volte aqui e toque em “Já confirmei”.`;
+  for (;;) {
+    if (!(await confirmar(txt, "Já confirmei"))) { await A.signOut(AU); return false; }
+    try { await user.reload(); await AU.currentUser.getIdToken(true); } catch (err) { console.error(err); }
+    if (AU.currentUser?.emailVerified) { user = AU.currentUser; return true; }
+    txt = `Ainda não apareceu a confirmação de ${user.email}.\n\nToque no link do e-mail e tente de novo. Se não achou o e-mail, toque em Voltar e entre de novo para receber outro.`;
+    verifEnviado = false;
+  }
 }
 const msgErroLogin = err => ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials", "auth/invalid-email"].includes(err.code)
   ? "E-mail ou senha incorretos. Tente novamente." : err.code === "auth/too-many-requests" ? "Muitas tentativas. Aguarde alguns minutos." : "Não foi possível entrar. Verifique a internet.";
@@ -446,51 +541,81 @@ async function esqueci(email) {
 }
 
 /* ================= ESPAÇO DO BARBEIRO ================= */
+const ICO = {
+  agenda: '<rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path>',
+  compartilhar: '<circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"></path>',
+  caixa: '<rect x="2" y="6" width="20" height="13" rx="2"></rect><circle cx="12" cy="12.5" r="2.5"></circle><path d="M6 6V4h12v2"></path>',
+  equipe: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"></path>',
+  numeros: '<path d="M3 3v18h18"></path><path d="M7 15l4-4 3 3 5-6"></path>'
+};
+const svgNav = p => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const TELAS = ["bAgenda", "bCompartilhar", "bCaixa", "bEquipe", "bNumeros"];
+function montarNav() {
+  const itens = papel === "barbeiro"
+    ? [["bAgenda", "Agenda", ICO.agenda], ["bNumeros", "Meus números", ICO.numeros]]
+    : [["bAgenda", "Agenda", ICO.agenda], ["bCaixa", "Caixa", ICO.caixa], ["bEquipe", "Equipe", ICO.equipe], ["bCompartilhar", "Compartilhar", ICO.compartilhar]];
+  $("#bNav").style.gridTemplateColumns = `repeat(${itens.length}, minmax(0,1fr))`;
+  $("#bNav").innerHTML = itens.map(([k, t, i]) => `<button data-nav="${k}">${svgNav(i)}${t}</button>`).join("");
+}
 function abrirEspaco(id) {
-  ver("barbeiro"); navegar("bAgenda");
-  $("#bData").value = hojeISO();
+  espacoId = id;
+  ver("barbeiro"); montarNav(); navegar("bAgenda");
+  $("#bData").value = hojeISO(); $("#cxData").value = hojeISO();
+  $("#btnAbrir").classList.toggle("hidden", papel !== "dono");
   unsubs.meu = F.onSnapshot(dSalao(id), s => {
     meuSalao = { id: s.id, ...s.data() };
-    $("#bNome").textContent = meuSalao.nome;
-    desenharEstado(); desenharCompartilhar();
+    $("#bNome").textContent = meuSalao.nome + (papel === "barbeiro" ? " · " + eu.nome : "");
+    desenharEstado(); desenharCompartilhar(); desenharEquipe();
   }, erroConexao);
+  unsubs.cfg = F.onSnapshot(dConfig(id), s => { config = s.exists() ? s.data() : {}; desenharEquipe(); }, erroConexao);
+  if (papel === "dono") {
+    unsubs.eq = F.onSnapshot(cEquipe(id), s => { equipeDocs = s.docs.map(d => ({ email: d.id, ...d.data() })); desenharEquipe(); }, erroConexao);
+    ouvirCaixa();
+  } else ouvirNumeros();
   ouvirAgendaDono();
 }
 function ouvirAgendaDono() {
-  if (!meuSalao && !unsubs.meu) return;
-  const id = meuSalao?.id || null; if (!id) { setTimeout(ouvirAgendaDono, 300); return; }
+  const id = espacoId; if (!id) return;
   const data = $("#bData").value;
   $("#bTitulo").textContent = data === hojeISO() ? "Hoje, " + dataLonga(data).split(",")[0] + " " + dBR(data).slice(0, 5) : dataLonga(data);
   off("dAg");
   unsubs.dAg = F.onSnapshot(F.query(cAg(id), F.where("data", "==", data)), s => {
     agendaDono = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((x, y) => x.horario.localeCompare(y.horario));
+    /* o barbeiro da equipe vê só os horários dele e os marcados sem preferência de profissional */
+    if (papel === "barbeiro") agendaDono = agendaDono.filter(p => !p.profissional || p.profissional === eu.nome);
     desenharAgendaDono();
   }, err => { console.error(err); $("#bLista").innerHTML = `<p class="pad muted">Sem permissão para ver esta agenda.</p>`; });
 }
-function cardAg(p, salaoId) {
-  const c = cancelado(p);
-  return `<div class="ag ${c ? "canc" : ""}" style="border-bottom:1px solid #EEEDFA">
+function cardAg(p, salaoId, espaco) {
+  const c = cancelado(p), ok = p.status === "Concluído";
+  const zap = `<a class="iconbtn" href="https://wa.me/${zapNum(p.telefone)}" target="_blank" rel="noopener" aria-label="WhatsApp de ${esc(p.nome)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"></path></svg></a>`;
+  const xis = `<button class="iconbtn" data-act="cancelar" data-salao="${esc(salaoId)}" data-id="${esc(p.id)}" data-rotulo="${esc(p.nome)} às ${esc(p.horario)}" aria-label="Cancelar agendamento de ${esc(p.nome)}" style="color:var(--bad)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>`;
+  const lado = c ? `<span class="xs" style="font-weight:700;color:var(--bad)">Cancelado${p.canceladoPor === "cliente" ? " pelo cliente" : ""}</span>`
+    : ok ? `<span class="xs" style="font-weight:700;color:var(--ok)">Concluído</span>`
+    : zap + (!espaco || papel === "dono" ? xis : "");
+  const concluir = espaco && !c && !ok && p.data <= hojeISO()
+    ? `<div style="padding:0 14px 12px 80px"><button class="btn3" data-act="concluir" data-id="${esc(p.id)}" style="width:100%;background:var(--ok-l);color:#166534;border-color:#BBF7D0;font-size:14px">✓ Concluir atendimento</button></div>` : "";
+  return `<div style="border-bottom:1px solid #EEEDFA"><div class="ag ${c ? "canc" : ""}">
     <span class="h">${esc(p.horario)}</span>
     <div class="grow"><p style="font-size:15px;font-weight:600">${esc(p.nome)}</p><p class="sm muted">${esc(p.servico)} · ${brl(p.preco)}${p.profissional ? " · " + esc(p.profissional) : ""} · <span style="font-family:ui-monospace,monospace">${esc(p.protocolo)}</span></p></div>
-    ${c ? `<span class="xs" style="font-weight:700;color:var(--bad)">Cancelado${p.canceladoPor === "cliente" ? " pelo cliente" : ""}</span>`
-        : `<a class="iconbtn" href="https://wa.me/${zapNum(p.telefone)}" target="_blank" rel="noopener" aria-label="WhatsApp de ${esc(p.nome)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"></path></svg></a>
-           <button class="iconbtn" data-act="cancelar" data-salao="${esc(salaoId)}" data-id="${esc(p.id)}" data-rotulo="${esc(p.nome)} às ${esc(p.horario)}" aria-label="Cancelar agendamento de ${esc(p.nome)}" style="color:var(--bad)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>`}
-  </div>`;
+    ${lado}
+  </div>${concluir}</div>`;
 }
 function desenharAgendaDono() {
   const ativos = agendaDono.filter(p => !cancelado(p)), canc = agendaDono.filter(cancelado);
   const lista = verCanc ? agendaDono : ativos;
-  $("#bLista").innerHTML = lista.length ? lista.map(p => cardAg(p, meuSalao.id)).join("") : `<p class="pad muted" style="text-align:center">Nenhum agendamento neste dia.</p>`;
+  $("#bLista").innerHTML = lista.length ? lista.map(p => cardAg(p, espacoId, true)).join("") : `<p class="pad muted" style="text-align:center">Nenhum agendamento neste dia.</p>`;
   $("#bQtd").textContent = ativos.length;
-  const agora = hh(new Date().getHours() * 60 + new Date().getMinutes());
-  const prox = $("#bData").value === hojeISO() ? ativos.find(p => p.horario >= agora) : ativos[0];
+  const agora = agoraHH();
+  const pend = ativos.filter(p => p.status !== "Concluído");
+  const prox = $("#bData").value === hojeISO() ? pend.find(p => p.horario >= agora) : pend[0];
   $("#bProx").textContent = prox ? prox.horario : "—";
   $("#btnVerCanc").textContent = canc.length ? (verCanc ? "Esconder cancelados" : `Ver cancelados (${canc.length})`) : "";
 }
-function navegar(alvo, rot) {
-  ["bAgenda", "bCompartilhar", "bBreve"].forEach(x => $("#" + x).classList.toggle("hidden", x !== alvo));
-  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.nav === alvo && (alvo !== "bBreve" || b.dataset.breve === rot)));
-  if (rot) $("#breveTit").textContent = rot;
+function navegar(alvo) {
+  TELAS.forEach(x => $("#" + x).classList.toggle("hidden", x !== alvo));
+  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.nav === alvo));
+  if (alvo === "bEquipe") desenharEquipe(true);
   window.scrollTo({ top: 0 });
 }
 function msgCliente(s) { return `Agora você marca seu horário comigo direto pelo celular, sem esperar resposta:\n${linkCliente(s.id)}\n${s.nome}`; }
@@ -499,6 +624,304 @@ function desenharCompartilhar() {
   $("#cLink").textContent = linkCliente(meuSalao.id);
   $("#cMsg").textContent = msgCliente(meuSalao);
   $("#cZap").href = "https://wa.me/?text=" + encodeURIComponent(msgCliente(meuSalao));
+}
+
+/* ================= v2.4.1: FINANCEIRO (caixa, equipe, meus números) ================= */
+function abrirFolha(ctx) { folhaCtx = ctx; desenharFolha(); $("#folha").classList.remove("hidden"); }
+function fecharFolha() { $("#folha").classList.add("hidden"); $("#folha .in").innerHTML = ""; folhaCtx = null; }
+const chips = (lista, sel, attr) => lista.map(([v, t]) => `<button type="button" class="chip ${v === sel ? "on" : ""}" data-${attr}="${esc(v)}">${esc(t)}</button>`).join("");
+const botoesFolha = (act, txt, cor = "") => `<div class="grid2"><button type="button" class="btn2" data-act="fecharFolha">Voltar</button><button type="button" class="btn ${cor}" data-act="${act}">${txt}</button></div>`;
+/* guarda o que já foi digitado antes de redesenhar a folha */
+function lerFolha() {
+  if (!folhaCtx) return;
+  document.querySelectorAll("#folha [data-campo]").forEach(el => { folhaCtx[el.dataset.campo] = el.value; });
+}
+function desenharFolha() {
+  const c = folhaCtx; if (!c) return;
+  const h = c.tipo === "atend" ? folhaAtend(c) : c.tipo === "mov" ? folhaMov(c) : c.tipo === "fechar" ? folhaFechar(c) : c.tipo === "acesso" ? folhaAcesso(c) : c.tipo === "feito" ? c.html : "";
+  $("#folha .in").innerHTML = h;
+}
+function pctComissao(profId) {
+  if (config.donoProfId && config.donoProfId === profId) return 0;
+  const v = Number((config.comissoes || {})[profId]);
+  return isFinite(v) && v > 0 ? Math.min(v, 100) : 0;
+}
+const profsDaCasa = () => papel === "barbeiro" ? [eu.nome] : (meuSalao?.profissionais || []);
+
+/* ----- concluir atendimento (da agenda) e atendimento sem hora marcada ----- */
+function abrirConcluir(agId) {
+  const ag = agendaDono.find(p => p.id === agId); if (!ag || !meuSalao) return;
+  const profs = profsDaCasa();
+  const prof = papel === "barbeiro" ? eu.nome : profs.includes(ag.profissional) ? ag.profissional : profs.length === 1 ? profs[0] : null;
+  abrirFolha({ tipo: "atend", ag, prof, forma: null, valor: centParaTxt(Math.round(Number(ag.preco || 0) * 100)) });
+}
+function abrirAvulso() {
+  if (!meuSalao) return;
+  const profs = profsDaCasa();
+  abrirFolha({ tipo: "atend", ag: null, serv: null, prof: profs.length === 1 ? profs[0] : null, forma: null, valor: "" });
+}
+function folhaAtend(c) {
+  const servs = meuSalao.servicos || [], profs = profsDaCasa();
+  let n = 1;
+  return `<p class="tt" style="font-size:19px;font-weight:800">${c.ag ? "Concluir atendimento" : "Atendimento agora"}</p>
+    ${c.ag ? `<p class="sm muted">${esc(c.ag.horario)} · ${esc(c.ag.nome)} · ${esc(c.ag.servico)}</p>` : ""}
+    ${c.ag ? "" : `<div class="stack" style="gap:8px"><p class="lbl">${n++}. Serviço</p><div class="row" style="flex-wrap:wrap;gap:8px">${servs.map((x, i) => `<button type="button" class="chip ${c.serv === i ? "on" : ""}" data-fserv="${i}">${esc(x.nome)} · ${brl(x.preco)}</button>`).join("")}</div></div>`}
+    ${profs.length > 1 ? `<div class="stack" style="gap:8px"><p class="lbl">${n++}. Quem atendeu</p><div class="row" style="flex-wrap:wrap;gap:8px">${chips(profs.map(p => [p, p]), c.prof, "fprof")}</div></div>` : ""}
+    <div class="stack" style="gap:8px"><p class="lbl">${n++}. Forma de pagamento</p><div class="grid3">${chips(FORMAS, c.forma, "fforma")}</div></div>
+    <div><label class="lbl" for="fValor">Valor cobrado (R$)</label><input id="fValor" data-campo="valor" class="field" inputmode="decimal" placeholder="ex.: 45 ou 45,50" value="${esc(c.valor)}"></div>
+    ${c.ag ? "" : `<details ${c.cliNome || c.cliFone ? "open" : ""}><summary class="sm" style="cursor:pointer;font-weight:600;color:#4338CA;padding:8px 0">Nome e WhatsApp do cliente (opcional, para o comprovante)</summary>
+      <div class="stack" style="gap:8px;margin-top:6px"><input class="field" data-campo="cliNome" placeholder="Nome" value="${esc(c.cliNome || "")}"><input class="field" data-campo="cliFone" inputmode="tel" placeholder="WhatsApp com DDD" value="${esc(c.cliFone || "")}"></div></details>`}
+    ${botoesFolha("salvarAtend", "Confirmar", "ok")}`;
+}
+async function salvarAtend(btn) {
+  const c = folhaCtx; lerFolha();
+  const s = meuSalao;
+  let servico;
+  if (c.ag) {
+    if (c.ag.data > hojeISO()) return aviso("Só dá para concluir atendimentos de hoje ou de dias anteriores.");
+    servico = c.ag.servico;
+  } else {
+    if (c.serv == null) return aviso("Escolha o serviço.");
+    servico = s.servicos[c.serv].nome;
+  }
+  if (!c.prof) return aviso("Escolha quem atendeu.");
+  if (!c.forma) return aviso("Escolha a forma de pagamento.");
+  const valorCent = txtParaCent(c.valor);
+  if (valorCent == null) return aviso("Confira o valor cobrado (ex.: 45 ou 45,50).");
+  const profId = papel === "barbeiro" ? eu.profId : slug(c.prof), pct = pctComissao(profId);
+  const data = c.ag ? c.ag.data : hojeISO();
+  const at = { data, mes: data.slice(0, 7), hora: c.ag ? c.ag.horario : agoraHH(), profId, profNome: c.prof, servico, valorCent, forma: c.forma,
+    origem: c.ag ? "agenda" : "balcao", comissaoPct: pct, repasseCent: Math.round(valorCent * pct / 100),
+    clienteNome: c.ag ? c.ag.nome : (c.cliNome || "").trim(), clienteTelefone: c.ag ? c.ag.telefone : (c.cliFone || "").trim(),
+    criadoPor: emailUser(), criadoEm: F.serverTimestamp(), estornado: false };
+  if (c.ag) at.agendamentoId = c.ag.id;
+  btn.disabled = true;
+  try {
+    const ref = F.doc(cAt(s.id)), b = F.writeBatch(fire);
+    b.set(ref, at);
+    if (c.ag) b.update(F.doc(fire, "saloes", s.id, "agendamentos", c.ag.id), { status: "Concluído", atendimentoId: ref.id, concluidoEm: F.serverTimestamp() });
+    await b.commit();
+  } catch (err) { console.error(err); btn.disabled = false; return aviso("Não foi possível registrar. Verifique a internet e tente novamente."); }
+  const tel = zapNum(at.clienteTelefone);
+  abrirFolha({ tipo: "feito", html: `<div class="stack" style="align-items:center;text-align:center;gap:6px"><p class="tt" style="font-size:20px;font-weight:800;color:var(--ok)">Atendimento registrado</p>
+      <p style="font-size:16px">${esc(servico)} · <b>${brlC(valorCent)}</b> em ${esc(nomeForma(at.forma))}</p>
+      <p class="sm muted">${esc(at.profNome)}${pct ? ` · comissão de ${String(pct).replace(".", ",")}%: ${brlC(at.repasseCent)}` : ""}</p></div>
+    ${tel.length >= 12 ? `<a class="btn ok" href="https://wa.me/${tel}?text=${encodeURIComponent(msgComprovante(at))}" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>` : ""}
+    <button type="button" class="btn2" data-act="fecharFolha">Fechar</button>` });
+}
+function msgComprovante(at) {
+  return [`Comprovante · ${meuSalao.nome}`, `${dBR(at.data)} às ${at.hora}`, at.clienteNome ? `Cliente: ${at.clienteNome}` : null, `Serviço: ${at.servico}`,
+    `Profissional: ${at.profNome}`, `Valor: ${brlC(at.valorCent)} (${nomeForma(at.forma)})`, "", "Obrigado pela preferência!"].filter(x => x !== null).join("\n");
+}
+
+/* ----- caixa do dia (só o dono) ----- */
+function ouvirCaixa() {
+  if (papel !== "dono" || !espacoId) return;
+  const id = espacoId, dia = $("#cxData").value || hojeISO();
+  off("cxA"); off("cxM"); off("cxF");
+  cxAt = []; cxMov = []; cxFech = null; desenharCaixa();
+  const erro = err => { console.error(err); $("#cxLista").innerHTML = `<p class="pad muted">Sem permissão para ver o caixa. Confira as regras do Firestore.</p>`; };
+  unsubs.cxA = F.onSnapshot(F.query(cAt(id), F.where("data", "==", dia)), s => { cxAt = s.docs.map(d => ({ id: d.id, col: "atendimentos", ...d.data() })); desenharCaixa(); }, erro);
+  unsubs.cxM = F.onSnapshot(F.query(cMov(id), F.where("data", "==", dia)), s => { cxMov = s.docs.map(d => ({ id: d.id, col: "movimentos", ...d.data() })); desenharCaixa(); }, erro);
+  unsubs.cxF = F.onSnapshot(dCaixa(id, dia), s => { cxFech = s.exists() ? s.data() : null; desenharCaixa(); }, erro);
+}
+function contasCaixa() {
+  const at = cxAt.filter(x => !x.estornado), mv = cxMov.filter(x => !x.estornado);
+  const soma = l => l.reduce((t, x) => t + (Number(x.valorCent) || 0), 0);
+  const ent = [...at, ...mv.filter(x => x.tipo === "entrada")], sai = mv.filter(x => x.tipo === "saida");
+  const porForma = {};
+  FORMAS.forEach(([f]) => { porForma[f] = soma(ent.filter(x => x.forma === f)) - soma(sai.filter(x => x.forma === f)); });
+  return { at, entrou: soma(ent), saiu: soma(sai), porForma };
+}
+function desenharCaixa() {
+  if (papel !== "dono") return;
+  const k = contasCaixa(), dia = $("#cxData").value || hojeISO();
+  $("#cxEntrou").textContent = brlC(k.entrou); $("#cxSaiu").textContent = brlC(k.saiu); $("#cxSaldo").textContent = brlC(k.entrou - k.saiu);
+  $("#cxFormas").innerHTML = FORMAS.map(([f, t]) => `<div class="listrow"><span>${t}</span><b>${brlC(k.porForma[f])}</b></div>`).join("");
+  const grupos = {};
+  k.at.forEach(x => { const g = grupos[x.profNome] ||= { qtd: 0, total: 0, com: 0 }; g.qtd++; g.total += x.valorCent || 0; g.com += x.repasseCent || 0; });
+  const nomes = Object.keys(grupos).sort();
+  $("#cxProfs").innerHTML = nomes.length ? nomes.map(n => `<div class="listrow"><div><p style="font-weight:600">${esc(n)}</p><p class="xs muted">${grupos[n].qtd} atendimento${grupos[n].qtd > 1 ? "s" : ""} · ${brlC(grupos[n].total)}</p></div><div style="text-align:right"><p class="xs muted">Comissão</p><b>${brlC(grupos[n].com)}</b></div></div>`).join("")
+    : `<p class="sm muted" style="padding:12px 0">Nenhum atendimento neste dia.</p>`;
+  const itens = [...cxAt, ...cxMov].sort((a, b) => String(a.hora).localeCompare(String(b.hora)));
+  $("#cxLista").innerHTML = itens.length ? itens.map(x => {
+    const ehAt = x.col === "atendimentos", saida = !ehAt && x.tipo === "saida";
+    const tit = ehAt ? `${x.servico} · ${x.profNome}` : `${nomeCategoria(x.categoria)}${x.profNome ? " · " + x.profNome : ""}`;
+    const sub = [x.hora, nomeForma(x.forma), ehAt ? x.clienteNome : x.descricao, x.estornado ? "ESTORNADO" : ""].filter(Boolean).join(" · ");
+    return `<div class="mov ${x.estornado ? "est" : ""}"><div class="grow"><p style="font-weight:600;font-size:15px">${esc(tit)}</p><p class="xs muted">${esc(sub)}</p></div>
+      <span class="v ${saida ? "sai" : "ent"}">${saida ? "− " : ""}${brlC(x.valorCent)}</span>
+      ${x.estornado ? "" : `<button class="iconbtn" data-act="estornar" data-col="${x.col}" data-id="${esc(x.id)}" aria-label="Estornar lançamento" style="color:var(--bad);width:38px;height:38px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>`}</div>`;
+  }).join("") : `<p class="pad muted" style="text-align:center">Nenhum lançamento neste dia.</p>`;
+  const f = cxFech;
+  $("#cxFech").innerHTML = f
+    ? `<p style="font-weight:700">Caixa fechado${f.fechadoHora ? " às " + esc(f.fechadoHora) : ""}</p>
+       <p class="sm muted">Dinheiro esperado ${brlC(f.esperadoDinheiroCent)} · contado ${brlC(f.contadoDinheiroCent)}</p>
+       <p style="font-weight:700;color:${f.diferencaCent === 0 ? "var(--ok)" : "var(--bad)"}">${f.diferencaCent === 0 ? "Bateu certinho" : (f.diferencaCent > 0 ? "Sobrou " : "Faltou ") + brlC(Math.abs(f.diferencaCent))}</p>
+       <button class="btn3" data-act="fecharCaixa">Refazer o fechamento</button>`
+    : `<p style="font-weight:700">Fechamento do dia</p><p class="sm muted">No fim do dia, conte o dinheiro da gaveta e confira se bate com o sistema.</p><button class="btn" data-act="fecharCaixa">Fechar o caixa de ${dia === hojeISO() ? "hoje" : dBR(dia).slice(0, 5)}</button>`;
+}
+const CAT_ENTRADA = [["produto", "Venda de produto"], ["outro_ent", "Outra entrada"]];
+const CAT_SAIDA = [["despesa", "Despesa"], ["vale", "Vale de barbeiro"], ["retirada", "Retirada do dono"], ["outro_sai", "Outra saída"]];
+const nomeCategoria = c => ([...CAT_ENTRADA, ...CAT_SAIDA].find(x => x[0] === c) || [c, "Lançamento"])[1];
+function folhaMov(c) {
+  const cats = c.mov === "entrada" ? CAT_ENTRADA : CAT_SAIDA, profs = meuSalao.profissionais || [];
+  return `<p class="tt" style="font-size:19px;font-weight:800">${c.mov === "entrada" ? "Nova entrada" : "Nova saída"}</p>
+    <p class="sm muted">Caixa de ${esc(dBR(c.dia))}</p>
+    <div class="stack" style="gap:8px"><p class="lbl">O que é</p><div class="row" style="flex-wrap:wrap;gap:8px">${chips(cats, c.cat, "fcat")}</div></div>
+    ${c.cat === "vale" ? `<div class="stack" style="gap:8px"><p class="lbl">Para quem</p><div class="row" style="flex-wrap:wrap;gap:8px">${chips(profs.map(p => [p, p]), c.prof, "fprof")}</div></div>` : ""}
+    <div class="stack" style="gap:8px"><p class="lbl">Forma</p><div class="grid3">${chips(FORMAS, c.forma, "fforma")}</div></div>
+    <div><label class="lbl" for="fValorMov">Valor (R$)</label><input id="fValorMov" data-campo="valor" class="field" inputmode="decimal" placeholder="ex.: 30 ou 30,50" value="${esc(c.valor || "")}"></div>
+    <div><label class="lbl" for="fDesc">Descrição (opcional)</label><input id="fDesc" data-campo="desc" class="field" placeholder="${c.mov === "entrada" ? "ex.: pomada" : "ex.: conta de luz"}" value="${esc(c.desc || "")}"></div>
+    ${botoesFolha("salvarMov", "Salvar", c.mov === "entrada" ? "ok" : "")}`;
+}
+async function salvarMov(btn) {
+  const c = folhaCtx; lerFolha();
+  if (!c.cat) return aviso("Escolha o que é este lançamento.");
+  if (c.cat === "vale" && !c.prof) return aviso("Escolha para quem foi o vale.");
+  if (!c.forma) return aviso("Escolha a forma.");
+  const valorCent = txtParaCent(c.valor);
+  if (!valorCent) return aviso("Confira o valor (ex.: 30 ou 30,50).");
+  const m = { data: c.dia, mes: c.dia.slice(0, 7), hora: agoraHH(), tipo: c.mov, categoria: c.cat, valorCent, forma: c.forma, descricao: (c.desc || "").trim(),
+    criadoPor: emailUser(), criadoEm: F.serverTimestamp(), estornado: false };
+  if (c.cat === "vale") { m.profId = slug(c.prof); m.profNome = c.prof; }
+  btn.disabled = true;
+  try { await F.addDoc(cMov(espacoId), m); fecharFolha(); }
+  catch (err) { console.error(err); btn.disabled = false; aviso("Não foi possível salvar. Verifique a internet e tente novamente."); }
+}
+async function estornar(col, id) {
+  const l = col === "atendimentos" ? cxAt : cxMov, x = l.find(i => i.id === id); if (!x) return;
+  const nome = col === "atendimentos" ? `${x.servico} de ${x.profNome}` : nomeCategoria(x.categoria);
+  if (!(await confirmar(`Estornar ${nome} (${brlC(x.valorCent)})?\n\nO lançamento fica riscado e deixa de contar no caixa e na comissão.`, "Estornar"))) return;
+  try { await F.updateDoc(F.doc(fire, "saloes", espacoId, col, id), { estornado: true, estornadoPor: emailUser(), estornadoEm: F.serverTimestamp(), motivoEstorno: "" }); }
+  catch (err) { console.error(err); aviso("Não foi possível estornar. Verifique a internet."); }
+}
+function folhaFechar(c) {
+  return `<p class="tt" style="font-size:19px;font-weight:800">Fechar o caixa</p>
+    <p class="sm muted">${esc(cap1(dataLonga(c.dia)))}</p>
+    <div class="card cardp" style="background:var(--bg);border:none"><div class="listrow"><span>Dinheiro que entrou menos o que saiu</span><b>${brlC(c.liqDinheiro)}</b></div></div>
+    <div><label class="lbl" for="fTroco">Troco que havia na gaveta no começo do dia (R$)</label><input id="fTroco" data-campo="troco" class="field" inputmode="decimal" placeholder="0" value="${esc(c.troco ?? "")}"></div>
+    <div><label class="lbl" for="fContado">Dinheiro contado agora na gaveta (R$)</label><input id="fContado" data-campo="contado" class="field" inputmode="decimal" placeholder="ex.: 350" value="${esc(c.contado ?? "")}"></div>
+    <p class="xs muted">Pix e cartão não entram na contagem da gaveta.</p>
+    ${botoesFolha("salvarFechamento", "Fechar caixa")}`;
+}
+function abrirFechar() {
+  const k = contasCaixa(), dia = $("#cxData").value || hojeISO();
+  abrirFolha({ tipo: "fechar", dia, liqDinheiro: k.porForma.dinheiro, troco: cxFech ? centParaTxt(cxFech.trocoInicialCent) : "", contado: cxFech ? centParaTxt(cxFech.contadoDinheiroCent) : "" });
+}
+async function salvarFechamento(btn) {
+  const c = folhaCtx; lerFolha();
+  const troco = c.troco === "" || c.troco == null ? 0 : txtParaCent(c.troco), contado = txtParaCent(c.contado);
+  if (troco == null) return aviso("Confira o valor do troco.");
+  if (contado == null) return aviso("Digite quanto dinheiro tem na gaveta agora.");
+  const k = contasCaixa(), esperado = troco + k.porForma.dinheiro;
+  btn.disabled = true;
+  try {
+    await F.setDoc(dCaixa(espacoId, c.dia), { trocoInicialCent: troco, contadoDinheiroCent: contado, esperadoDinheiroCent: esperado, diferencaCent: contado - esperado,
+      totaisPorFormaCent: k.porForma, entradasCent: k.entrou, saidasCent: k.saiu, fechadoPor: emailUser(), fechadoHora: agoraHH(), fechadoEm: F.serverTimestamp() });
+    fecharFolha();
+  } catch (err) { console.error(err); btn.disabled = false; aviso("Não foi possível fechar o caixa. Verifique a internet."); }
+}
+
+/* ----- equipe: comissão de avulso e acesso de cada barbeiro (só o dono) ----- */
+function desenharEquipe(forcar, manter) {
+  if (papel !== "dono" || !meuSalao) return;
+  /* não apaga o que o dono está digitando */
+  if (!forcar && document.activeElement && document.activeElement.closest("#bEquipe")) return;
+  const profs = meuSalao.profissionais || [], com = { ...(config.comissoes || {}) };
+  let donoId = config.donoProfId || "";
+  if (manter) { donoId = $("#eDono").value; document.querySelectorAll("#eLista .eCom").forEach(el => { if (!el.disabled) com[el.dataset.pid] = el.value; }); }
+  $("#eDono").innerHTML = `<option value="">Nenhum (o dono não atende)</option>` + profs.map(p => `<option value="${esc(slug(p))}" ${donoId === slug(p) ? "selected" : ""}>${esc(p)}</option>`).join("");
+  $("#eLista").innerHTML = profs.map(p => {
+    const id = slug(p), eq = equipeDocs.find(x => x.profId === id), dono = donoId === id;
+    const acesso = eq
+      ? `<p class="sm">Acesso: <b style="word-break:break-all">${esc(eq.email)}</b> · ${eq.ativo ? `<span style="color:var(--ok);font-weight:700">ativo</span>` : `<span style="color:var(--bad);font-weight:700">pausado</span>`}</p>
+         <div class="grid2"><button class="btn3" data-act="pausarAcesso" data-email="${esc(eq.email)}">${eq.ativo ? "Pausar acesso" : "Reativar acesso"}</button><button class="btn3" data-act="senhaBarbeiro" data-email="${esc(eq.email)}">Nova senha</button></div>`
+      : dono ? `<p class="sm muted">Você entra com o seu próprio e-mail de dono.</p>`
+      : `<p class="sm muted">Sem acesso: aparece só como nome.</p><button class="btn3" data-act="darAcesso" data-pnome="${esc(p)}">Dar acesso a ${esc(p)}</button>`;
+    return `<div class="card cardp stack" style="gap:10px">
+      <div class="row"><p class="grow" style="font-weight:700;font-size:16px">${esc(p)}</p>${dono ? `<span class="pill" style="background:var(--pri-l);color:var(--pri-d)">Dono</span>` : ""}</div>
+      <div class="row"><label class="grow sm" for="com_${id}" style="font-weight:600">Comissão no avulso</label><input id="com_${id}" class="field eCom" data-pid="${id}" inputmode="decimal" style="width:90px;text-align:right" value="${dono ? 0 : esc(com[id] ?? "")}" placeholder="0" ${dono ? "disabled" : ""}><span style="font-weight:700">%</span></div>
+      ${acesso}</div>`;
+  }).join("") || `<p class="muted">Nenhum profissional cadastrado.</p>`;
+}
+async function salvarEquipe(btn) {
+  const comissoes = {};
+  for (const el of document.querySelectorAll("#eLista .eCom")) {
+    if (el.disabled) continue;
+    const t = el.value.trim().replace(",", "."), v = t === "" ? 0 : Number(t);
+    if (!isFinite(v) || v < 0 || v > 100) return aviso("A comissão precisa ser um número de 0 a 100.");
+    comissoes[el.dataset.pid] = v;
+  }
+  btn.disabled = true;
+  try {
+    await F.setDoc(dConfig(espacoId), { comissoes, donoProfId: $("#eDono").value || null, atualizadoEm: F.serverTimestamp() }, { merge: true });
+    document.activeElement?.blur(); desenharEquipe(true); aviso("Comissões salvas. Valem para os próximos atendimentos.");
+  } catch (err) { console.error(err); aviso("Não foi possível salvar. Verifique a internet e as regras do Firestore."); }
+  btn.disabled = false;
+}
+function folhaAcesso(c) {
+  return `<p class="tt" style="font-size:19px;font-weight:800">Acesso de ${esc(c.prof)}</p>
+    <div><label class="lbl" for="fAcEmail">E-mail do barbeiro</label><input id="fAcEmail" data-campo="email" type="email" class="field" placeholder="barbeiro@gmail.com" value="${esc(c.email || "")}"></div>
+    <p class="sm muted">Ele vai receber dois e-mails: um para confirmar o endereço e outro para criar a senha. Depois é só entrar pela mesma página que você usa.</p>
+    <p class="sm muted">Não tem e-mail? Use o seu com +nome. Exemplo: se o seu é dono@gmail.com, use dono+${esc(slug(c.prof) || "joao")}@gmail.com. Os dois e-mails chegam para você.</p>
+    ${botoesFolha("salvarAcesso", "Dar acesso")}`;
+}
+async function salvarAcesso(btn) {
+  const c = folhaCtx; lerFolha();
+  const email = String(c.email || "").trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return aviso("Confira o e-mail.");
+  if (email === emailUser() || email === MASTER_EMAIL) return aviso("Use um e-mail diferente do seu.");
+  if (equipeDocs.some(x => x.email === email)) return aviso("Esse e-mail já é usado por alguém da equipe.");
+  btn.disabled = true;
+  let msg;
+  try { msg = await criarAcessoBarbeiro(email); }
+  catch (err) { console.error(err); btn.disabled = false; return aviso(err.code === "auth/invalid-email" ? "E-mail inválido." : "Não foi possível criar o acesso (" + (err.code || "erro") + ")."); }
+  try {
+    const b = F.writeBatch(fire);
+    b.set(F.doc(fire, "saloes", espacoId, "equipe", email), { nome: c.prof, profId: slug(c.prof), papel: "barbeiro", ativo: true, criadoPor: emailUser(), criadoEm: F.serverTimestamp() });
+    b.set(dAcesso(email), { salaoId: espacoId, papel: "barbeiro" });
+    await b.commit();
+  } catch (err) { console.error(err); btn.disabled = false; return aviso("A conta foi criada, mas não consegui ligar à barbearia. Toque em Dar acesso de novo com o mesmo e-mail."); }
+  fecharFolha(); aviso(msg);
+}
+async function criarAcessoBarbeiro(email) {
+  const app2 = AppMod.getApps().find(a => a.name === "cadastro") || AppMod.initializeApp(firebaseConfig, "cadastro");
+  const au2 = A.getAuth(app2);
+  try {
+    const cred = await A.createUserWithEmailAndPassword(au2, email, token());   // senha aleatória: o barbeiro cria a dele pelo e-mail
+    try { await A.sendEmailVerification(cred.user); } catch (err) { console.error(err); }
+    await A.signOut(au2);
+  } catch (err) {
+    if (err.code !== "auth/email-already-in-use") throw err;
+  }
+  try { await A.sendPasswordResetEmail(AU, email); } catch (err) { console.error(err); }
+  return `Acesso liberado para ${email}.\n\nEle vai receber um e-mail para criar a senha (e, se for conta nova, outro para confirmar o endereço). Veja também o spam.\n\nPara entrar: ${linkInicio()}`;
+}
+async function pausarAcesso(email) {
+  const eq = equipeDocs.find(x => x.email === email); if (!eq) return;
+  if (eq.ativo && !(await confirmar(`Pausar o acesso de ${eq.nome}? Ele deixa de entrar no sistema até você reativar.`, "Pausar"))) return;
+  try { await F.updateDoc(F.doc(fire, "saloes", espacoId, "equipe", email), { ativo: !eq.ativo }); }
+  catch (err) { console.error(err); aviso("Não foi possível alterar o acesso."); }
+}
+
+/* ----- meus números (barbeiro da equipe) ----- */
+function ouvirNumeros() {
+  if (papel !== "barbeiro" || !espacoId) return;
+  off("nM");
+  const mes = hojeISO().slice(0, 7);
+  $("#nMesTit").textContent = "Este mês · " + new Date(hojeISO() + "T12:00:00").toLocaleDateString("pt-BR", { month: "long" });
+  unsubs.nM = F.onSnapshot(F.query(cAt(espacoId), F.where("profId", "==", eu.profId), F.where("mes", "==", mes)), s => {
+    numAt = s.docs.map(d => ({ id: d.id, ...d.data() })); desenharNumeros();
+  }, err => { console.error(err); $("#nLista").innerHTML = `<p class="pad muted">Sem permissão para ver seus números.</p>`; });
+}
+function desenharNumeros() {
+  const ok = numAt.filter(x => !x.estornado), hoje = ok.filter(x => x.data === hojeISO());
+  const tot = l => l.reduce((t, x) => t + (x.valorCent || 0), 0), com = l => l.reduce((t, x) => t + (x.repasseCent || 0), 0);
+  $("#nHojeQtd").textContent = hoje.length; $("#nHojeTot").textContent = brlC(tot(hoje)); $("#nHojeCom").textContent = brlC(com(hoje));
+  $("#nMesQtd").textContent = ok.length; $("#nMesTot").textContent = brlC(tot(ok)); $("#nMesCom").textContent = brlC(com(ok));
+  const l = numAt.filter(x => x.data === hojeISO()).sort((a, b) => String(a.hora).localeCompare(String(b.hora)));
+  $("#nLista").innerHTML = l.length ? l.map(x => `<div class="mov ${x.estornado ? "est" : ""}"><div class="grow"><p style="font-weight:600;font-size:15px">${esc(x.hora)} · ${esc(x.servico)}</p><p class="xs muted">${esc([nomeForma(x.forma), x.clienteNome, x.estornado ? "ESTORNADO" : ""].filter(Boolean).join(" · "))}</p></div><div style="text-align:right"><p class="v">${brlC(x.valorCent)}</p><p class="xs ent" style="font-weight:700">${brlC(x.repasseCent)}</p></div></div>`).join("")
+    : `<p class="pad muted" style="text-align:center">Nenhum atendimento hoje ainda.</p>`;
 }
 
 /* ================= MASTER ================= */
@@ -764,7 +1187,7 @@ function mostrarComprovante(c, estado) {
   const box = $("#comprovante"), canc = estado !== "ativo";
   const txtCanc = estado === "cliente" ? "Você cancelou este horário." : "Este horário foi cancelado pela barbearia.";
   box.innerHTML = `<div class="row" style="justify-content:space-between"><span class="xs" style="font-weight:800;color:${canc ? "var(--bad)" : "var(--ok)"}">${canc ? "Agendamento cancelado" : "Seu próximo horário"}</span><span class="xs muted" style="font-family:ui-monospace,monospace">${esc(c.protocolo)}</span></div>
-    <p style="font-size:16px;font-weight:700;text-transform:capitalize">${esc(dataLonga(c.data))} às ${esc(c.horario)}</p>
+    <p style="font-size:16px;font-weight:700">${esc(cap1(dataLonga(c.data)))} às ${esc(c.horario)}</p>
     <p class="sm muted">${esc(c.servico)}${c.profissional ? " com " + esc(c.profissional) : ""}${canc ? " · " + txtCanc : ""}</p>
     ${canc ? `<button class="btn2" data-act="novo">Fazer novo agendamento</button>`
            : `<div class="grid2"><button class="btn3" data-act="remarcar">Remarcar</button><button class="btn3" data-act="cancelarMeu" style="color:var(--bad);border-color:#FECACA">Cancelar</button></div>`}`;
@@ -784,7 +1207,7 @@ function acompanharMeu(c) {
 }
 function mostrarSucesso(c, remarcado) {
   $("#sucTit").textContent = remarcado ? "Horário remarcado!" : "Horário reservado!";
-  $("#sucQuando").textContent = `${dataLonga(c.data)} às ${c.horario}`;
+  $("#sucQuando").textContent = `${cap1(dataLonga(c.data))} às ${c.horario}`;
   $("#sucServico").textContent = `${c.servico} · ${brl(c.preco)}`; $("#sucProf").textContent = c.profissional || "—"; $("#sucProto").textContent = c.protocolo;
   $("#sucZap").classList.toggle("hidden", !salao?.whatsapp);
   if (salao?.whatsapp) $("#sucBtnZap").href = linkZap(c, remarcado);
@@ -819,9 +1242,19 @@ async function confirmarAgendamento() {
 document.addEventListener("click", async e => {
   const cf = e.target.closest("[data-conf]");
   if (cf) { $("#confirmBox").classList.add("hidden"); if (resolverConf) resolverConf(cf.dataset.conf === "1"); resolverConf = null; return; }
+  if (e.target.id === "folha") return fecharFolha();
+  const fs = e.target.closest("[data-fserv],[data-fprof],[data-fforma],[data-fcat]");
+  if (fs && folhaCtx) {
+    const f = fs.dataset; lerFolha();
+    if (f.fserv != null) { folhaCtx.serv = +f.fserv; const sv = (meuSalao.servicos || [])[+f.fserv]; if (sv) folhaCtx.valor = centParaTxt(Math.round(Number(sv.preco) * 100)); }
+    if (f.fprof != null) folhaCtx.prof = f.fprof;
+    if (f.fforma != null) folhaCtx.forma = f.fforma;
+    if (f.fcat != null) folhaCtx.cat = f.fcat;
+    return desenharFolha();
+  }
   const t = e.target.closest("[data-nav],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
   const d = t.dataset;
-  if (d.nav) return navegar(d.nav, d.breve);
+  if (d.nav) return navegar(d.nav);
   if (d.dia) { diaSel = d.dia; horaSel = null; desenharDias(); ouvirDia(); desenharHoras(); return; }
   if (d.hora) { horaSel = d.hora; desenharHoras(); return; }
   if (d.serv) { servSel = +d.serv; desenharServicos(); return; }
@@ -856,6 +1289,23 @@ document.addEventListener("click", async e => {
       try { await cancelarPeloDono(d.salao, d.id); } catch (err) { console.error(err); aviso("Não foi possível cancelar. Verifique a conexão."); }
       break;
     case "verCanc": verCanc = !verCanc; desenharAgendaDono(); break;
+    /* v2.4.1 */
+    case "fecharFolha": fecharFolha(); break;
+    case "concluir": abrirConcluir(d.id); break;
+    case "avulso": abrirAvulso(); break;
+    case "salvarAtend": salvarAtend(t); break;
+    case "novaEntrada": case "novaSaida": abrirFolha({ tipo: "mov", mov: d.act === "novaEntrada" ? "entrada" : "saida", dia: $("#cxData").value || hojeISO(), cat: null, prof: null, forma: null }); break;
+    case "salvarMov": salvarMov(t); break;
+    case "estornar": estornar(d.col, d.id); break;
+    case "fecharCaixa": abrirFechar(); break;
+    case "salvarFechamento": salvarFechamento(t); break;
+    case "cxAnt": $("#cxData").value = somaDias($("#cxData").value || hojeISO(), -1); ouvirCaixa(); break;
+    case "cxProx": $("#cxData").value = somaDias($("#cxData").value || hojeISO(), 1); ouvirCaixa(); break;
+    case "salvarEquipe": salvarEquipe(t); break;
+    case "darAcesso": abrirFolha({ tipo: "acesso", prof: d.pnome, email: "" }); break;
+    case "salvarAcesso": salvarAcesso(t); break;
+    case "pausarAcesso": pausarAcesso(d.email); break;
+    case "senhaBarbeiro": if (await confirmar(`Enviar um link de nova senha para ${d.email}?`, "Enviar")) esqueci(d.email); break;
     case "diaAnt": $("#bData").value = somaDias($("#bData").value || hojeISO(), -1); ouvirAgendaDono(); break;
     case "diaProx": $("#bData").value = somaDias($("#bData").value || hojeISO(), 1); ouvirAgendaDono(); break;
     case "copiarMeu": if (meuSalao) copiar(linkCliente(meuSalao.id)); break;
@@ -892,6 +1342,8 @@ document.addEventListener("click", async e => {
 $("#formSalao").addEventListener("submit", salvarForm);
 $("#lSenha").addEventListener("keydown", e => { if (e.key === "Enter") entrar(); });
 $("#bData").addEventListener("change", ouvirAgendaDono);
+$("#cxData").addEventListener("change", ouvirCaixa);
+$("#eDono").addEventListener("change", () => desenharEquipe(true, true));
 $("#mAgData").addEventListener("change", ouvirAgendaMaster);
 $("#mAgSalao").addEventListener("change", ouvirAgendaMaster);
 
