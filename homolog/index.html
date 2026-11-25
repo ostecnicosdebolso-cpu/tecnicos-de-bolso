@@ -97,6 +97,17 @@
   .area.cli2{background:var(--pri-l);color:var(--pri-d)}
   .area.emp{background:#DCFCE7;color:#166534}
   .area.adm{background:#1A1A2E;color:#fff}
+  .resumo{background:linear-gradient(160deg,#5B3DF5 0%,#4221EE 60%,#2A139C 100%);color:#fff;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px}
+  .resumo .lin{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:15px}
+  .resumo .lin b{font-family:Montserrat,sans-serif;font-size:17px;white-space:nowrap}
+  .resumo .casa{background:#fff;color:var(--ink);border-radius:16px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+  .resumo .casa b{font-family:Montserrat,sans-serif;font-size:24px;color:var(--ok);white-space:nowrap}
+  details.mais{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  details.mais>summary{list-style:none;cursor:pointer;padding:15px 16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  details.mais>summary::-webkit-details-marker{display:none}
+  details.mais>summary::after{content:"›";font-size:22px;color:var(--muted);transition:transform .15s}
+  details.mais[open]>summary::after{transform:rotate(90deg)}
+  details.mais .corpo{padding:0 16px 8px;border-top:1px solid var(--line)}
   .logo{width:72px;height:72px;border-radius:36px;background:var(--pri);display:flex;align-items:center;justify-content:center;color:#fff;margin:0 auto}
 </style>
 </head>
@@ -204,37 +215,42 @@
       <label class="diaSel"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg><span id="cxDataTxt"></span><input id="cxData" type="date" aria-label="Escolher o dia"></label>
       <button class="iconbtn" data-act="cxProx" aria-label="Próximo dia"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg></button>
     </div>
-    <div class="grid3">
-      <div class="stat"><span class="xs muted">Entrou</span><b id="cxEntrou" class="ent">R$ 0</b></div>
-      <div class="stat"><span class="xs muted">Saiu</span><b id="cxSaiu" class="sai">R$ 0</b></div>
-      <div class="stat"><span class="xs muted">Saldo</span><b id="cxSaldo">R$ 0</b></div>
+    <div class="resumo">
+      <div class="lin" style="font-size:14px;opacity:.9"><span id="cxTitulo">Hoje a barbearia faturou</span></div>
+      <b id="cxEntrou" style="font-family:Montserrat,sans-serif;font-size:34px;line-height:1;margin-top:-6px">R$ 0</b>
+      <div class="lin"><span>Comissão dos barbeiros</span><b id="cxCom">− R$ 0</b></div>
+      <div class="lin"><span>Despesas do dia</span><b id="cxSaiu">− R$ 0</b></div>
+      <div class="casa"><span style="font-weight:700">Fica para a casa</span><b id="cxSaldo">R$ 0</b></div>
     </div>
+    <button id="cxAvulso" data-act="avulso" class="btn ok hidden">+ Registrar atendimento</button>
     <div class="grid2">
-      <button data-act="novaEntrada" class="btn2" style="border-color:var(--ok);color:var(--ok)">+ Entrada</button>
-      <button data-act="novaSaida" class="btn2" style="border-color:var(--bad);color:var(--bad)">− Saída</button>
+      <button data-act="novaEntrada" class="btn2" style="border-color:var(--ok);color:var(--ok)">+ Entrou dinheiro</button>
+      <button data-act="novaSaida" class="btn2" style="border-color:var(--bad);color:var(--bad)">− Saiu dinheiro</button>
     </div>
-    <div class="card" style="padding:4px 16px"><p class="cap" style="padding-top:12px">Por forma de pagamento</p><div id="cxFormas"></div></div>
-    <div class="card" style="padding:4px 16px"><p class="cap" style="padding-top:12px">Por profissional</p><div id="cxProfs"></div></div>
-    <div class="stack" style="gap:8px"><p class="cap" style="margin-left:2px">Lançamentos do dia</p><div id="cxLista" class="card" style="overflow:hidden"></div></div>
-    <div id="cxFech" class="card cardp stack" style="gap:10px"></div>
+    <p id="cxDica" class="xs muted" style="text-align:center;margin-top:-6px">Os cortes entram sozinhos quando você toca em “Concluir atendimento”. Aqui é só para o que vem de fora, como venda de pomada ou conta de luz.</p>
+    <details class="mais"><summary>Quanto pagar a cada barbeiro</summary><div id="cxProfs" class="corpo"></div></details>
+    <details class="mais"><summary>Pix, dinheiro e cartão</summary><div id="cxFormas" class="corpo"></div></details>
+    <details class="mais"><summary id="cxListaTit">Tudo o que entrou e saiu</summary><div id="cxLista" class="corpo" style="padding:0"></div></details>
+    <details id="cxFechBox" class="mais"><summary id="cxFechTit">Conferir a gaveta no fim do dia</summary><div id="cxFech" class="corpo stack" style="gap:10px;padding-top:12px;padding-bottom:16px"></div></details>
   </div>
 
   <!-- Equipe (só o dono) -->
   <div id="bEquipe" class="wrap pad stack hidden">
-    <div class="stack" style="gap:4px"><p class="tt" style="font-size:20px;font-weight:800">Equipe</p><p class="sm muted">Comissão dos atendimentos avulsos e acesso de cada barbeiro.</p></div>
-    <div class="card cardp stack" style="gap:8px">
+    <div class="stack" style="gap:4px"><p class="tt" style="font-size:20px;font-weight:800">Equipe</p><p id="eSub" class="sm muted">Comissão dos atendimentos avulsos e acesso de cada barbeiro.</p></div>
+    <div id="eDonoBox" class="card cardp stack" style="gap:8px">
       <label class="lbl" for="eDono">Qual destes profissionais é você, o dono?</label>
       <select id="eDono" class="field"></select>
       <p class="xs muted">O que o dono atende no avulso fica todo com a casa (comissão 0%).</p>
     </div>
     <div id="eLista" class="stack" style="gap:10px"></div>
-    <button data-act="salvarEquipe" class="btn">Salvar comissões</button>
+    <button id="eSalvar" data-act="salvarEquipe" class="btn">Salvar comissões</button>
     <p class="xs muted" style="text-align:center">Para incluir ou renomear um profissional, fale com a Técnicos de Bolso.</p>
   </div>
 
   <!-- Meus números (barbeiro da equipe) -->
   <div id="bNumeros" class="wrap pad stack hidden">
     <p class="tt" style="font-size:20px;font-weight:800">Meus números</p>
+    <button id="nAvulso" data-act="avulso" class="btn ok hidden">+ Registrar atendimento</button>
     <div class="card cardp stack" style="gap:10px"><p class="cap">Hoje</p>
       <div class="grid3"><div class="stat"><span class="xs muted">Atendimentos</span><b id="nHojeQtd">0</b></div><div class="stat"><span class="xs muted">Total</span><b id="nHojeTot">R$ 0</b></div><div class="stat"><span class="xs muted">Minha parte</span><b id="nHojeCom" class="ent">R$ 0</b></div></div>
     </div>
@@ -272,6 +288,12 @@
     <div class="grid2">
       <div><label class="lbl" for="fStatus">Na vitrine</label><select id="fStatus" class="field"><option value="ativa">Ativa</option><option value="vaga">Vaga / teste</option></select></div>
       <div><label class="lbl" for="fOrdem">Ordem</label><input id="fOrdem" type="number" class="field"></div>
+    </div>
+    <div class="stack" style="gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px">
+      <label class="lbl" for="fPlano">Plano contratado</label>
+      <select id="fPlano" class="field"><option value="agenda">Agenda (só agendamento)</option><option value="caixa">Caixa (só financeiro)</option><option value="completo">Completo (agenda + caixa)</option></select>
+      <label class="chk" id="fAssinBox"><input type="checkbox" id="fAssinantes">Adicional Assinantes (clube mensal)</label>
+      <p id="fPlanoInfo" class="xs muted"></p>
     </div>
     <div><label class="lbl" for="fEndereco">Endereço</label><input id="fEndereco" class="field"></div>
     <div><label class="lbl" for="fMaps">Link do Google Maps</label><input id="fMaps" class="field" inputmode="url"></div>
@@ -386,7 +408,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.4.6";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.5.0";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -481,6 +503,7 @@ let verCanc = false, agendaDono = [], agBalcao = [];
 /* v2.4.1: espaço do dono e da equipe */
 let papel = null, eu = null, espacoId = null, config = {}, equipeDocs = [];
 let cxAt = [], cxMov = [], cxFech = null, numAt = [], folhaCtx = null, verifEnviado = false;
+let planoAtual = null;   // v2.5.0: plano que o menu está mostrando
 const SALAO_ID = slug(new URLSearchParams(location.search).get("b"));
 const unsubs = {};
 const off = k => { if (unsubs[k]) { unsubs[k](); delete unsubs[k]; } };
@@ -580,22 +603,52 @@ const ICO = {
   equipe: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"></path>',
   numeros: '<path d="M3 3v18h18"></path><path d="M7 15l4-4 3 3 5-6"></path>'
 };
+/* ================= v2.5.0: PLANOS ================= */
+/* o plano fica em saloes/{id}.plano e só o master muda (as regras já não deixam o dono mexer).
+   Barbearia antiga, sem o campo, continua como Completo: nada muda para quem já usa. */
+const PLANOS = { agenda: "Agenda", caixa: "Caixa", completo: "Completo" };
+const planoDe = s => PLANOS[s?.plano] ? s.plano : "completo";
+const temAgenda = s => planoDe(s) !== "caixa";
+const temCaixa = s => planoDe(s) !== "agenda";
+const temAssin = s => temCaixa(s) && s?.assinantes === true;
+const nomePlano = s => "Plano " + PLANOS[planoDe(s)] + (temAssin(s) ? " + Assinantes" : "");
 const svgNav = p => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 const TELAS = ["bAgenda", "bCompartilhar", "bCaixa", "bEquipe", "bNumeros"];
+function itensNav() {
+  const ag = temAgenda(meuSalao), cx = temCaixa(meuSalao);
+  const l = papel === "barbeiro"
+    ? [ag && ["bAgenda", "Agenda", ICO.agenda], cx && ["bNumeros", "Meus números", ICO.numeros]]
+    : [ag && ["bAgenda", "Agenda", ICO.agenda], cx && ["bCaixa", "Caixa", ICO.caixa], ["bEquipe", "Equipe", ICO.equipe], ag && ["bCompartilhar", "Compartilhar", ICO.compartilhar]];
+  return l.filter(Boolean);
+}
+/* monta o menu e as telas conforme o plano; roda de novo se o master trocar o plano com o app aberto */
+function aplicarPlano() {
+  const atual = document.querySelector(".nav button.on")?.dataset.nav;
+  montarNav();
+  const itens = itensNav();
+  navegar(itens.some(i => i[0] === atual) ? atual : itens[0][0]);
+  const soCaixa = !temAgenda(meuSalao);
+  $("#btnAbrir").classList.toggle("hidden", papel !== "dono" || soCaixa);   // aberto/fechado só vale para a agenda
+  $("#cxAvulso").classList.toggle("hidden", !soCaixa);
+  $("#nAvulso").classList.toggle("hidden", !soCaixa);
+  $("#cxDica").textContent = soCaixa ? "Atendimento vai no botão acima. “Entrou” e “Saiu” são para o que vem de fora, como venda de pomada ou conta de luz."
+    : "Os cortes entram sozinhos quando você toca em “Concluir atendimento”. Aqui é só para o que vem de fora, como venda de pomada ou conta de luz.";
+  ouvirAgendaDono(); desenharEquipe(true);
+}
 function montarNav() {
-  const itens = papel === "barbeiro"
-    ? [["bAgenda", "Agenda", ICO.agenda], ["bNumeros", "Meus números", ICO.numeros]]
-    : [["bAgenda", "Agenda", ICO.agenda], ["bCaixa", "Caixa", ICO.caixa], ["bEquipe", "Equipe", ICO.equipe], ["bCompartilhar", "Compartilhar", ICO.compartilhar]];
+  const itens = itensNav();
   $("#bNav").style.gridTemplateColumns = `repeat(${itens.length}, minmax(0,1fr))`;
   $("#bNav").innerHTML = itens.map(([k, t, i]) => `<button data-nav="${k}">${svgNav(i)}${t}</button>`).join("");
 }
 function abrirEspaco(id) {
   espacoId = id;
-  ver("barbeiro"); montarNav(); navegar("bAgenda");
+  ver("barbeiro"); planoAtual = null; TELAS.forEach(x => $("#" + x).classList.add("hidden")); $("#bNav").innerHTML = "";
   $("#bData").value = hojeISO(); $("#cxData").value = hojeISO();
   $("#btnAbrir").classList.toggle("hidden", papel !== "dono");
   unsubs.meu = F.onSnapshot(dSalao(id), s => {
     meuSalao = { id: s.id, ...s.data() };
+    const chave = planoDe(meuSalao) + "|" + temAssin(meuSalao);
+    if (chave !== planoAtual) { planoAtual = chave; aplicarPlano(); }
     $("#bNome").textContent = meuSalao.nome;
     $("#bOla").textContent = papel === "barbeiro" ? "Olá, " + eu.nome + "!" : "Painel da barbearia";
     $("#bOla").classList.toggle("hidden", papel !== "barbeiro");
@@ -615,7 +668,7 @@ function ouvirAgendaDono() {
   rotularDia("bData");
   const ehHoje = data === hojeISO();
   $("#bHoje").classList.toggle("hidden", ehHoje);
-  $("#bAvulso").classList.toggle("hidden", !ehHoje);
+  $("#bAvulso").classList.toggle("hidden", !ehHoje || !temCaixa(meuSalao));
   $("#bProxLbl").textContent = ehHoje ? "Próximo horário" : "Primeiro horário";
   off("dAg");
   unsubs.dAg = F.onSnapshot(F.query(cAg(id), F.where("data", "==", data)), s => {
@@ -638,7 +691,7 @@ function cardAg(p, salaoId, espaco) {
   const lado = c ? `<span class="xs" style="font-weight:700;color:var(--bad)">Cancelado${p.canceladoPor === "cliente" ? " pelo cliente" : ""}</span>`
     : ok ? `<span class="xs" style="font-weight:700;color:var(--ok)">Concluído</span>`
     : zap + (!espaco || papel === "dono" ? xis : "");
-  const concluir = espaco && !c && !ok && p.data <= hojeISO()
+  const concluir = espaco && temCaixa(meuSalao) && !c && !ok && p.data <= hojeISO()
     ? `<div style="padding:0 14px 12px 80px"><button class="btn3" data-act="concluir" data-id="${esc(p.id)}" style="width:100%;background:var(--ok-l);color:#166534;border-color:#BBF7D0;font-size:14px">✓ Concluir atendimento</button></div>` : "";
   return `<div style="border-bottom:1px solid #EEEDFA"><div class="ag ${c ? "canc" : ""}">
     <span class="h">${esc(p.horario)}</span>
@@ -788,41 +841,52 @@ function contasCaixa() {
   const ent = [...at, ...mv.filter(x => x.tipo === "entrada")], sai = mv.filter(x => x.tipo === "saida");
   const porForma = {};
   FORMAS.forEach(([f]) => { porForma[f] = soma(ent.filter(x => x.forma === f)) - soma(sai.filter(x => x.forma === f)); });
-  return { at, entrou: soma(ent), saiu: soma(sai), porForma };
+  const vales = sai.filter(x => x.categoria === "vale"), despesas = sai.filter(x => x.categoria !== "vale" && x.categoria !== "retirada");
+  return { at, entrou: soma(ent), saiu: soma(sai), porForma, com: soma(at.map(x => ({ valorCent: x.repasseCent }))), desp: soma(despesas), vales };
 }
 function desenharCaixa() {
   if (papel !== "dono") return;
   const k = contasCaixa(), dia = $("#cxData").value || hojeISO();
-  $("#cxEntrou").textContent = brlC(k.entrou); $("#cxSaiu").textContent = brlC(k.saiu); $("#cxSaldo").textContent = brlC(k.entrou - k.saiu);
-  $("#cxFormas").innerHTML = FORMAS.map(([f, t]) => `<div class="listrow"><span>${t}</span><b>${brlC(k.porForma[f])}</b></div>`).join("");
+  /* v2.4.7: resumo simples — faturou, comissão, despesas, fica para a casa */
+  const hoje = dia === hojeISO();
+  $("#cxTitulo").textContent = hoje ? "Hoje a barbearia faturou" : `Em ${dBR(dia).slice(0, 5)} a barbearia faturou`;
+  $("#cxEntrou").textContent = brlC(k.entrou); $("#cxCom").textContent = "− " + brlC(k.com); $("#cxSaiu").textContent = "− " + brlC(k.desp);
+  $("#cxSaldo").textContent = brlC(k.entrou - k.com - k.desp);
+  $("#cxFormas").innerHTML = FORMAS.map(([f, t]) => `<div class="listrow"><span>${t}</span><b>${brlC(k.porForma[f])}</b></div>`).join("") + `<p class="xs muted" style="padding:4px 0 8px">Já descontado o que saiu em cada forma.</p>`;
   const grupos = {};
-  k.at.forEach(x => { const g = grupos[x.profNome] ||= { qtd: 0, total: 0, com: 0 }; g.qtd++; g.total += x.valorCent || 0; g.com += x.repasseCent || 0; });
+  k.at.forEach(x => { const g = grupos[x.profNome] ||= { qtd: 0, total: 0, com: 0, vale: 0 }; g.qtd++; g.total += x.valorCent || 0; g.com += x.repasseCent || 0; });
+  k.vales.forEach(x => { const g = grupos[x.profNome || "?"] ||= { qtd: 0, total: 0, com: 0, vale: 0 }; g.vale += x.valorCent || 0; });
   const nomes = Object.keys(grupos).sort();
-  $("#cxProfs").innerHTML = nomes.length ? nomes.map(n => `<div class="listrow"><div><p style="font-weight:600">${esc(n)}</p><p class="xs muted">${grupos[n].qtd} atendimento${grupos[n].qtd > 1 ? "s" : ""} · ${brlC(grupos[n].total)}</p></div><div style="text-align:right"><p class="xs muted">Comissão</p><b>${brlC(grupos[n].com)}</b></div></div>`).join("")
+  $("#cxProfs").innerHTML = nomes.length ? nomes.map(n => { const g = grupos[n], pagar = g.com - g.vale;
+      return `<div class="listrow"><div><p style="font-weight:700">${esc(n)}</p><p class="xs muted">${g.qtd} corte${g.qtd === 1 ? "" : "s"} · ganhou ${brlC(g.com)}${g.vale ? ` · já pegou ${brlC(g.vale)} de vale` : ""}</p></div>
+        ${!g.com && !g.vale ? `<span class="sm muted">sem comissão</span>` : `<div style="text-align:right;flex-shrink:0"><p class="xs muted">${pagar >= 0 ? "Pagar" : "Ficou devendo"}</p><b style="font-size:17px;white-space:nowrap;color:${pagar >= 0 ? "var(--ok)" : "var(--bad)"}">${brlC(Math.abs(pagar))}</b></div>`}</div>`; }).join("")
     : `<p class="sm muted" style="padding:12px 0">Nenhum atendimento neste dia.</p>`;
+  const nLanc = [...cxAt, ...cxMov].filter(x => !x.estornado).length;
+  $("#cxListaTit").textContent = `Tudo o que entrou e saiu (${nLanc})`;
   const itens = [...cxAt, ...cxMov].sort((a, b) => String(a.hora).localeCompare(String(b.hora)));
   $("#cxLista").innerHTML = itens.length ? itens.map(x => {
     const ehAt = x.col === "atendimentos", saida = !ehAt && x.tipo === "saida";
     const tit = ehAt ? `${x.servico} · ${x.profNome}` : `${nomeCategoria(x.categoria)}${x.profNome ? " · " + x.profNome : ""}`;
-    const sub = [x.hora, nomeForma(x.forma), ehAt ? x.clienteNome : x.descricao, ehAt ? `comissão ${String(x.comissaoPct || 0).replace(".", ",")}% = ${brlC(x.repasseCent)}` : "", x.estornado ? "ESTORNADO" : ""].filter(Boolean).join(" · ");
+    const sub = [x.hora, nomeForma(x.forma), ehAt ? x.clienteNome : x.descricao, ehAt && x.repasseCent ? `barbeiro ganha ${brlC(x.repasseCent)}` : "", x.estornado ? "DESFEITO" : ""].filter(Boolean).join(" · ");
     return `<div class="mov ${x.estornado ? "est" : ""}"><div class="grow"><p style="font-weight:600;font-size:15px">${esc(tit)}</p><p class="xs muted">${esc(sub)}</p></div>
       <span class="v ${saida ? "sai" : "ent"}">${saida ? "− " : ""}${brlC(x.valorCent)}</span>
-      ${x.estornado ? "" : `<button class="iconbtn" data-act="estornar" data-col="${x.col}" data-id="${esc(x.id)}" aria-label="Estornar lançamento" style="color:var(--bad);width:38px;height:38px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>`}</div>`;
+      ${x.estornado ? "" : `<button class="iconbtn" data-act="estornar" data-col="${x.col}" data-id="${esc(x.id)}" aria-label="Desfazer lançamento" title="Desfazer" style="color:var(--bad);width:38px;height:38px"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>`}</div>`;
   }).join("") : `<p class="pad muted" style="text-align:center">Nenhum lançamento neste dia.</p>`;
   const f = cxFech;
   $("#cxFech").innerHTML = f
-    ? `<p style="font-weight:700">Caixa fechado${f.fechadoHora ? " às " + esc(f.fechadoHora) : ""}</p>
+    ? `<p style="font-weight:700">Gaveta conferida${f.fechadoHora ? " às " + esc(f.fechadoHora) : ""}</p>
        <p class="sm muted">Dinheiro esperado ${brlC(f.esperadoDinheiroCent)} · contado ${brlC(f.contadoDinheiroCent)}</p>
        <p style="font-weight:700;color:${f.diferencaCent === 0 ? "var(--ok)" : "var(--bad)"}">${f.diferencaCent === 0 ? "Bateu certinho" : (f.diferencaCent > 0 ? "Sobrou " : "Faltou ") + brlC(Math.abs(f.diferencaCent))}</p>
-       <button class="btn3" data-act="fecharCaixa">Refazer o fechamento</button>`
-    : `<p style="font-weight:700">Fechamento do dia</p><p class="sm muted">No fim do dia, conte o dinheiro da gaveta e confira se bate com o sistema.</p><button class="btn" data-act="fecharCaixa">Fechar o caixa de ${dia === hojeISO() ? "hoje" : dBR(dia).slice(0, 5)}</button>`;
+       <button class="btn3" data-act="fecharCaixa">Conferir de novo</button>`
+    : `<p class="sm muted">Opcional. No fim do dia, conte as notas e moedas da gaveta e o app diz se bateu, sobrou ou faltou.</p><button class="btn" data-act="fecharCaixa">Contar a gaveta de ${dia === hojeISO() ? "hoje" : dBR(dia).slice(0, 5)}</button>`;
+  $("#cxFechTit").textContent = f ? (f.diferencaCent === 0 ? "Gaveta conferida: bateu ✓" : `Gaveta conferida: ${f.diferencaCent > 0 ? "sobrou" : "faltou"} ${brlC(Math.abs(f.diferencaCent))}`) : "Conferir a gaveta no fim do dia";
 }
 const CAT_ENTRADA = [["produto", "Venda de produto"], ["outro_ent", "Outra entrada"]];
-const CAT_SAIDA = [["despesa", "Despesa"], ["vale", "Vale de barbeiro"], ["retirada", "Retirada do dono"], ["outro_sai", "Outra saída"]];
+const CAT_SAIDA = [["despesa", "Conta ou compra"], ["vale", "Vale para barbeiro"], ["retirada", "Retirada do dono"], ["outro_sai", "Outra saída"]];
 const nomeCategoria = c => ([...CAT_ENTRADA, ...CAT_SAIDA].find(x => x[0] === c) || [c, "Lançamento"])[1];
 function folhaMov(c) {
   const cats = c.mov === "entrada" ? CAT_ENTRADA : CAT_SAIDA, profs = meuSalao.profissionais || [];
-  return `<p class="tt" style="font-size:19px;font-weight:800">${c.mov === "entrada" ? "Nova entrada" : "Nova saída"}</p>
+  return `<p class="tt" style="font-size:19px;font-weight:800">${c.mov === "entrada" ? "Entrou dinheiro" : "Saiu dinheiro"}</p>
     <p class="sm muted">Caixa de ${esc(dBR(c.dia))}</p>
     <div class="stack" style="gap:8px"><p class="lbl">O que é</p><div class="row" style="flex-wrap:wrap;gap:8px">${chips(cats, c.cat, "fcat")}</div></div>
     ${c.cat === "vale" ? `<div class="stack" style="gap:8px"><p class="lbl">Para quem</p><div class="row" style="flex-wrap:wrap;gap:8px">${chips(profs.map(p => [p, p]), c.prof, "fprof")}</div></div>` : ""}
@@ -848,18 +912,18 @@ async function salvarMov(btn) {
 async function estornar(col, id) {
   const l = col === "atendimentos" ? cxAt : cxMov, x = l.find(i => i.id === id); if (!x) return;
   const nome = col === "atendimentos" ? `${x.servico} de ${x.profNome}` : nomeCategoria(x.categoria);
-  if (!(await confirmar(`Estornar ${nome} (${brlC(x.valorCent)})?\n\nO lançamento fica riscado e deixa de contar no caixa e na comissão.`, "Estornar"))) return;
+  if (!(await confirmar(`Desfazer ${nome} (${brlC(x.valorCent)})?\n\nUse quando foi lançado errado. Ele fica riscado e deixa de contar no caixa e na comissão.`, "Desfazer"))) return;
   try { await F.updateDoc(F.doc(fire, "saloes", espacoId, col, id), { estornado: true, estornadoPor: emailUser(), estornadoEm: F.serverTimestamp(), motivoEstorno: "" }); }
-  catch (err) { console.error(err); aviso("Não foi possível estornar. Verifique a internet."); }
+  catch (err) { console.error(err); aviso("Não foi possível desfazer. Verifique a internet."); }
 }
 function folhaFechar(c) {
-  return `<p class="tt" style="font-size:19px;font-weight:800">Fechar o caixa</p>
+  return `<p class="tt" style="font-size:19px;font-weight:800">Contar a gaveta</p>
     <p class="sm muted">${esc(cap1(dataLonga(c.dia)))}</p>
-    <div class="card cardp" style="background:var(--bg);border:none"><div class="listrow"><span>Dinheiro que entrou menos o que saiu</span><b>${brlC(c.liqDinheiro)}</b></div></div>
+    <div class="card cardp" style="background:var(--bg);border:none"><div class="listrow"><span>Dinheiro vivo do dia (entrou menos saiu)</span><b>${brlC(c.liqDinheiro)}</b></div></div>
     <div><label class="lbl" for="fTroco">Troco que havia na gaveta no começo do dia (R$)</label><input id="fTroco" data-campo="troco" class="field" inputmode="decimal" placeholder="0" value="${esc(c.troco ?? "")}"></div>
     <div><label class="lbl" for="fContado">Dinheiro contado agora na gaveta (R$)</label><input id="fContado" data-campo="contado" class="field" inputmode="decimal" placeholder="ex.: 350" value="${esc(c.contado ?? "")}"></div>
     <p class="xs muted">Pix e cartão não entram na contagem da gaveta.</p>
-    ${botoesFolha("salvarFechamento", "Fechar caixa")}`;
+    ${botoesFolha("salvarFechamento", "Conferir")}`;
 }
 function abrirFechar() {
   const k = contasCaixa(), dia = $("#cxData").value || hojeISO();
@@ -884,7 +948,9 @@ function desenharEquipe(forcar, manter) {
   if (papel !== "dono" || !meuSalao) return;
   /* não apaga o que o dono está digitando */
   if (!forcar && document.activeElement && document.activeElement.closest("#bEquipe")) return;
-  const profs = meuSalao.profissionais || [], com = { ...(config.comissoes || {}) };
+  const profs = meuSalao.profissionais || [], com = { ...(config.comissoes || {}) }, cx = temCaixa(meuSalao);
+  ["#eDonoBox", "#eSalvar"].forEach(q => $(q).classList.toggle("hidden", !cx));
+  $("#eSub").textContent = cx ? "Comissão dos atendimentos avulsos e acesso de cada barbeiro." : "Acesso de cada barbeiro à agenda.";
   let donoId = config.donoProfId || "";
   if (manter) { donoId = $("#eDono").value; document.querySelectorAll("#eLista .eCom").forEach(el => { if (!el.disabled) com[el.dataset.pid] = el.value; }); }
   $("#eDono").innerHTML = `<option value="">Nenhum (o dono não atende)</option>` + profs.map(p => `<option value="${esc(slug(p))}" ${donoId === slug(p) ? "selected" : ""}>${esc(p)}</option>`).join("");
@@ -897,7 +963,7 @@ function desenharEquipe(forcar, manter) {
       : `<p class="sm muted">Sem acesso: aparece só como nome.</p><button class="btn3" data-act="darAcesso" data-pnome="${esc(p)}">Dar acesso a ${esc(p)}</button>`;
     return `<div class="card cardp stack" style="gap:10px">
       <div class="row"><p class="grow" style="font-weight:700;font-size:16px">${esc(p)}</p>${dono ? `<span class="pill" style="background:var(--pri-l);color:var(--pri-d)">Dono</span>` : ""}</div>
-      <div class="row"><label class="grow sm" for="com_${id}" style="font-weight:600">Comissão no avulso</label><input id="com_${id}" class="field eCom" data-pid="${id}" inputmode="decimal" style="width:90px;text-align:right" value="${dono ? 0 : esc(com[id] ?? "")}" placeholder="0" ${dono ? "disabled" : ""}><span style="font-weight:700">%</span></div>
+      ${cx ? "" : "<!--"}<div class="row"><label class="grow sm" for="com_${id}" style="font-weight:600">Comissão no avulso</label><input id="com_${id}" class="field eCom" data-pid="${id}" inputmode="decimal" style="width:90px;text-align:right" value="${dono ? 0 : esc(com[id] ?? "")}" placeholder="0" ${dono ? "disabled" : ""}><span style="font-weight:700">%</span></div>${cx ? "" : "-->"}
       ${acesso}</div>`;
   }).join("") || `<p class="muted">Nenhum profissional cadastrado.</p>`;
 }
@@ -996,7 +1062,7 @@ function desenharMaster() {
   $("#mSaloes").innerHTML = saloes.map(s => `
     <div class="card cardp stack" style="gap:10px">
       <div class="row" style="align-items:flex-start">
-        <div class="grow"><p style="font-weight:700">${esc(s.nome)}</p><p class="xs muted" style="word-break:break-all">${esc(linkCliente(s.id))}</p><p class="xs muted">${s.status === "ativa" ? "Ativa" : "Vaga / teste"} · ${esc(s.emailDono || "sem e-mail")} · ${intervaloDe(s)} min</p></div>
+        <div class="grow"><p style="font-weight:700">${esc(s.nome)}</p><p class="xs muted" style="word-break:break-all">${esc(linkCliente(s.id))}</p><p class="xs" style="font-weight:700;color:var(--pri)">${esc(nomePlano(s))}</p><p class="xs muted">${s.status === "ativa" ? "Ativa" : "Vaga / teste"} · ${esc(s.emailDono || "sem e-mail")} · ${intervaloDe(s)} min</p></div>
         <span class="xs" style="font-weight:700;color:${s.barbeariaFechada ? "var(--bad)" : "var(--ok)"}">${s.barbeariaFechada ? "Fechada" : "Aberta"}</span>
       </div>
       <div class="grid3">
@@ -1021,11 +1087,11 @@ function ouvirAgendaMaster() {
   }, err => { console.error(err); $("#mAgLista").innerHTML = `<p class="pad muted">Sem permissão.</p>`; });
 }
 function msgAcesso(s) {
-  return `Olá! Sua agenda on-line da ${s.nome} está pronta.\n\n` +
-    `Para ver sua agenda: abra ${linkInicio()} e entre com o e-mail ${s.emailDono} e a sua senha.\n` +
+  return `Olá! ${temAgenda(s) ? "Sua agenda on-line" : "Seu caixa on-line"} da ${s.nome} está ${temAgenda(s) ? "pronta" : "pronto"}.\n\n` +
+    `Para entrar: abra ${linkInicio()} e entre com o e-mail ${s.emailDono} e a sua senha.\n` +
     `Esqueceu a senha? Toque em “Esqueci a senha” na mesma tela.\n\n` +
-    `Link para os seus clientes agendarem:\n${linkCliente(s.id)}\n\n` +
-    `Dica: dentro da sua agenda, em “Compartilhar”, tem a mensagem pronta para mandar aos clientes.`;
+    (temAgenda(s) ? `Link para os seus clientes agendarem:\n${linkCliente(s.id)}\n\n` +
+    `Dica: dentro da sua agenda, em “Compartilhar”, tem a mensagem pronta para mandar aos clientes.` : `Seu plano: ${nomePlano(s)}.`);
 }
 const SERVICOS_TESTE = [{ nome: "Corte", preco: 40 }, { nome: "Barba", preco: 35 }];
 function linhaServico(s = {}) {
@@ -1036,6 +1102,14 @@ function linhaServico(s = {}) {
       <input class="field sNota grow" placeholder="Observação (opcional)" value="${esc(s.nota || "")}" aria-label="Observação"></div>
   </div>`;
 }
+function infoPlano() {
+  const p = $("#fPlano").value, txt = { agenda: "O dono vê Agenda, Equipe e Compartilhar. Os clientes marcam pelo link. Sem caixa.",
+    caixa: "O dono vê Caixa e Equipe, e registra os atendimentos no Caixa. Sem link de agendamento para clientes.",
+    completo: "O dono vê tudo: Agenda, Caixa, Equipe e Compartilhar. Concluir o atendimento lança o valor no caixa." };
+  $("#fAssinantes").disabled = p === "agenda"; if (p === "agenda") $("#fAssinantes").checked = false;
+  $("#fAssinBox").style.opacity = p === "agenda" ? .5 : 1;
+  $("#fPlanoInfo").textContent = txt[p] + (p === "agenda" ? " O adicional Assinantes precisa do Caixa." : " Assinantes: a tela do clube chega numa próxima versão; por enquanto a opção só fica guardada.");
+}
 function abrirForm(id) {
   const f = $("#formSalao"), s = id ? saloes.find(x => x.id === id) : null;
   const v = s || { nome: "", status: "vaga", ordem: saloes.length + 1, inicio: "09:00", fim: "19:00", intervalo: 30, diasFechados: [0], profissionais: ["Profissional"], servicos: SERVICOS_TESTE };
@@ -1043,6 +1117,7 @@ function abrirForm(id) {
   $("#formTitulo").textContent = s ? "Editar barbearia" : "Nova barbearia";
   $("#fId").value = s ? s.id : ""; $("#fId").readOnly = !!s;
   $("#fNome").value = v.nome || ""; $("#fStatus").value = v.status || "vaga"; $("#fOrdem").value = v.ordem ?? "";
+  $("#fPlano").value = planoDe(v); $("#fAssinantes").checked = v.assinantes === true; infoPlano();
   $("#fEndereco").value = v.endereco || ""; $("#fMaps").value = v.mapsUrl || "";
   $("#fZap").value = v.whatsapp || ""; $("#fInsta").value = v.instagram || "";
   $("#fInicio").value = v.inicio || "09:00"; $("#fFim").value = v.fim || "20:00"; $("#fIntervalo").value = String(intervaloDe(v));
@@ -1076,7 +1151,8 @@ async function salvarForm(e) {
   if (senha && (senha.length < 6 || !emailDono)) return aviso("Para criar o acesso, informe o e-mail e uma senha com pelo menos 6 caracteres.");
   const dados = { nome, status: $("#fStatus").value, ordem: Number($("#fOrdem").value) || 99, endereco: $("#fEndereco").value.trim(), mapsUrl: $("#fMaps").value.trim(),
     whatsapp: zapNum($("#fZap").value), instagram: $("#fInsta").value.trim().replace(/^@/, ""), inicio, fim, intervalo: Number($("#fIntervalo").value),
-    diasFechados, profissionais, servicos, emailDono };
+    diasFechados, profissionais, servicos, emailDono,
+    plano: $("#fPlano").value, assinantes: $("#fPlano").value !== "agenda" && $("#fAssinantes").checked };
   try {
     await F.setDoc(dSalao(id), dados, { merge: true });
     let msg = "Barbearia salva.";
@@ -1114,6 +1190,7 @@ function abrirSalao() {
   unsubs.salao = F.onSnapshot(dSalao(SALAO_ID), s => {
     if (!s.exists() || !s.data().nome) { off("dia"); return ver("erro", "Barbearia não encontrada."); }
     const primeira = !salao;
+    if (!temAgenda(s.data())) { off("dia"); salao = null; return ver("erro", "Esta empresa ainda não tem agenda on-line. Fale direto com ela pelo WhatsApp."); }
     salao = { id: s.id, ...s.data() };
     document.title = salao.nome + " · Técnicos de Bolso";
     if (!profSel || !(salao.profissionais || []).includes(profSel)) profSel = (salao.profissionais || [])[0] || "";
@@ -1456,6 +1533,7 @@ $("#cxData").addEventListener("change", ouvirCaixa);
 $("#eDono").addEventListener("change", () => desenharEquipe(true, true));
 $("#mAgData").addEventListener("change", ouvirAgendaMaster);
 $("#mAgSalao").addEventListener("change", ouvirAgendaMaster);
+$("#fPlano").addEventListener("change", infoPlano);
 
 /* ================= INÍCIO ================= */
 $("#mAgData").value = hojeISO();
