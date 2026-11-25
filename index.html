@@ -1,679 +1,903 @@
-
 <!DOCTYPE html>
-
-<html dir="ltr" lang="pt">
-
+<html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="color-scheme" content="light dark">
-<meta name="google" value="notranslate">
-
-<script>
-function addRow(name, url, isdir,
-    size, size_string, date_modified, date_modified_string) {
-  if (name == "." || name == "..")
-    return;
-
-  var root = document.location.pathname;
-  if (root.substr(-1) !== "/")
-    root += "/";
-
-  var tbody = document.getElementById("tbody");
-  var row = document.createElement("tr");
-  var file_cell = document.createElement("td");
-  var link = document.createElement("a");
-
-  link.className = isdir ? "icon dir" : "icon file";
-
-  if (isdir) {
-    name = name + "/";
-    url = url + "/";
-    size = 0;
-    size_string = "";
-  } else {
-    link.draggable = "true";
-    link.addEventListener("dragstart", onDragStart, false);
-  }
-  link.innerText = name;
-  link.href = root + url;
-
-  file_cell.dataset.value = name;
-  file_cell.appendChild(link);
-
-  row.appendChild(file_cell);
-  row.appendChild(createCell(size, size_string));
-  row.appendChild(createCell(date_modified, date_modified_string));
-
-  tbody.appendChild(row);
-}
-
-function onDragStart(e) {
-  var el = e.srcElement;
-  var name = el.innerText.replace(":", "");
-  var download_url_data = "application/octet-stream:" + name + ":" + el.href;
-  e.dataTransfer.setData("DownloadURL", download_url_data);
-  e.dataTransfer.effectAllowed = "copy";
-}
-
-function createCell(value, text) {
-  var cell = document.createElement("td");
-  cell.setAttribute("class", "detailsColumn");
-  cell.dataset.value = value;
-  cell.innerText = text;
-  return cell;
-}
-
-function start(location) {
-  var header = document.getElementById("header");
-  header.innerText = header.innerText.replace("LOCATION", location);
-
-  document.getElementById("title").innerText = header.innerText;
-}
-
-function onHasParentDirectory() {
-  var box = document.getElementById("parentDirLinkBox");
-  box.style.display = "block";
-
-  var root = document.location.pathname;
-  if (!root.endsWith("/"))
-    root += "/";
-
-  var link = document.getElementById("parentDirLink");
-  link.href = root + "..";
-}
-
-function sortTable(column) {
-  var theader = document.getElementById("theader");
-  var oldOrder = theader.cells[column].dataset.order || '1';
-  oldOrder = parseInt(oldOrder, 10)
-  var newOrder = 0 - oldOrder;
-  theader.cells[column].dataset.order = newOrder;
-
-  var tbody = document.getElementById("tbody");
-  var rows = tbody.rows;
-  var list = [], i;
-  for (i = 0; i < rows.length; i++) {
-    list.push(rows[i]);
-  }
-
-  list.sort(function(row1, row2) {
-    var a = row1.cells[column].dataset.value;
-    var b = row2.cells[column].dataset.value;
-    if (column) {
-      a = parseInt(a, 10);
-      b = parseInt(b, 10);
-      return a > b ? newOrder : a < b ? oldOrder : 0;
-    }
-
-    // Column 0 is text.
-    if (a > b)
-      return newOrder;
-    if (a < b)
-      return oldOrder;
-    return 0;
-  });
-
-  // Appending an existing child again just moves it.
-  for (i = 0; i < list.length; i++) {
-    tbody.appendChild(list[i]);
-  }
-}
-
-// Add event handlers to column headers.
-function addHandlers(element, column) {
-  element.onclick = (e) => sortTable(column);
-  element.onkeydown = (e) => {
-    if (e.key == 'Enter' || e.key == ' ') {
-      sortTable(column);
-      e.preventDefault();
-    }
-  };
-}
-
-function onLoad() {
-  addHandlers(document.getElementById('nameColumnHeader'), 0);
-  addHandlers(document.getElementById('sizeColumnHeader'), 1);
-  addHandlers(document.getElementById('dateColumnHeader'), 2);
-}
-
-window.addEventListener('DOMContentLoaded', onLoad);
-</script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4F46E5">
+<title>Técnicos de Bolso</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
-  h1 {
-    border-bottom: 1px solid #c0c0c0;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    white-space: nowrap;
-  }
-
-  table {
-    border-collapse: collapse;
-  }
-
-  th {
-    cursor: pointer;
-  }
-
-  td.detailsColumn {
-    padding-inline-start: 2em;
-    text-align: end;
-    white-space: nowrap;
-  }
-
-  a.icon {
-    padding-inline-start: 1.5em;
-    text-decoration: none;
-    user-select: auto;
-  }
-
-  a.icon:hover {
-    text-decoration: underline;
-  }
-
-  a.file {
-    background : url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAABnRSTlMAAAAAAABupgeRAAABEElEQVR42nRRx3HDMBC846AHZ7sP54BmWAyrsP588qnwlhqw/k4v5ZwWxM1hzmGRgV1cYqrRarXoH2w2m6qqiqKIR6cPtzc3xMSML2Te7XZZlnW7Pe/91/dX47WRBHuA9oyGmRknzGDjab1ePzw8bLfb6WRalmW4ip9FDVpYSWZgOp12Oh3nXJ7nxoJSGEciteP9y+fH52q1euv38WosqA6T2gGOT44vry7BEQtJkMAMMpa6JagAMcUfWYa4hkkzAc7fFlSjwqCoOUYAF5RjHZPVCFBOtSBGfgUDji3c3jpibeEMQhIMh8NwshqyRsBJgvF4jMs/YlVR5KhgNpuBLzk0OcUiR3CMhcPaOzsZiAAA/AjmaB3WZIkAAAAASUVORK5CYII=") left top no-repeat;
-  }
-
-  a.dir {
-    background : url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABt0lEQVR42oxStZoWQRCs2cXdHTLcHZ6EjAwnQWIkJyQlRt4Cd3d3d1n5d7q7ju1zv/q+mh6taQsk8fn29kPDRo87SDMQcNAUJgIQkBjdAoRKdXjm2mOH0AqS+PlkP8sfp0h93iu/PDji9s2FzSSJVg5ykZqWgfGRr9rAAAQiDFoB1OfyESZEB7iAI0lHwLREQBcQQKqo8p+gNUCguwCNAAUQAcFOb0NNGjT+BbUC2YsHZpWLhC6/m0chqIoM1LKbQIIBwlTQE1xAo9QDGDPYf6rkTpPc92gCUYVJAZjhyZltJ95f3zuvLYRGWWCUNkDL2333McBh4kaLlxg+aTmyL7c2xTjkN4Bt7oE3DBP/3SRz65R/bkmBRPGzcRNHYuzMjaj+fdnaFoJUEdTSXfaHbe7XNnMPyqryPcmfY+zURaAB7SHk9cXSH4fQ5rojgCAVIuqCNWgRhLYLhJB4k3iZfIPtnQiCpjAzeBIRXMA6emAqoEbQSoDdGxFUrxS1AYcpaNbBgyQBGJEOnYOeENKR/iAd1npusI4C75/c3539+nbUjOgZV5CkAU27df40lH+agUdIuA/EAgDmZnwZlhDc0wAAAABJRU5ErkJggg==") left top no-repeat;
-  }
-
-  a.up {
-    background : url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACM0lEQVR42myTA+w1RxRHz+zftmrbdlTbtq04qRGrCmvbDWp9tq3a7tPcub8mj9XZ3eHOGQdJAHw77/LbZuvnWy+c/CIAd+91CMf3bo+bgcBiBAGIZKXb19/zodsAkFT+3px+ssYfyHTQW5tr05dCOf3xN49KaVX9+2zy1dX4XMk+5JflN5MBPL30oVsvnvEyp+18Nt3ZAErQMSFOfelCFvw0HcUloDayljZkX+MmamTAMTe+d+ltZ+1wEaRAX/MAnkJdcujzZyErIiVSzCEvIiq4O83AG7LAkwsfIgAnbncag82jfPPdd9RQyhPkpNJvKJWQBKlYFmQA315n4YPNjwMAZYy0TgAweedLmLzTJSTLIxkWDaVCVfAbbiKjytgmm+EGpMBYW0WwwbZ7lL8anox/UxekaOW544HO0ANAshxuORT/RG5YSrjlwZ3lM955tlQqbtVMlWIhjwzkAVFB8Q9EAAA3AFJ+DR3DO/Pnd3NPi7H117rAzWjpEs8vfIqsGZpaweOfEAAFJKuM0v6kf2iC5pZ9+fmLSZfWBVaKfLLNOXj6lYY0V2lfyVCIsVzmcRV9Y0fx02eTaEwhl2PDrXcjFdYRAohQmS8QEFLCLKGYA0AeEakhCCFDXqxsE0AQACgAQp5w96o0lAXuNASeDKWIvADiHwigfBINpWKtAXJvCEKWgSJNbRvxf4SmrnKDpvZavePu1K/zu/due1X/6Nj90MBd/J2Cic7WjBp/jUdIuA8AUtd65M+PzXIAAAAASUVORK5CYII=") left top no-repeat;
-  }
-
-  html[dir=rtl] a {
-    background-position-x: right;
-  }
-
-  #parentDirLinkBox {
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-  }
+  :root{--bg:#F4F3FF;--card:#FFFFFF;--line:#E3E1F7;--line2:#CFCCEB;--ink:#1E1B4B;--txt:#3A3860;--muted:#55537A;--pri:#4F46E5;--pri-d:#312E81;--pri-l:#EEF2FF;--ok:#15803D;--ok-l:#DCFCE7;--warn:#9A3412;--warn-l:#FFF7ED;--bad:#B91C1C;--bad-l:#FEF2F2}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent;padding-top:env(safe-area-inset-top)}
+  h1,h2,h3,.tt{font-family:Montserrat,Inter,sans-serif;margin:0}
+  p{margin:0}
+  a{color:#4338CA}
+  button{font-family:inherit}
+  input,select,textarea{font-size:16px;font-family:inherit}
+  .hidden{display:none!important}
+  .wrap{max-width:480px;margin:0 auto}
+  .pad{padding:16px}
+  .stack{display:flex;flex-direction:column;gap:14px}
+  .row{display:flex;align-items:center;gap:10px}
+  .grow{flex:1;min-width:0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px}
+  .cardp{padding:16px}
+  .muted{color:var(--muted)}
+  .sm{font-size:13px}.xs{font-size:12px}
+  .lbl{display:block;font-size:13px;font-weight:600;color:var(--txt);margin:0 0 6px 2px}
+  .cap{font-size:12px;font-weight:700;color:var(--txt);text-transform:uppercase;letter-spacing:.5px}
+  .field{width:100%;min-height:48px;border:1px solid var(--line2);border-radius:12px;padding:0 14px;background:#fff;color:var(--ink);outline:none}
+  .field:focus{border-color:var(--pri);box-shadow:0 0 0 3px #E0E7FF}
+  .field[readonly]{background:#F7F7FC;color:var(--muted)}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;border:none;border-radius:16px;background:var(--pri);color:#fff;font-family:Montserrat,sans-serif;font-size:16px;font-weight:700;text-decoration:none;cursor:pointer}
+  .btn:disabled{background:#C7C5E3;color:#5B5980;cursor:not-allowed}
+  .btn.ok{background:var(--ok)}
+  .btn2{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;border:2px solid var(--pri);border-radius:14px;background:#fff;color:var(--pri);font-size:15px;font-weight:700;text-decoration:none;cursor:pointer}
+  .btn3{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 12px;border:1px solid var(--line2);border-radius:12px;background:#fff;color:var(--ink);font-size:13px;font-weight:600;text-decoration:none;cursor:pointer}
+  .link{background:none;border:none;color:#4338CA;font-weight:600;font-size:14px;padding:8px;cursor:pointer;text-decoration:underline}
+  .chip{min-height:48px;padding:0 14px;border-radius:14px;border:1px solid var(--line2);background:#fff;color:var(--ink);font-size:15px;font-weight:600;cursor:pointer}
+  .chip.on{border:2px solid var(--pri);background:var(--pri-l);color:var(--pri-d);font-weight:700}
+  .slot{min-height:48px;border-radius:12px;border:1px solid var(--line2);background:#fff;color:var(--ink);font-size:15px;font-weight:600;cursor:pointer}
+  .slot.on{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:800}
+  .slot.off{background:#E9E7F7;border-color:#E9E7F7;color:#6B6990;text-decoration:line-through;cursor:not-allowed}
+  .day{min-width:64px;min-height:64px;border-radius:14px;border:1px solid var(--line2);background:#fff;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;flex-shrink:0}
+  .day span:first-child{font-size:12px;color:var(--muted)}
+  .day span:last-child{font-size:17px;font-weight:700}
+  .day.on{background:var(--pri);border-color:var(--pri);color:#fff}
+  .day.on span:first-child{color:#E0E7FF}
+  .day.off{background:var(--bg);border-style:dashed;color:#6B6990;cursor:not-allowed}
+  .days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+  .grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+  .dot{width:8px;height:8px;border-radius:4px}
+  .stat{background:var(--bg);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+  .stat b{font-family:Montserrat,sans-serif;font-size:20px;font-weight:800}
+  .listrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #EEEDFA}
+  .listrow:last-child{border-bottom:none}
+  .topbar{background:#fff;border-bottom:1px solid var(--line)}
+  .iconbtn{width:44px;height:44px;border-radius:12px;background:var(--bg);border:none;display:flex;align-items:center;justify-content:center;color:var(--ink);cursor:pointer;flex-shrink:0}
+  .nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:6px 4px calc(8px + env(safe-area-inset-bottom));z-index:40}
+  .nav .in{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+  .nav button{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:56px;justify-content:center;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer}
+  .nav button.on{color:var(--pri);font-weight:700}
+  .sticky{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:14px 16px calc(14px + env(safe-area-inset-bottom));z-index:30}
+  .ag{display:flex;align-items:center;gap:12px;padding:12px 14px}
+  .ag .h{font-family:Montserrat,sans-serif;font-size:16px;font-weight:800;width:54px;flex-shrink:0}
+  .ag.canc{opacity:.55}
+  .ag.canc .h{text-decoration:line-through}
+  .modalbg{position:fixed;inset:0;z-index:100;background:rgba(30,27,75,.55);display:flex;align-items:center;justify-content:center;padding:20px}
+  .msg{white-space:pre-line;background:#F0FDF4;border-radius:12px;padding:12px;font-size:15px;line-height:1.5}
+  .lnk{word-break:break-all;background:var(--bg);border-radius:12px;padding:12px;font-size:15px;font-weight:600}
+  .homolog{position:sticky;top:0;z-index:60;background:#F59E0B;color:#1E1B4B;text-align:center;font-size:12px;font-weight:800;padding:6px}
+  .servRow{border:1px solid var(--line);background:#FAFAFF;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px}
+  .chk{display:flex;align-items:center;gap:6px;font-size:14px;min-height:40px}
+  .chk input{width:20px;height:20px;accent-color:var(--pri)}
+  .logo{width:72px;height:72px;border-radius:36px;background:var(--pri);display:flex;align-items:center;justify-content:center;color:#fff;margin:0 auto}
 </style>
-
-<title id="title"></title>
-
 </head>
-
 <body>
 
-<h1 id="header">Índice de LOCATION</h1>
+<div id="faixaHomolog" class="homolog hidden">HOMOLOGAÇÃO · ambiente de testes</div>
 
-<div id="parentDirLinkBox" style="display:none">
-  <a id="parentDirLink" class="icon up">
-    <span id="parentDirText">[diretório pai]</span>
-  </a>
+<!-- Aviso -->
+<div id="modal" class="modalbg hidden">
+  <div class="card cardp stack wrap" style="max-width:380px;text-align:center">
+    <p id="modalTxt" style="font-size:15px;line-height:1.5;white-space:pre-line"></p>
+    <button data-act="fechar" class="btn">Entendi</button>
+  </div>
+</div>
+<!-- Confirmação -->
+<div id="confirmBox" class="modalbg hidden">
+  <div class="card cardp stack wrap" style="max-width:380px;text-align:center">
+    <p id="confirmTxt" style="font-size:15px;line-height:1.5"></p>
+    <div class="grid2">
+      <button data-conf="0" class="btn2">Voltar</button>
+      <button data-conf="1" id="confirmOk" class="btn">Confirmar</button>
+    </div>
+  </div>
 </div>
 
-<table>
-  <thead>
-    <tr class="header" id="theader">
-      <th id="nameColumnHeader" tabindex=0 role="button">Nome</th>
-      <th id="sizeColumnHeader" class="detailsColumn" tabindex=0 role="button">
-        Tamanho
-      </th>
-      <th id="dateColumnHeader" class="detailsColumn" tabindex=0 role="button">
-        Data da modificação
-      </th>
-    </tr>
-  </thead>
-  <tbody id="tbody">
-  </tbody>
-</table>
+<p id="carregando" class="muted" style="text-align:center;padding:80px 16px">Carregando…</p>
 
+<!-- ================= INÍCIO / ENTRAR ================= -->
+<section id="vLanding" class="hidden wrap" style="padding:36px 20px 28px">
+  <div class="stack" style="gap:22px">
+    <div class="stack" style="align-items:center;gap:10px;text-align:center">
+      <div class="logo"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v6a8 8 0 0 1-16 0z"></path><path d="M4 7l1.5-1h13L20 7" stroke-dasharray="2 2"></path><rect x="9" y="2" width="6" height="7" rx="1.2"></rect></svg></div>
+      <p class="tt" style="font-size:22px;font-weight:800">Técnicos de Bolso</p>
+    </div>
+    <div class="stack" style="gap:10px;text-align:center">
+      <h1 style="font-size:30px;line-height:1.15;font-weight:800">Agenda on-line para a sua barbearia</h1>
+      <p style="font-size:16px;line-height:1.5;color:#4B4970">Seus clientes marcam pelo celular. Você corta e confere tudo aqui.</p>
+    </div>
+    <a id="btnTeste" class="btn" href="#" target="_blank" rel="noopener">Teste grátis por 7 dias</a>
+    <div class="card cardp stack">
+      <p class="tt" style="font-size:17px;font-weight:700">Já tenho conta</p>
+      <div><label class="lbl" for="lEmail">E-mail</label><input id="lEmail" type="email" class="field" autocomplete="username" placeholder="seu@email.com"></div>
+      <div><label class="lbl" for="lSenha">Senha</label><input id="lSenha" type="password" class="field" autocomplete="current-password" placeholder="Sua senha"></div>
+      <button data-act="entrar" class="btn2">Entrar</button>
+      <button data-act="esqueci" class="link" style="align-self:center">Esqueci a senha</button>
+    </div>
+    <p class="sm muted" style="text-align:center">Dono, barbeiro ou administrador: todos entram por aqui.<br><span class="ver"></span></p>
+  </div>
+</section>
+
+<!-- ================= ESPAÇO DO BARBEIRO ================= -->
+<section id="vBarbeiro" class="hidden" style="padding-bottom:96px">
+  <div class="topbar"><div class="wrap pad stack" style="gap:12px">
+    <div class="row">
+      <div class="grow"><p id="bNome" class="sm muted"></p><p id="bTitulo" class="tt" style="font-size:21px;font-weight:800"></p></div>
+      <button id="btnAbrir" data-act="barb" class="pill" style="border:none;min-height:44px;cursor:pointer"></button>
+    </div>
+  </div></div>
+
+  <!-- Agenda -->
+  <div id="bAgenda" class="wrap pad stack">
+    <div class="row">
+      <button class="iconbtn" data-act="diaAnt" aria-label="Dia anterior"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+      <input id="bData" type="date" class="field grow" style="text-align:center;font-weight:600">
+      <button class="iconbtn" data-act="diaProx" aria-label="Próximo dia"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"></path></svg></button>
+    </div>
+    <div class="grid2">
+      <div class="stat"><span class="xs muted">Agendados</span><b id="bQtd">0</b></div>
+      <div class="stat"><span class="xs muted">Próximo</span><b id="bProx">—</b></div>
+    </div>
+    <div id="bLista" class="card" style="overflow:hidden"></div>
+    <div class="row" style="justify-content:space-between">
+      <button id="btnVerCanc" data-act="verCanc" class="link" style="padding-left:0"></button>
+    </div>
+  </div>
+
+  <!-- Compartilhar -->
+  <div id="bCompartilhar" class="wrap pad stack hidden">
+    <div class="stack" style="gap:4px"><p class="tt" style="font-size:20px;font-weight:800">Divulgue sua agenda</p><p class="sm muted">Mande o link para os seus clientes marcarem sozinhos.</p></div>
+    <div class="card cardp stack" style="gap:12px">
+      <p class="cap">Seu link</p>
+      <p id="cLink" class="lnk"></p>
+      <button data-act="copiarMeu" class="btn2">Copiar link</button>
+    </div>
+    <div class="card cardp stack" style="gap:12px">
+      <p class="cap">Mensagem pronta</p>
+      <p id="cMsg" class="msg"></p>
+      <a id="cZap" class="btn ok" href="#" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
+    </div>
+    <div class="card cardp stack" style="gap:6px">
+      <p style="font-weight:700">Coloque na bio do Instagram</p>
+      <p class="sm muted">Copie o link acima, abra o Instagram › Editar perfil › Links › Adicionar link e cole.</p>
+    </div>
+  </div>
+
+  <!-- Em breve -->
+  <div id="bBreve" class="wrap pad stack hidden">
+    <div class="card cardp stack" style="text-align:center;gap:8px;padding:32px 20px">
+      <p id="breveTit" class="tt" style="font-size:20px;font-weight:800"></p>
+      <p class="muted">Chega na próxima versão: assinaturas, caixa do dia e fechamento do mês.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:8px"><button data-act="sair" class="link">Sair</button></div>
+
+  <nav class="nav"><div class="in">
+    <button data-nav="bAgenda" class="on"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>Agenda</button>
+    <button data-nav="bCompartilhar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"></path></svg>Compartilhar</button>
+    <button data-nav="bBreve" data-breve="Assinantes"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"></path></svg>Assinantes</button>
+    <button data-nav="bBreve" data-breve="Caixa"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="13" rx="2"></rect><circle cx="12" cy="12.5" r="2.5"></circle><path d="M6 6V4h12v2"></path></svg>Caixa</button>
+  </div></nav>
+</section>
+
+<!-- ================= MASTER ================= -->
+<section id="vMaster" class="hidden wrap pad stack" style="padding-bottom:40px">
+  <div class="row" style="justify-content:space-between"><h2 style="font-size:22px;font-weight:800">Administrador</h2><button data-act="sair" class="link">Sair</button></div>
+  <div class="card cardp stack" style="gap:10px">
+    <div class="row"><span id="ponto" class="dot" style="width:12px;height:12px;border-radius:6px;background:#16A34A"></span><p id="statusSistema" style="font-weight:700">Sistema em operação</p></div>
+    <p id="statusConexao" class="xs muted">Conectando…</p>
+    <p class="xs muted">Versão: <span class="ver"></span></p>
+    <div style="border-top:1px solid var(--line);padding-top:12px" class="stack">
+      <p style="font-weight:700;font-size:14px">Travamento integral</p>
+      <p class="xs muted">Bloqueia novos agendamentos em todas as barbearias.</p>
+      <button id="btnTrava" data-act="trava" class="btn"></button>
+    </div>
+  </div>
+  <div class="row" style="justify-content:space-between"><h3 style="font-size:17px;font-weight:700">Barbearias</h3><button data-act="novaSalao" class="btn3" style="background:var(--pri);color:#fff;border:none">+ Nova barbearia</button></div>
+  <div id="mSeed"></div>
+
+  <form id="formSalao" class="card cardp stack hidden" autocomplete="off">
+    <p id="formTitulo" class="tt" style="font-weight:700;font-size:17px"></p>
+    <div><label class="lbl" for="fId">Código do link (ex.: carica) — não muda depois</label><input id="fId" class="field" required></div>
+    <div><label class="lbl" for="fNome">Nome da barbearia</label><input id="fNome" class="field" required></div>
+    <div class="grid2">
+      <div><label class="lbl" for="fStatus">Na vitrine</label><select id="fStatus" class="field"><option value="ativa">Ativa</option><option value="vaga">Vaga / teste</option></select></div>
+      <div><label class="lbl" for="fOrdem">Ordem</label><input id="fOrdem" type="number" class="field"></div>
+    </div>
+    <div><label class="lbl" for="fEndereco">Endereço</label><input id="fEndereco" class="field"></div>
+    <div><label class="lbl" for="fMaps">Link do Google Maps</label><input id="fMaps" class="field" inputmode="url"></div>
+    <div class="grid2">
+      <div><label class="lbl" for="fZap">WhatsApp (com DDD)</label><input id="fZap" class="field" inputmode="tel"></div>
+      <div><label class="lbl" for="fInsta">Instagram (sem @)</label><input id="fInsta" class="field"></div>
+    </div>
+    <div class="grid3">
+      <div><label class="lbl" for="fInicio">Abre às</label><input id="fInicio" type="time" class="field"></div>
+      <div><label class="lbl" for="fFim">Último horário</label><input id="fFim" type="time" class="field"></div>
+      <div><label class="lbl" for="fIntervalo">Intervalo</label><select id="fIntervalo" class="field"><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
+    </div>
+    <div><span class="lbl">Dias fechados</span><div id="fDias" class="row" style="flex-wrap:wrap;gap:4px 12px"></div></div>
+    <div><label class="lbl" for="fProfs">Profissionais (separe por vírgula)</label><input id="fProfs" class="field"></div>
+    <div class="stack" style="gap:8px"><span class="lbl">Serviços</span><div id="fServList" class="stack" style="gap:8px"></div><button type="button" data-act="addServ" class="btn3" style="width:100%">+ Adicionar serviço</button></div>
+    <div class="stack" style="gap:10px;border-top:1px solid var(--line);padding-top:12px">
+      <p style="font-weight:700;font-size:14px">Acesso do dono</p>
+      <div><label class="lbl" for="fEmail">E-mail de acesso</label><input id="fEmail" type="email" class="field"></div>
+      <div><label class="lbl" for="fSenha">Senha — preencha só para CRIAR o acesso (mínimo 6)</label><input id="fSenha" type="text" class="field" autocomplete="off"></div>
+    </div>
+    <div class="grid2"><button type="button" data-act="fecharForm" class="btn2">Cancelar</button><button class="btn">Salvar</button></div>
+  </form>
+
+  <div id="mSaloes" class="stack" style="gap:10px"></div>
+
+  <div class="stack" style="gap:10px;margin-top:6px">
+    <h3 style="font-size:17px;font-weight:700">Agenda</h3>
+    <div class="grid2"><select id="mAgSalao" class="field"></select><input id="mAgData" type="date" class="field"></div>
+    <div id="mAgLista" class="card" style="overflow:hidden"></div>
+  </div>
+</section>
+
+<!-- ================= PÁGINA DA BARBEARIA (CLIENTE) ================= -->
+<section id="vSalao" class="hidden">
+  <!-- Início -->
+  <div id="home">
+    <div id="hero" style="background:var(--pri);color:#fff;padding:20px 22px 64px">
+      <div class="wrap stack" style="gap:16px">
+        <p class="xs" style="font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#E0E7FF">Técnicos de Bolso</p>
+        <div class="stack" style="gap:6px"><h1 id="sNome" style="font-size:28px;font-weight:800"></h1><p id="sBairro" style="font-size:15px;color:#E0E7FF"></p></div>
+        <span id="sStatus" class="pill" style="align-self:flex-start;background:#fff"></span>
+      </div>
+    </div>
+    <div class="wrap" style="padding:0 16px 24px">
+      <div id="comprovante" class="card cardp stack hidden" style="margin:-44px 0 14px;gap:10px;border:2px solid var(--pri)"></div>
+      <div id="servCard" class="card" style="padding:6px 18px;margin-top:-44px">
+        <p class="tt" style="font-size:16px;font-weight:700;margin:12px 0 2px">Serviços</p>
+        <div id="sServicos"></div>
+      </div>
+      <div class="stack" style="margin-top:18px;gap:12px">
+        <button id="btnAgendar" data-act="agendar" class="btn">Agendar horário</button>
+        <div id="sContatos" class="grid3"></div>
+        <p class="xs muted" style="text-align:center;margin-top:12px">Agenda por Técnicos de Bolso · <span class="ver"></span><br><a href="./" style="color:#55537A">Sou o barbeiro</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agendar -->
+  <div id="agendar" class="hidden">
+    <div class="topbar"><div class="wrap row" style="padding:14px 16px">
+      <button class="iconbtn" data-act="inicio" aria-label="Voltar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+      <div><p id="agTitulo" class="tt" style="font-size:18px;font-weight:700">Agendar horário</p><p id="agSub" class="sm muted"></p></div>
+    </div></div>
+    <div id="avisoFechado" class="wrap hidden" style="padding:14px 16px 0"><p class="card cardp" style="background:var(--bad-l);border-color:#FECACA;color:#7F1D1D;text-align:center;font-size:14px"></p></div>
+    <fieldset id="fs" style="border:none;margin:0;padding:0">
+      <div class="wrap pad stack" style="gap:24px;padding-bottom:28px">
+        <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span style="color:var(--pri)">1.</span> Serviço</p><div id="servicos" class="row" style="flex-wrap:wrap;gap:8px"></div></div>
+        <div id="boxProf" class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span style="color:var(--pri)">2.</span> Profissional</p><div id="profs" class="row" style="flex-wrap:wrap;gap:8px"></div></div>
+        <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nDia" style="color:var(--pri)">3.</span> Dia</p><div id="dias" class="days"></div></div>
+        <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nHora" style="color:var(--pri)">4.</span> Horário <span id="diaTxt" style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:var(--muted)"></span></p><div id="horas" class="grid4"></div><p id="semHoras" class="sm muted hidden">Sem horários livres neste dia. Escolha outra data.</p><p class="xs muted">Horários riscados já estão ocupados.</p></div>
+        <div id="boxDados" class="stack" style="gap:12px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nDados" style="color:var(--pri)">5.</span> Seus dados</p>
+          <div><label class="lbl" for="nome">Nome</label><input id="nome" class="field" autocomplete="name" placeholder="Como podemos te chamar?"></div>
+          <div><label class="lbl" for="fone">WhatsApp com DDD</label><input id="fone" class="field" inputmode="tel" autocomplete="tel" placeholder="(11) 91234-5678"></div>
+        </div>
+      </div>
+    </fieldset>
+    <div class="sticky"><div class="wrap stack" style="gap:10px">
+      <div class="row"><div class="grow"><p id="resumo1" style="font-size:15px;font-weight:700"></p><p id="resumo2" class="sm muted"></p></div><p id="resumoPreco" class="tt" style="font-size:18px;font-weight:800"></p></div>
+      <button id="btnConfirmar" data-act="confirmar" class="btn">Confirmar agendamento</button>
+    </div></div>
+  </div>
+
+  <!-- Sucesso -->
+  <div id="sucesso" class="hidden wrap" style="padding:48px 22px 28px">
+    <div class="stack" style="gap:22px">
+      <div class="stack" style="align-items:center;gap:12px;text-align:center">
+        <div style="width:80px;height:80px;border-radius:40px;background:var(--ok-l);display:flex;align-items:center;justify-content:center;color:var(--ok)"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></div>
+        <h1 id="sucTit" style="font-size:28px;font-weight:800">Horário reservado!</h1>
+        <p class="muted">Falta só um toque para avisar a barbearia.</p>
+      </div>
+      <div class="card" style="padding:4px 18px">
+        <div class="listrow"><span class="muted">Quando</span><b id="sucQuando" style="text-align:right;text-transform:capitalize"></b></div>
+        <div class="listrow"><span class="muted">Serviço</span><span id="sucServico" style="font-weight:600"></span></div>
+        <div class="listrow"><span class="muted">Com</span><span id="sucProf" style="font-weight:600"></span></div>
+        <div class="listrow"><span class="muted">Protocolo</span><b id="sucProto" style="font-family:ui-monospace,monospace"></b></div>
+      </div>
+      <div id="sucZap" class="stack" style="gap:8px">
+        <a id="sucBtnZap" class="btn ok" href="#" target="_blank" rel="noopener" style="min-height:60px">Avisar a barbearia no WhatsApp</a>
+        <p class="sm muted" style="text-align:center">Abre o WhatsApp com a mensagem pronta. É só tocar em enviar.</p>
+      </div>
+      <button data-act="inicio" class="link" style="align-self:center">Voltar ao início</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ERRO ================= -->
+<section id="vErro" class="hidden wrap" style="text-align:center;padding:80px 20px">
+  <p id="erroTxt" class="muted">Página não encontrada.</p>
+  <p style="margin-top:16px"><a href="./">Ir para o início</a></p>
+</section>
+
+<script type="module">
+/* ================= CONFIGURAÇÃO ================= */
+const VERSAO = "v2.3";                         // sobe 0.1 a cada alteração publicada
+const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
+const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
+
+const CONFIG_PRODUCAO = {
+  apiKey: "AIzaSyBfGd4aD_b3soNJTxLiFcA8JAWLxixJyYg",
+  authDomain: "tecnicos-de-bolso-c3417.firebaseapp.com",
+  projectId: "tecnicos-de-bolso-c3417",
+  storageBucket: "tecnicos-de-bolso-c3417.firebasestorage.app",
+  messagingSenderId: "473908989180",
+  appId: "1:473908989180:web:47c8db24c71bb4bf32db79"
+};
+const CONFIG_HOMOLOGACAO = {
+  apiKey: "AIzaSyC_R6OnGMQvZMwh3wgw3Jllz1K07vkC-50",
+  authDomain: "tecnicos-de-bolso-homolog.firebaseapp.com",
+  projectId: "tecnicos-de-bolso-homolog",
+  storageBucket: "tecnicos-de-bolso-homolog.firebasestorage.app",
+  messagingSenderId: "412924142849",
+  appId: "1:412924142849:web:37831966d4ee872f33a700"
+};
+const HOMOLOG = /\/homolog(\/|$)/.test(location.pathname);
+const firebaseConfig = HOMOLOG ? CONFIG_HOMOLOGACAO : CONFIG_PRODUCAO;
+const MAX_DIAS = 60;
+const DIAS_SEM = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+/* ================= UTILIDADES ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const brl = v => "R$ " + Number(v).toLocaleString("pt-BR", { minimumFractionDigits: Number(v) % 1 ? 2 : 0, maximumFractionDigits: 2 });
+const dig = s => String(s || "").replace(/\D/g, "");
+const pad = (n, z = 2) => String(n).padStart(z, "0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const hojeISO = () => iso(new Date());
+const somaDias = (s, n) => { const d = new Date(s + "T12:00:00"); d.setDate(d.getDate() + n); return iso(d); };
+const dBR = d => d.split("-").reverse().join("/");
+const diaSemana = s => new Date(s + "T12:00:00").getDay();
+const dataLonga = s => new Date(s + "T12:00:00").toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" });
+const mm = h => +h.slice(0, 2) * 60 + +h.slice(3);
+const hh = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
+const slug = s => String(s || "").toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
+const cancelado = p => p.status === "Cancelado";
+const zapNum = s => { let z = dig(s); if (z && !z.startsWith("55")) z = "55" + z; return z; };
+const intervaloDe = s => Number(s.intervalo) || 15;
+const slotsDe = s => { const r = [], p = intervaloDe(s); for (let m = mm(s.inicio || "09:00"); m <= mm(s.fim || "20:00"); m += p) r.push(hh(m)); return r; };
+const fechadoNoDia = (s, d) => (s.diasFechados || []).includes(diaSemana(d));
+const token = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, "0")).join("");
+const linkCliente = id => location.origin + location.pathname + "?b=" + encodeURIComponent(id);
+const linkInicio = () => location.origin + location.pathname;
+function aviso(t) { $("#modalTxt").textContent = t; $("#modal").classList.remove("hidden"); }
+let resolverConf = null;
+function confirmar(t, ok = "Confirmar") { $("#confirmTxt").textContent = t; $("#confirmOk").textContent = ok; $("#confirmBox").classList.remove("hidden"); return new Promise(r => { resolverConf = r; }); }
+async function copiar(t) {
+  try { await navigator.clipboard.writeText(t); aviso("Link copiado! Agora é só colar onde quiser."); }
+  catch { aviso("Não consegui copiar sozinho. Segure o dedo no link para copiar:\n\n" + t); }
+}
+
+/* ================= ESTADO ================= */
+let F = null, A = null, AppMod = null, fire = null, AU = null, user = null;
+let saloes = [], salao = null, travado = false, meuSalao = null;
+let diaSel = hojeISO(), horaSel = null, servSel = 0, profSel = null, ocupadosDia = new Set(), remarcando = null;
+let verCanc = false, agendaDono = [];
+const SALAO_ID = slug(new URLSearchParams(location.search).get("b"));
+const unsubs = {};
+const off = k => { if (unsubs[k]) { unsubs[k](); delete unsubs[k]; } };
+const emailUser = () => (user?.email || "").toLowerCase();
+const isMaster = () => emailUser() === MASTER_EMAIL;
+const indisponivel = () => travado || salao?.barbeariaFechada === true;
+
+/* ================= FIREBASE ================= */
+const dSalao = id => F.doc(fire, "saloes", id);
+const cAg = id => F.collection(fire, "saloes", id, "agendamentos");
+const cOc = id => F.collection(fire, "saloes", id, "ocupados");
+const dGeral = () => F.doc(fire, "sistema", "geral");
+const dContador = id => F.doc(fire, "saloes", id, "contador", "protocolo");
+
+async function iniciar() {
+  document.querySelectorAll(".ver").forEach(el => el.textContent = VERSAO + (HOMOLOG ? " · homologação" : ""));
+  if (HOMOLOG) $("#faixaHomolog").classList.remove("hidden");
+  $("#btnTeste").href = `https://wa.me/${ZAP_TDB}?text=${encodeURIComponent("Olá! Quero testar a agenda on-line da Técnicos de Bolso por 7 dias grátis.")}`;
+  try {
+    const base = "https://www.gstatic.com/firebasejs/10.12.2/";
+    [AppMod, F, A] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js"), import(base + "firebase-auth.js")]);
+    const app = AppMod.initializeApp(firebaseConfig);
+    fire = F.getFirestore(app); AU = A.getAuth(app);
+    F.onSnapshot(dGeral(), s => { travado = s.exists() && s.data().bloqueado === true; $("#statusConexao").textContent = "Conectado ao banco de dados em tempo real."; desenharEstado(); }, erroConexao);
+    if (SALAO_ID) { abrirSalao(); return; }
+    A.onAuthStateChanged(AU, u => { user = u; rotear(); });
+  } catch (e) { erroConexao(e); ver("erro", "Não foi possível conectar. Verifique a internet e tente novamente."); }
+}
+function erroConexao(e) { console.error(e); $("#statusConexao").textContent = "Sem conexão com o banco de dados."; }
+function ver(v, msg) {
+  $("#carregando").classList.add("hidden");
+  ["Landing", "Barbeiro", "Master", "Salao", "Erro"].forEach(x => $("#v" + x).classList.toggle("hidden", x.toLowerCase() !== v));
+  if (msg) $("#erroTxt").textContent = msg;
+  window.scrollTo({ top: 0 });
+}
+
+/* ================= ENTRAR E ROTEAR ================= */
+async function rotear() {
+  off("saloes"); off("meu"); off("dAg"); off("mAg");
+  if (!user) { meuSalao = null; return ver("landing"); }
+  if (isMaster()) { ouvirSaloes(); return ver("master"); }
+  const q = await F.getDocs(F.query(F.collection(fire, "saloes"), F.where("emailDono", "==", emailUser())));
+  if (q.empty) { ver("landing"); aviso("Esta conta ainda não está ligada a uma barbearia. Fale com a Técnicos de Bolso."); return A.signOut(AU); }
+  abrirEspaco(q.docs[0].id);
+}
+const msgErroLogin = err => ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials", "auth/invalid-email"].includes(err.code)
+  ? "E-mail ou senha incorretos. Tente novamente." : err.code === "auth/too-many-requests" ? "Muitas tentativas. Aguarde alguns minutos." : "Não foi possível entrar. Verifique a internet.";
+async function entrar() {
+  const email = $("#lEmail").value.trim().toLowerCase(), senha = $("#lSenha").value;
+  if (!email || !senha) return aviso("Preencha o e-mail e a senha.");
+  try { await A.signInWithEmailAndPassword(AU, email, senha); $("#lSenha").value = ""; }
+  catch (err) { console.error(err); aviso(msgErroLogin(err)); }
+}
+async function esqueci(email) {
+  email = (email || $("#lEmail").value).trim().toLowerCase();
+  if (!email) return aviso("Digite o seu e-mail no campo acima e toque de novo em “Esqueci a senha”.");
+  try { await A.sendPasswordResetEmail(AU, email); aviso("Enviamos um link para criar uma senha nova em:\n" + email + "\n\nConfira também o spam."); }
+  catch (err) { console.error(err); aviso("Não foi possível enviar o e-mail de redefinição."); }
+}
+
+/* ================= ESPAÇO DO BARBEIRO ================= */
+function abrirEspaco(id) {
+  ver("barbeiro"); navegar("bAgenda");
+  $("#bData").value = hojeISO();
+  unsubs.meu = F.onSnapshot(dSalao(id), s => {
+    meuSalao = { id: s.id, ...s.data() };
+    $("#bNome").textContent = meuSalao.nome;
+    desenharEstado(); desenharCompartilhar();
+  }, erroConexao);
+  ouvirAgendaDono();
+}
+function ouvirAgendaDono() {
+  if (!meuSalao && !unsubs.meu) return;
+  const id = meuSalao?.id || null; if (!id) { setTimeout(ouvirAgendaDono, 300); return; }
+  const data = $("#bData").value;
+  $("#bTitulo").textContent = data === hojeISO() ? "Hoje, " + dataLonga(data).split(",")[0] + " " + dBR(data).slice(0, 5) : dataLonga(data);
+  off("dAg");
+  unsubs.dAg = F.onSnapshot(F.query(cAg(id), F.where("data", "==", data)), s => {
+    agendaDono = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((x, y) => x.horario.localeCompare(y.horario));
+    desenharAgendaDono();
+  }, err => { console.error(err); $("#bLista").innerHTML = `<p class="pad muted">Sem permissão para ver esta agenda.</p>`; });
+}
+function cardAg(p, salaoId) {
+  const c = cancelado(p);
+  return `<div class="ag ${c ? "canc" : ""}" style="border-bottom:1px solid #EEEDFA">
+    <span class="h">${esc(p.horario)}</span>
+    <div class="grow"><p style="font-size:15px;font-weight:600">${esc(p.nome)}</p><p class="sm muted">${esc(p.servico)} · ${brl(p.preco)}${p.profissional ? " · " + esc(p.profissional) : ""} · <span style="font-family:ui-monospace,monospace">${esc(p.protocolo)}</span></p></div>
+    ${c ? `<span class="xs" style="font-weight:700;color:var(--bad)">Cancelado${p.canceladoPor === "cliente" ? " pelo cliente" : ""}</span>`
+        : `<a class="iconbtn" href="https://wa.me/${zapNum(p.telefone)}" target="_blank" rel="noopener" aria-label="WhatsApp de ${esc(p.nome)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"></path></svg></a>
+           <button class="iconbtn" data-act="cancelar" data-salao="${esc(salaoId)}" data-id="${esc(p.id)}" data-rotulo="${esc(p.nome)} às ${esc(p.horario)}" aria-label="Cancelar agendamento de ${esc(p.nome)}" style="color:var(--bad)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>`}
+  </div>`;
+}
+function desenharAgendaDono() {
+  const ativos = agendaDono.filter(p => !cancelado(p)), canc = agendaDono.filter(cancelado);
+  const lista = verCanc ? agendaDono : ativos;
+  $("#bLista").innerHTML = lista.length ? lista.map(p => cardAg(p, meuSalao.id)).join("") : `<p class="pad muted" style="text-align:center">Nenhum agendamento neste dia.</p>`;
+  $("#bQtd").textContent = ativos.length;
+  const agora = hh(new Date().getHours() * 60 + new Date().getMinutes());
+  const prox = $("#bData").value === hojeISO() ? ativos.find(p => p.horario >= agora) : ativos[0];
+  $("#bProx").textContent = prox ? prox.horario : "—";
+  $("#btnVerCanc").textContent = canc.length ? (verCanc ? "Esconder cancelados" : `Ver cancelados (${canc.length})`) : "";
+}
+function navegar(alvo, rot) {
+  ["bAgenda", "bCompartilhar", "bBreve"].forEach(x => $("#" + x).classList.toggle("hidden", x !== alvo));
+  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.nav === alvo && (alvo !== "bBreve" || b.dataset.breve === rot)));
+  if (rot) $("#breveTit").textContent = rot;
+  window.scrollTo({ top: 0 });
+}
+function msgCliente(s) { return `Agora você marca seu horário comigo direto pelo celular, sem esperar resposta:\n${linkCliente(s.id)}\n${s.nome}`; }
+function desenharCompartilhar() {
+  if (!meuSalao) return;
+  $("#cLink").textContent = linkCliente(meuSalao.id);
+  $("#cMsg").textContent = msgCliente(meuSalao);
+  $("#cZap").href = "https://wa.me/?text=" + encodeURIComponent(msgCliente(meuSalao));
+}
+
+/* ================= MASTER ================= */
+function ouvirSaloes() {
+  off("saloes");
+  unsubs.saloes = F.onSnapshot(F.collection(fire, "saloes"), s => {
+    saloes = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(x => x.nome).sort((a, b) => (a.ordem ?? 99) - (b.ordem ?? 99));
+    desenharMaster();
+  }, erroConexao);
+}
+function desenharMaster() {
+  if (!isMaster()) return;
+  $("#mSeed").innerHTML = "";
+  $("#mSaloes").innerHTML = saloes.map(s => `
+    <div class="card cardp stack" style="gap:10px">
+      <div class="row" style="align-items:flex-start">
+        <div class="grow"><p style="font-weight:700">${esc(s.nome)}</p><p class="xs muted" style="word-break:break-all">${esc(linkCliente(s.id))}</p><p class="xs muted">${s.status === "ativa" ? "Ativa" : "Vaga / teste"} · ${esc(s.emailDono || "sem e-mail")} · ${intervaloDe(s)} min</p></div>
+        <span class="xs" style="font-weight:700;color:${s.barbeariaFechada ? "var(--bad)" : "var(--ok)"}">${s.barbeariaFechada ? "Fechada" : "Aberta"}</span>
+      </div>
+      <div class="grid3">
+        <a class="btn3" href="?b=${encodeURIComponent(s.id)}" target="_blank" rel="noopener">Abrir</a>
+        <button class="btn3" data-act="copiar" data-id="${esc(s.id)}">Copiar link</button>
+        <button class="btn3" data-act="editar" data-id="${esc(s.id)}">Editar</button>
+        <button class="btn3" data-act="enviarAcesso" data-id="${esc(s.id)}" style="grid-column:span 2">Enviar acesso no WhatsApp</button>
+        <button class="btn3" data-act="redefinir" data-id="${esc(s.id)}">Nova senha</button>
+      </div>
+    </div>`).join("") || `<p class="muted">Nenhuma barbearia cadastrada.</p>`;
+  const sel = $("#mAgSalao"), atual = sel.value;
+  sel.innerHTML = saloes.map(s => `<option value="${esc(s.id)}">${esc(s.nome)}</option>`).join("");
+  if (atual && saloes.some(s => s.id === atual)) sel.value = atual;
+  ouvirAgendaMaster();
+}
+function ouvirAgendaMaster() {
+  const id = $("#mAgSalao").value, data = $("#mAgData").value; if (!id) return;
+  off("mAg");
+  unsubs.mAg = F.onSnapshot(F.query(cAg(id), F.where("data", "==", data)), s => {
+    const l = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((x, y) => x.horario.localeCompare(y.horario));
+    $("#mAgLista").innerHTML = l.length ? l.map(p => cardAg(p, id)).join("") : `<p class="pad muted" style="text-align:center">Nenhum agendamento nesta data.</p>`;
+  }, err => { console.error(err); $("#mAgLista").innerHTML = `<p class="pad muted">Sem permissão.</p>`; });
+}
+function msgAcesso(s) {
+  return `Olá! Sua agenda on-line da ${s.nome} está pronta.\n\n` +
+    `Para ver sua agenda: abra ${linkInicio()} e entre com o e-mail ${s.emailDono} e a sua senha.\n` +
+    `Esqueceu a senha? Toque em “Esqueci a senha” na mesma tela.\n\n` +
+    `Link para os seus clientes agendarem:\n${linkCliente(s.id)}\n\n` +
+    `Dica: dentro da sua agenda, em “Compartilhar”, tem a mensagem pronta para mandar aos clientes.`;
+}
+const SERVICOS_TESTE = [{ nome: "Corte", preco: 40 }, { nome: "Barba", preco: 35 }];
+function linhaServico(s = {}) {
+  return `<div class="servRow">
+    <div class="row"><input class="field sNome grow" placeholder="Nome do serviço (ex.: Corte)" value="${esc(s.nome || "")}" aria-label="Nome do serviço">
+      <button type="button" class="iconbtn" data-act="rmServ" aria-label="Remover serviço" style="color:var(--bad);background:#fff;border:1px solid #FECACA"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></div>
+    <div class="row"><input class="field sPreco" style="width:110px" inputmode="decimal" placeholder="R$" value="${s.preco ?? ""}" aria-label="Preço">
+      <input class="field sNota grow" placeholder="Observação (opcional)" value="${esc(s.nota || "")}" aria-label="Observação"></div>
+  </div>`;
+}
+function abrirForm(id) {
+  const f = $("#formSalao"), s = id ? saloes.find(x => x.id === id) : null;
+  const v = s || { nome: "", status: "vaga", ordem: saloes.length + 1, inicio: "09:00", fim: "19:00", intervalo: 30, diasFechados: [0], profissionais: ["Profissional"], servicos: SERVICOS_TESTE };
+  f.dataset.modo = s ? "editar" : "novo";
+  $("#formTitulo").textContent = s ? "Editar barbearia" : "Nova barbearia";
+  $("#fId").value = s ? s.id : ""; $("#fId").readOnly = !!s;
+  $("#fNome").value = v.nome || ""; $("#fStatus").value = v.status || "vaga"; $("#fOrdem").value = v.ordem ?? "";
+  $("#fEndereco").value = v.endereco || ""; $("#fMaps").value = v.mapsUrl || "";
+  $("#fZap").value = v.whatsapp || ""; $("#fInsta").value = v.instagram || "";
+  $("#fInicio").value = v.inicio || "09:00"; $("#fFim").value = v.fim || "20:00"; $("#fIntervalo").value = String(intervaloDe(v));
+  $("#fDias").innerHTML = DIAS_SEM.map((d, i) => `<label class="chk"><input type="checkbox" value="${i}" ${(v.diasFechados || []).includes(i) ? "checked" : ""}>${d}</label>`).join("");
+  $("#fProfs").value = (v.profissionais || []).join(", ");
+  $("#fServList").innerHTML = (v.servicos?.length ? v.servicos : [{}]).map(linhaServico).join("");
+  $("#fEmail").value = v.emailDono || ""; $("#fSenha").value = "";
+  f.classList.remove("hidden"); f.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+async function salvarForm(e) {
+  e.preventDefault();
+  const novo = $("#formSalao").dataset.modo === "novo";
+  const id = slug($("#fId").value), nome = $("#fNome").value.trim();
+  if (!id || !nome) return aviso("Preencha o código do link e o nome.");
+  if (novo && saloes.some(s => s.id === id)) return aviso("Já existe uma barbearia com esse código. Escolha outro.");
+  const servicos = [];
+  for (const r of document.querySelectorAll("#fServList .servRow")) {
+    const n = r.querySelector(".sNome").value.trim(), p = r.querySelector(".sPreco").value.trim(), nota = r.querySelector(".sNota").value.trim();
+    if (!n && !p && !nota) continue;
+    const preco = Number(p.replace(",", "."));
+    if (!n || !p || !isFinite(preco) || preco < 0) return aviso(`Confira o serviço "${n || "sem nome"}": preencha o nome e o preço (ex.: 45 ou 45,50).`);
+    servicos.push(nota ? { nome: n, preco, nota } : { nome: n, preco });
+  }
+  if (!servicos.length) return aviso("Cadastre pelo menos um serviço.");
+  const profissionais = $("#fProfs").value.split(",").map(x => x.trim()).filter(Boolean);
+  if (!profissionais.length) return aviso("Cadastre pelo menos um profissional.");
+  const inicio = $("#fInicio").value, fim = $("#fFim").value;
+  if (!inicio || !fim || mm(fim) < mm(inicio)) return aviso("Confira o horário de funcionamento.");
+  const diasFechados = [...document.querySelectorAll("#fDias input:checked")].map(x => +x.value);
+  const emailDono = $("#fEmail").value.trim().toLowerCase(), senha = $("#fSenha").value;
+  if (senha && (senha.length < 6 || !emailDono)) return aviso("Para criar o acesso, informe o e-mail e uma senha com pelo menos 6 caracteres.");
+  const dados = { nome, status: $("#fStatus").value, ordem: Number($("#fOrdem").value) || 99, endereco: $("#fEndereco").value.trim(), mapsUrl: $("#fMaps").value.trim(),
+    whatsapp: zapNum($("#fZap").value), instagram: $("#fInsta").value.trim().replace(/^@/, ""), inicio, fim, intervalo: Number($("#fIntervalo").value),
+    diasFechados, profissionais, servicos, emailDono };
+  try {
+    await F.setDoc(dSalao(id), dados, { merge: true });
+    let msg = "Barbearia salva.";
+    if (senha) msg += " " + await criarAcesso(emailDono, senha);
+    $("#formSalao").classList.add("hidden"); aviso(msg);
+  } catch (err) { console.error(err); aviso("Não foi possível salvar. Verifique a conexão e as regras do Firestore."); }
+}
+async function criarAcesso(email, senha) {
+  const app2 = AppMod.getApps().find(a => a.name === "cadastro") || AppMod.initializeApp(firebaseConfig, "cadastro");
+  const au2 = A.getAuth(app2);
+  try { await A.createUserWithEmailAndPassword(au2, email, senha); await A.signOut(au2); return `Acesso criado para ${email}.`; }
+  catch (err) {
+    console.error(err);
+    if (err.code === "auth/email-already-in-use") return "Esse e-mail já tinha acesso; a senha antiga continua valendo. Para trocar, use “Nova senha” no cartão da barbearia.";
+    if (err.code === "auth/invalid-email") return "Atenção: e-mail inválido, o acesso não foi criado.";
+    return "Atenção: não foi possível criar o acesso (" + (err.code || "erro") + ").";
+  }
+}
+
+/* ================= CANCELAR (barbeiro/master) ================= */
+async function cancelarPeloDono(salaoId, id) {
+  const aRef = F.doc(fire, "saloes", salaoId, "agendamentos", id);
+  const a = (await F.getDoc(aRef)).data();
+  const oRef = F.doc(fire, "saloes", salaoId, "ocupados", a.chave || id.slice(0, id.length - String(a.protocolo).length - 1));
+  const o = await F.getDoc(oRef);
+  const b = F.writeBatch(fire);
+  b.update(aRef, { status: "Cancelado", canceladoEm: F.serverTimestamp(), canceladoPor: "barbearia" });
+  if (o.exists() && o.data().protocolo === a.protocolo) b.delete(oRef);
+  await b.commit();
+}
+
+/* ================= PÁGINA DA BARBEARIA (CLIENTE) ================= */
+function abrirSalao() {
+  ver("salao"); mostrarTela("home");
+  unsubs.salao = F.onSnapshot(dSalao(SALAO_ID), s => {
+    if (!s.exists() || !s.data().nome) { off("dia"); return ver("erro", "Barbearia não encontrada."); }
+    const primeira = !salao;
+    salao = { id: s.id, ...s.data() };
+    document.title = salao.nome + " · Técnicos de Bolso";
+    if (!profSel || !(salao.profissionais || []).includes(profSel)) profSel = (salao.profissionais || [])[0] || "";
+    if (primeira) { diaSel = proximoDiaAberto(hojeISO()); }
+    desenharHome(); desenharServicos(); desenharProfs(); desenharDias(); desenharEstado();
+    if (primeira) { ver("salao"); ouvirDia(); const c = lerComprovante(); if (c) acompanharMeu(c); }
+  }, erroConexao);
+}
+function proximoDiaAberto(d) { for (let i = 0; i < 14; i++) { const x = somaDias(d, i); if (!fechadoNoDia(salao, x)) return x; } return d; }
+function ouvirDia() {
+  off("dia");
+  unsubs.dia = F.onSnapshot(F.query(cOc(salao.id), F.where("data", "==", diaSel)), s => {
+    ocupadosDia = new Set(s.docs.map(d => d.data()).map(o => o.profissional + "|" + o.horario));
+    desenharHoras();
+  }, erroConexao);
+}
+function desenharHome() {
+  const s = salao;
+  $("#sNome").textContent = s.nome;
+  $("#sBairro").textContent = s.endereco ? s.endereco.split(" - ").slice(1).join(" - ") || s.endereco : "";
+  const prof = (s.profissionais || []).length > 1;
+  $("#boxProf").classList.toggle("hidden", !prof);
+  $("#nDia").textContent = prof ? "3." : "2."; $("#nHora").textContent = prof ? "4." : "3."; $("#nDados").textContent = prof ? "5." : "4.";
+  $("#sServicos").innerHTML = (s.servicos || []).map(x => `<div class="listrow"><div><p style="font-size:16px;font-weight:600">${esc(x.nome)}</p>${x.nota ? `<p class="sm muted">${esc(x.nota)}</p>` : ""}</div><b>${brl(x.preco)}</b></div>`).join("");
+  const ico = p => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4338CA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  const cont = [];
+  if (s.whatsapp) cont.push(`<a class="btn3" style="flex-direction:column;min-height:64px" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${ico('<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"></path>')}WhatsApp</a>`);
+  if (s.instagram) cont.push(`<a class="btn3" style="flex-direction:column;min-height:64px" href="https://www.instagram.com/${esc(s.instagram)}/" target="_blank" rel="noopener">${ico('<rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle>')}Instagram</a>`);
+  if (s.endereco) cont.push(`<a class="btn3" style="flex-direction:column;min-height:64px" href="${esc(s.mapsUrl || "https://www.google.com/maps/search/" + encodeURIComponent(s.endereco))}" target="_blank" rel="noopener">${ico('<path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"></path><circle cx="12" cy="9" r="2.5"></circle>')}Como chegar</a>`);
+  $("#sContatos").innerHTML = cont.join("");
+  $("#sContatos").style.gridTemplateColumns = `repeat(${cont.length || 1}, minmax(0,1fr))`;
+}
+function desenharServicos() {
+  const l = salao?.servicos || []; if (servSel >= l.length) servSel = 0;
+  $("#servicos").innerHTML = l.map((s, i) => `<button type="button" class="chip ${i === servSel ? "on" : ""}" data-serv="${i}">${esc(s.nome)} · ${brl(s.preco)}</button>`).join("");
+  resumo();
+}
+function desenharProfs() {
+  $("#profs").innerHTML = (salao.profissionais || []).map(p => `<button type="button" class="chip ${p === profSel ? "on" : ""}" data-prof="${esc(p)}">${esc(p)}</button>`).join("");
+}
+function desenharDias() {
+  let h = "";
+  for (let i = 0; i < MAX_DIAS; i++) {
+    const d = somaDias(hojeISO(), i), f = fechadoNoDia(salao, d), dn = diaSemana(d);
+    h += `<button type="button" class="day ${d === diaSel ? "on" : ""} ${f ? "off" : ""}" ${f ? "disabled" : `data-dia="${d}"`}><span>${i === 0 ? "Hoje" : DIAS_SEM[dn]}</span><span>${f ? "—" : +d.slice(8)}</span></button>`;
+  }
+  $("#dias").innerHTML = h;
+  $("#diaTxt").textContent = "· " + dataLonga(diaSel);
+}
+function desenharHoras() {
+  if (!salao) return;
+  const agora = new Date(), min = agora.getHours() * 60 + agora.getMinutes();
+  const livre = h => !indisponivel() && !fechadoNoDia(salao, diaSel) && !ocupadosDia.has(profSel + "|" + h) && !(diaSel === hojeISO() && mm(h) <= min);
+  const slots = slotsDe(salao);
+  if (horaSel && !livre(horaSel)) horaSel = null;
+  $("#horas").innerHTML = slots.map(h => livre(h) ? `<button type="button" class="slot ${h === horaSel ? "on" : ""}" data-hora="${h}">${h}</button>` : `<button type="button" class="slot off" disabled>${h}</button>`).join("");
+  $("#semHoras").classList.toggle("hidden", slots.some(livre));
+  resumo();
+}
+function resumo() {
+  if (!salao) return;
+  const sv = (salao.servicos || [])[servSel];
+  $("#resumo1").textContent = sv ? `${sv.nome} · ${DIAS_SEM[diaSemana(diaSel)].toLowerCase()} ${dBR(diaSel).slice(0, 5)}${horaSel ? " · " + horaSel : ""}` : "";
+  $("#resumo2").textContent = horaSel ? (profSel ? "com " + profSel : "") : "Escolha um horário";
+  $("#resumoPreco").textContent = sv ? brl(sv.preco) : "";
+  $("#btnConfirmar").textContent = remarcando ? "Confirmar remarcação" : "Confirmar agendamento";
+}
+function mostrarTela(v) { ["home", "agendar", "sucesso"].forEach(x => $("#" + x).classList.toggle("hidden", v !== x)); window.scrollTo({ top: 0 }); }
+function desenharEstado() {
+  const t = $("#btnTrava");
+  $("#ponto").style.background = travado ? "#DC2626" : "#16A34A";
+  $("#statusSistema").textContent = travado ? "Sistema travado" : "Sistema em operação";
+  t.textContent = travado ? "Reabrir sistema" : "TRAVAR SISTEMA";
+  t.style.background = travado ? "#E8E7F5" : "#B91C1C"; t.style.color = travado ? "#1E1B4B" : "#fff";
+  if (meuSalao) {
+    const b = $("#btnAbrir"), fech = meuSalao.barbeariaFechada;
+    if (travado) { b.innerHTML = `<span class="dot" style="background:#6B6990"></span>Travado`; b.style.background = "#E9E7F7"; b.style.color = "#3A3860"; b.disabled = true; }
+    else { b.disabled = false; b.innerHTML = fech ? `<span class="dot" style="background:#DC2626"></span>Fechado · tocar para abrir` : `<span class="dot" style="background:#16A34A"></span>Aberto`; b.style.background = fech ? "var(--bad-l)" : "var(--ok-l)"; b.style.color = fech ? "#7F1D1D" : "#166534"; }
+  }
+  if (!salao) return;
+  const fechado = indisponivel(), fHoje = fechadoNoDia(salao, hojeISO());
+  const st = $("#sStatus");
+  st.innerHTML = fechado ? `<span class="dot" style="background:#DC2626"></span>Agendamentos indisponíveis` : fHoje ? `<span class="dot" style="background:#F59E0B"></span>Fechado hoje · agende para outro dia` : `<span class="dot" style="background:#16A34A"></span>Aberto hoje · ${esc(salao.inicio || "09:00")} às ${esc(salao.fim || "20:00")}`;
+  st.style.color = fechado ? "#7F1D1D" : fHoje ? "#92400E" : "#166534";
+  $("#btnAgendar").disabled = fechado;
+  $("#btnAgendar").textContent = fechado ? "Agendamentos indisponíveis" : "Agendar horário";
+  $("#avisoFechado").classList.toggle("hidden", !fechado);
+  $("#avisoFechado p").textContent = travado ? "Os agendamentos estão temporariamente indisponíveis." : "A barbearia não está recebendo agendamentos no momento.";
+  $("#fs").disabled = fechado; $("#btnConfirmar").disabled = fechado;
+  desenharHoras();
+}
+
+/* ----- gravar: protocolo em sequência + trava do horário (+ cancela o antigo ao remarcar) ----- */
+async function gravar(o, tok, antigo) {
+  const ocRef = F.doc(fire, "saloes", salao.id, "ocupados", o.chave);
+  return F.runTransaction(fire, async tx => {
+    const g = await tx.get(dGeral()), s = await tx.get(dSalao(salao.id)), oc = await tx.get(ocRef), ct = await tx.get(dContador(salao.id));
+    if ((g.exists() && g.data().bloqueado) || s.data()?.barbeariaFechada) throw new Error("bloqueado");
+    if (oc.exists()) throw new Error("ocupado");
+    const n = (ct.exists() ? ct.data().n : 0) + 1;
+    const protocolo = "TDB-" + pad(n, 5);
+    const agRef = F.doc(fire, "saloes", salao.id, "agendamentos", `${o.chave}_${protocolo}`);
+    if (antigo) {
+      tx.update(F.doc(fire, "saloes", salao.id, "agendamentos", antigo.agId), { status: "Cancelado", canceladoEm: F.serverTimestamp(), canceladoPor: "cliente", tokenUso: antigo.token });
+      tx.delete(F.doc(fire, "saloes", salao.id, "ocupados", antigo.chave));
+    }
+    tx.set(dContador(salao.id), { n });
+    tx.set(ocRef, { data: o.data, horario: o.horario, profissional: o.profissional, protocolo, criadoEm: F.serverTimestamp() });
+    tx.set(agRef, { ...o, protocolo, token: tok, status: "Agendado", criadoEm: F.serverTimestamp() });
+    return { protocolo, agId: agRef.id };
+  });
+}
+async function cancelarPeloCliente(c) {
+  const b = F.writeBatch(fire);
+  b.update(F.doc(fire, "saloes", salao.id, "agendamentos", c.agId), { status: "Cancelado", canceladoEm: F.serverTimestamp(), canceladoPor: "cliente", tokenUso: c.token });
+  b.delete(F.doc(fire, "saloes", salao.id, "ocupados", c.chave));
+  await b.commit();
+}
+
+const chaveComp = () => "tdb_comp_" + (salao?.id || SALAO_ID);
+const lerComprovante = () => { try { return JSON.parse(localStorage.getItem(chaveComp()) || "null"); } catch { return null; } };
+const salvarComprovante = c => { try { c ? localStorage.setItem(chaveComp(), JSON.stringify(c)) : localStorage.removeItem(chaveComp()); } catch {} };
+function linkZap(c, remarcado) {
+  const linhas = [`${remarcado ? "Agendamento remarcado" : "Novo agendamento"} (${c.protocolo})`, `Cliente: ${c.nome}`, `Telefone: ${c.telefone}`,
+    `Serviço: ${c.servico}`, `Data: ${dBR(c.data).slice(0, 5)} às ${c.horario}`, c.profissional && `Profissional: ${c.profissional}`].filter(Boolean);
+  return `https://wa.me/${salao.whatsapp}?text=${encodeURIComponent(linhas.join("\n"))}`;
+}
+function mostrarComprovante(c, estado) {
+  const box = $("#comprovante"), canc = estado !== "ativo";
+  const txtCanc = estado === "cliente" ? "Você cancelou este horário." : "Este horário foi cancelado pela barbearia.";
+  box.innerHTML = `<div class="row" style="justify-content:space-between"><span class="xs" style="font-weight:800;color:${canc ? "var(--bad)" : "var(--ok)"}">${canc ? "Agendamento cancelado" : "Seu próximo horário"}</span><span class="xs muted" style="font-family:ui-monospace,monospace">${esc(c.protocolo)}</span></div>
+    <p style="font-size:16px;font-weight:700;text-transform:capitalize">${esc(dataLonga(c.data))} às ${esc(c.horario)}</p>
+    <p class="sm muted">${esc(c.servico)}${c.profissional ? " com " + esc(c.profissional) : ""}${canc ? " · " + txtCanc : ""}</p>
+    ${canc ? `<button class="btn2" data-act="novo">Fazer novo agendamento</button>`
+           : `<div class="grid2"><button class="btn3" data-act="remarcar">Remarcar</button><button class="btn3" data-act="cancelarMeu" style="color:var(--bad);border-color:#FECACA">Cancelar</button></div>`}`;
+  box.classList.remove("hidden");
+  $("#servCard").style.marginTop = "0";
+}
+function acompanharMeu(c) {
+  off("meu");
+  if (!c.chave) return;
+  unsubs.meu = F.onSnapshot(F.doc(fire, "saloes", salao.id, "ocupados", c.chave), s => {
+    const d = s.exists() ? s.data() : null;
+    const ativo = d && d.protocolo === c.protocolo;
+    const passou = c.data < hojeISO();
+    if (passou && ativo) { salvarComprovante(null); $("#comprovante").classList.add("hidden"); $("#servCard").style.marginTop = "-44px"; return; }
+    mostrarComprovante(c, ativo ? "ativo" : ((lerComprovante() || c).canceladoPorMim ? "cliente" : "barbearia"));
+  }, () => mostrarComprovante(c, "ativo"));
+}
+function mostrarSucesso(c, remarcado) {
+  $("#sucTit").textContent = remarcado ? "Horário remarcado!" : "Horário reservado!";
+  $("#sucQuando").textContent = `${dataLonga(c.data)} às ${c.horario}`;
+  $("#sucServico").textContent = `${c.servico} · ${brl(c.preco)}`; $("#sucProf").textContent = c.profissional || "—"; $("#sucProto").textContent = c.protocolo;
+  $("#sucZap").classList.toggle("hidden", !salao?.whatsapp);
+  if (salao?.whatsapp) $("#sucBtnZap").href = linkZap(c, remarcado);
+  mostrarTela("sucesso");
+}
+async function confirmarAgendamento() {
+  if (!F || !salao) return aviso("Sem conexão. Tente novamente em instantes.");
+  if (indisponivel()) return aviso("Os agendamentos estão temporariamente indisponíveis.");
+  if (!horaSel) return aviso("Escolha um horário disponível.");
+  const nome = $("#nome").value.trim(), fone = $("#fone").value.trim();
+  if (!nome) return aviso("Digite o seu nome.");
+  if (dig(fone).length < 10) return aviso("Digite o WhatsApp com DDD, por exemplo 11 91234-5678.");
+  const sv = salao.servicos[servSel], prof = profSel || "", btn = $("#btnConfirmar");
+  const chave = `${slug(prof) || "geral"}_${diaSel}_${horaSel.replace(":", "")}`;
+  const o = { chave, nome, telefone: fone, profissional: prof, servico: sv.nome, preco: sv.preco, data: diaSel, horario: horaSel };
+  const tok = token(), antigo = remarcando;
+  btn.disabled = true; btn.textContent = "Salvando…";
+  try {
+    const r = await Promise.race([gravar(o, tok, antigo), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]);
+    const c = { ...o, protocolo: r.protocolo, agId: r.agId, token: tok };
+    salvarComprovante(c); remarcando = null; horaSel = null;
+    acompanharMeu(c); desenharHoras(); mostrarSucesso(c, !!antigo);
+  } catch (err) {
+    console.error(err);
+    aviso(err.message === "ocupado" ? "Esse horário acabou de ser ocupado. Escolha outro." : err.message === "bloqueado" ? "Os agendamentos estão temporariamente indisponíveis." : "Não foi possível salvar. Verifique a internet e tente novamente.");
+    horaSel = null; desenharHoras();
+  }
+  btn.disabled = false; resumo();
+}
+
+/* ================= EVENTOS ================= */
+document.addEventListener("click", async e => {
+  const cf = e.target.closest("[data-conf]");
+  if (cf) { $("#confirmBox").classList.add("hidden"); if (resolverConf) resolverConf(cf.dataset.conf === "1"); resolverConf = null; return; }
+  const t = e.target.closest("[data-nav],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
+  const d = t.dataset;
+  if (d.nav) return navegar(d.nav, d.breve);
+  if (d.dia) { diaSel = d.dia; horaSel = null; desenharDias(); ouvirDia(); desenharHoras(); return; }
+  if (d.hora) { horaSel = d.hora; desenharHoras(); return; }
+  if (d.serv) { servSel = +d.serv; desenharServicos(); return; }
+  if (d.prof) { profSel = d.prof; horaSel = null; desenharProfs(); desenharHoras(); return; }
+  switch (d.act) {
+    case "fechar": $("#modal").classList.add("hidden"); break;
+    case "entrar": entrar(); break;
+    case "esqueci": esqueci(); break;
+    case "sair": if (A) { await A.signOut(AU); } break;
+    case "agendar": if (!indisponivel()) { remarcando = null; resumo(); $("#agTitulo").textContent = "Agendar horário"; $("#agSub").textContent = salao.nome; mostrarTela("agendar"); } break;
+    case "inicio": remarcando = null; mostrarTela("home"); break;
+    case "confirmar": confirmarAgendamento(); break;
+    case "novo": salvarComprovante(null); off("meu"); $("#comprovante").classList.add("hidden"); $("#servCard").style.marginTop = "-44px"; if (!indisponivel()) mostrarTela("agendar"); break;
+    case "remarcar": {
+      const c = lerComprovante(); if (!c) return;
+      remarcando = { agId: c.agId, chave: c.chave, token: c.token, protocolo: c.protocolo };
+      $("#nome").value = c.nome || ""; $("#fone").value = c.telefone || "";
+      $("#agTitulo").textContent = "Remarcar horário"; $("#agSub").textContent = `Seu horário atual: ${dBR(c.data).slice(0, 5)} às ${c.horario}. Ele será liberado ao confirmar o novo.`;
+      resumo(); mostrarTela("agendar"); break;
+    }
+    case "cancelarMeu": {
+      const c = lerComprovante(); if (!c) return;
+      if (!(await confirmar(`Cancelar seu horário de ${dBR(c.data).slice(0, 5)} às ${c.horario}?`, "Cancelar horário"))) return;
+      c.canceladoPorMim = true; salvarComprovante(c);
+      try { await cancelarPeloCliente(c); mostrarComprovante(c, "cliente");
+        if (salao.whatsapp) aviso("Horário cancelado. Se quiser, avise a barbearia pelo WhatsApp."); }
+      catch (err) { console.error(err); delete c.canceladoPorMim; salvarComprovante(c); aviso("Não foi possível cancelar. Tente novamente ou fale com a barbearia pelo WhatsApp."); }
+      break;
+    }
+    case "cancelar":
+      if (!(await confirmar(`Cancelar o agendamento de ${d.rotulo}? O horário volta a ficar livre.`, "Cancelar horário"))) return;
+      try { await cancelarPeloDono(d.salao, d.id); } catch (err) { console.error(err); aviso("Não foi possível cancelar. Verifique a conexão."); }
+      break;
+    case "verCanc": verCanc = !verCanc; desenharAgendaDono(); break;
+    case "diaAnt": $("#bData").value = somaDias($("#bData").value || hojeISO(), -1); ouvirAgendaDono(); break;
+    case "diaProx": $("#bData").value = somaDias($("#bData").value || hojeISO(), 1); ouvirAgendaDono(); break;
+    case "copiarMeu": if (meuSalao) copiar(linkCliente(meuSalao.id)); break;
+    case "barb":
+      if (!meuSalao || travado) return;
+      if (!meuSalao.barbeariaFechada && !(await confirmar("Fechar a agenda? Os clientes não vão conseguir agendar até você abrir de novo.", "Fechar agenda"))) return;
+      try { await F.updateDoc(dSalao(meuSalao.id), { barbeariaFechada: !meuSalao.barbeariaFechada }); } catch (err) { console.error(err); aviso("Não foi possível alterar."); }
+      break;
+    case "trava": {
+      const novo = !travado;
+      if (!(await confirmar(novo ? "Travar o sistema? Nenhuma barbearia receberá agendamentos até você reabrir." : "Reabrir o sistema?", novo ? "Travar" : "Reabrir"))) return;
+      try { await F.setDoc(dGeral(), { bloqueado: novo }, { merge: true }); } catch (err) { console.error(err); aviso("Não foi possível alterar o sistema."); }
+      break;
+    }
+    case "novaSalao": abrirForm(null); break;
+    case "editar": abrirForm(d.id); break;
+    case "fecharForm": $("#formSalao").classList.add("hidden"); break;
+    case "addServ": $("#fServList").insertAdjacentHTML("beforeend", linhaServico()); $("#fServList").lastElementChild.querySelector(".sNome").focus(); break;
+    case "rmServ": t.closest(".servRow").remove(); break;
+    case "copiar": copiar(linkCliente(d.id)); break;
+    case "enviarAcesso": {
+      const s = saloes.find(x => x.id === d.id); if (!s) return;
+      if (!s.emailDono) return aviso("Cadastre o e-mail do dono antes de enviar o acesso.");
+      const url = (s.whatsapp ? `https://wa.me/${s.whatsapp}` : "https://wa.me/") + "?text=" + encodeURIComponent(msgAcesso(s));
+      window.open(url, "_blank", "noopener"); break;
+    }
+    case "redefinir": {
+      const s = saloes.find(x => x.id === d.id); if (!s?.emailDono) return aviso("Esta barbearia não tem e-mail de acesso.");
+      if (!(await confirmar(`Enviar um link de nova senha para ${s.emailDono}?`, "Enviar"))) return;
+      esqueci(s.emailDono); break;
+    }
+  }
+});
+$("#formSalao").addEventListener("submit", salvarForm);
+$("#lSenha").addEventListener("keydown", e => { if (e.key === "Enter") entrar(); });
+$("#bData").addEventListener("change", ouvirAgendaDono);
+$("#mAgData").addEventListener("change", ouvirAgendaMaster);
+$("#mAgSalao").addEventListener("change", ouvirAgendaMaster);
+
+/* ================= INÍCIO ================= */
+$("#mAgData").value = hojeISO();
+iniciar();
+</script>
 </body>
-
 </html>
-<script>// Copyright 2012 The Chromium Authors
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-"use strict";var loadTimeData;class LoadTimeData{constructor(){this.data_=null}set data(value){expect(!this.data_,"Re-setting data.");this.data_=value}valueExists(id){return id in this.data_}getValue(id){expect(this.data_,"No data. Did you remember to include strings.js?");const value=this.data_[id];expect(typeof value!=="undefined","Could not find value for "+id);return value}getString(id){const value=this.getValue(id);expectIsType(id,value,"string");return value}getStringF(id,var_args){const value=this.getString(id);if(!value){return""}const args=Array.prototype.slice.call(arguments);args[0]=value;return this.substituteString.apply(this,args)}substituteString(label,var_args){const varArgs=arguments;return label.replace(/\$(.|$|\n)/g,(function(m){expect(m.match(/\$[$1-9]/),"Unescaped $ found in localized string.");return m==="$$"?"$":varArgs[m[1]]}))}getBoolean(id){const value=this.getValue(id);expectIsType(id,value,"boolean");return value}getInteger(id){const value=this.getValue(id);expectIsType(id,value,"number");expect(value===Math.floor(value),"Number isn't integer: "+value);return value}overrideValues(replacements){expect(typeof replacements==="object","Replacements must be a dictionary object.");for(const key in replacements){this.data_[key]=replacements[key]}}}function expect(condition,message){if(!condition){throw new Error("Unexpected condition on "+document.location.href+": "+message)}}function expectIsType(id,value,type){expect(typeof value===type,"["+value+"] ("+id+") is not a "+type)}expect(!loadTimeData,"should only include this file once");loadTimeData=new LoadTimeData;window.loadTimeData=loadTimeData;console.warn("crbug/1173575, non-JS module files deprecated.");</script><script>loadTimeData.data = {"header":"Índice de LOCATION","headerDateModified":"Data da modificação","headerName":"Nome","headerSize":"Tamanho","language":"pt","parentDirText":"[diretório pai]","textdirection":"ltr"};</script><script>start("/Users/User/Downloads/");</script>
-<script>onHasParentDirectory();</script>
-<script>addRow("16111426877-IRPF-A-2025-2024-ORIGI","16111426877-IRPF-A-2025-2024-ORIGI",1,128,"128 B",1748866705,"02/06/2025, 09:18:25");</script>
-<script>addRow("16111426877-IRPF-A-2025-2024-ORIGI 2","16111426877-IRPF-A-2025-2024-ORIGI%202",1,128,"128 B",1748866896,"02/06/2025, 09:21:36");</script>
-<script>addRow("6b98269d-babc-430e-840c-26854e200433","6b98269d-babc-430e-840c-26854e200433",1,96,"96 B",1795529735,"24/11/2026, 11:15:35");</script>
-<script>addRow("6b98269d-babc-430e-840c-26854e200433 2","6b98269d-babc-430e-840c-26854e200433%202",1,96,"96 B",1795530030,"24/11/2026, 11:20:30");</script>
-<script>addRow("arge-site","arge-site",1,128,"128 B",1793937924,"06/11/2026, 01:05:24");</script>
-<script>addRow("arge-site-logo-atualizada","arge-site-logo-atualizada",1,320,"320 B",1793974671,"06/11/2026, 11:17:51");</script>
-<script>addRow("Arquivo Comprimido","Arquivo%20Comprimido",1,384,"384 B",1794247421,"09/11/2026, 15:03:41");</script>
-<script>addRow("Design sem nome","Design%20sem%20nome",1,448,"448 B",1784946644,"24/07/2026, 23:30:44");</script>
-<script>addRow("drive-download-20251016T000946Z-1-001","drive-download-20251016T000946Z-1-001",1,672,"672 B",1760573443,"15/10/2025, 21:10:43");</script>
-<script>addRow("fgwi6c3c_Sats_1_2025_12_02_11_11_47","fgwi6c3c_Sats_1_2025_12_02_11_11_47",1,320,"320 B",1764685144,"02/12/2025, 11:19:04");</script>
-<script>addRow("fgwi6c3c_Sats_1_2025_12_02_11_11_47 2","fgwi6c3c_Sats_1_2025_12_02_11_11_47%202",1,320,"320 B",1764685218,"02/12/2025, 11:20:18");</script>
-<script>addRow("files","files",1,512,"512 B",1789357096,"14/09/2026, 00:38:16");</script>
-<script>addRow("FOTOS SPINA","FOTOS%20SPINA",1,1952,"1.9 kB",1764194957,"26/11/2025, 19:09:17");</script>
-<script>addRow("Laura Souguellis","Laura%20Souguellis",1,256,"256 B",1766159221,"19/12/2025, 12:47:01");</script>
-<script>addRow("Proposta_BANCO_BTG_PACTUAL_SA","Proposta_BANCO_BTG_PACTUAL_SA",1,96,"96 B",1786128963,"07/08/2026, 15:56:03");</script>
-<script>addRow("XicoPeregrino_IA_files","XicoPeregrino_IA_files",1,640,"640 B",1766005402,"17/12/2025, 18:03:22");</script>
-<script>addRow(".DS_Store",".DS_Store",0,43012,"42.0 kB",1795530034,"24/11/2026, 11:20:34");</script>
-<script>addRow(".localized",".localized",0,0,"0 B",1693942253,"05/09/2023, 16:30:53");</script>
-<script>addRow("[Assinado] CONTRATO DE PARCERIA_Vs08AGO25.pdf","%5BAssinado%5D%20CONTRATO%20DE%20PARCERIA_Vs08AGO25.pdf",0,80288,"78.4 kB",1754657045,"08/08/2025, 09:44:05");</script>
-<script>addRow("~$Calculo Preco - Custo -  Avaliação_VSMAIO2025.xlsx","~$Calculo%20Preco%20-%20Custo%20-%20%20Avaliac%CC%A7a%CC%83o_VSMAIO2025.xlsx",0,165,"165 B",1749076072,"04/06/2025, 19:27:52");</script>
-<script>addRow("~$controle-de-custos (1).xlsx","~$controle-de-custos%20(1).xlsx",0,165,"165 B",1793755791,"03/11/2026, 22:29:51");</script>
-<script>addRow("~$Dia do Desenhista.pptx","~$Dia%20do%20Desenhista.pptx",0,165,"165 B",1713215197,"15/04/2024, 18:06:37");</script>
-<script>addRow("~$Estabelecimentos_Alphaville_Barueri.xlsx","~$Estabelecimentos_Alphaville_Barueri.xlsx",0,165,"165 B",1749399897,"08/06/2025, 13:24:57");</script>
-<script>addRow("~$FLUXO CAIXA ARGE2024.xlsx","~$FLUXO%20CAIXA%20ARGE2024.xlsx",0,165,"165 B",1740670376,"27/02/2025, 12:32:56");</script>
-<script>addRow("~$Modelo Cartão de Visitas.pptx","~$Modelo%20Carta%CC%83o%20de%20Visitas.pptx",0,165,"165 B",1713219180,"15/04/2024, 19:13:00");</script>
-<script>addRow("~$NegociacoesCompleto_13686653_20250101_20250131_cc65ea0c7cf74f9992a67fb21118c4e1.xlsx","~$NegociacoesCompleto_13686653_20250101_20250131_cc65ea0c7cf74f9992a67fb21118c4e1.xlsx",0,165,"165 B",1740840979,"01/03/2025, 11:56:19");</script>
-<script>addRow("~$NegociacoesCompleto_13686653_20250201_20250228_dbb2805b5dd4473a9770cd8489dc67af.xlsx","~$NegociacoesCompleto_13686653_20250201_20250228_dbb2805b5dd4473a9770cd8489dc67af.xlsx",0,165,"165 B",1740840505,"01/03/2025, 11:48:25");</script>
-<script>addRow("~$Pessoal _ Orçamento.xlsx","~$Pessoal%20_%20Orc%CC%A7amento.xlsx",0,165,"165 B",1732049692,"19/11/2024, 17:54:52");</script>
-<script>addRow("~$PLANILHA FLUXO DE CAIXA FINANCEIRO.xlsx","~$PLANILHA%20FLUXO%20DE%20CAIXA%20FINANCEIRO.xlsx",0,165,"165 B",1726103144,"11/09/2024, 22:05:44");</script>
-<script>addRow("0621E26F-FF78-4F2F-BDC9-452C5E314C5F.PNG","0621E26F-FF78-4F2F-BDC9-452C5E314C5F.PNG",0,1920704,"1.8 MB",1794334008,"10/11/2026, 15:06:48");</script>
-<script>addRow("0c6ba331-cdac-4a2e-9c47-a91d14c212ea.png","0c6ba331-cdac-4a2e-9c47-a91d14c212ea.png",0,2196197,"2.1 MB",1765485478,"11/12/2025, 17:37:58");</script>
-<script>addRow("14NOV_D2.png","14NOV_D2.png",0,1703926,"1.6 MB",1784946387,"24/07/2026, 23:26:27");</script>
-<script>addRow("16111426877-IRPF-A-2025-2024-DEC.pdf","16111426877-IRPF-A-2025-2024-DEC.pdf",0,417401,"408 kB",1748866731,"02/06/2025, 09:18:51");</script>
-<script>addRow("16111426877-IRPF-A-2025-2024-ORIGI (1).DEC","16111426877-IRPF-A-2025-2024-ORIGI%20(1).DEC",0,25442,"24.8 kB",1748569470,"29/05/2025, 22:44:30");</script>
-<script>addRow("16111426877-IRPF-A-2025-2024-ORIGI.DEC","16111426877-IRPF-A-2025-2024-ORIGI.DEC",0,25442,"24.8 kB",1748569441,"29/05/2025, 22:44:01");</script>
-<script>addRow("16111426877-IRPF-A-2025-2024-ORIGI.zip","16111426877-IRPF-A-2025-2024-ORIGI.zip",0,3021,"3.0 kB",1748866700,"02/06/2025, 09:18:20");</script>
-<script>addRow("16111426877-IRPF-A-2025-2024-REC.pdf","16111426877-IRPF-A-2025-2024-REC.pdf",0,82495,"80.6 kB",1748866726,"02/06/2025, 09:18:46");</script>
-<script>addRow("16111426877-IRPF-A-2026-2025-ORIGI-2.DEC","16111426877-IRPF-A-2026-2025-ORIGI-2.DEC",0,24976,"24.4 kB",1779542710,"23/05/2026, 10:25:10");</script>
-<script>addRow("16111426877-IRPF-A-2026-2025-ORIGI.DEC","16111426877-IRPF-A-2026-2025-ORIGI.DEC",0,24976,"24.4 kB",1779542666,"23/05/2026, 10:24:26");</script>
-<script>addRow("16111426877-IRPF-D-2025-5320-02-07-2025-16.pdf","16111426877-IRPF-D-2025-5320-02-07-2025-16.pdf",0,116260,"114 kB",1750947295,"26/06/2025, 11:14:55");</script>
-<script>addRow("2025-07-02T13_55_15.518Z_e.cetesb.sp.gov.br_chat_log.html","2025-07-02T13_55_15.518Z_e.cetesb.sp.gov.br_chat_log.html",0,13143,"12.8 kB",1751464517,"02/07/2025, 10:55:17");</script>
-<script>addRow("25-05.txt","25-05.txt",0,2301,"2.2 kB",1747669060,"19/05/2025, 12:37:40");</script>
-<script>addRow("25.......2026.mp4","25.......2026.mp4",0,2861477,"2.7 MB",1767225081,"31/12/2025, 20:51:21");</script>
-<script>addRow("291AAE36-382B-4816-A901-917F079C0D59.PNG","291AAE36-382B-4816-A901-917F079C0D59.PNG",0,518668,"507 kB",1753585025,"26/07/2025, 23:57:05");</script>
-<script>addRow("2bf55adc-4d09-4c30-abb9-134988368280.JPG","2bf55adc-4d09-4c30-abb9-134988368280.JPG",0,167315,"163 kB",1782915367,"01/07/2026, 11:16:07");</script>
-<script>addRow("2E113D59-2A4C-48D5-84E8-A7622FEF2D90.PNG","2E113D59-2A4C-48D5-84E8-A7622FEF2D90.PNG",0,2981510,"2.8 MB",1793928007,"05/11/2026, 22:20:07");</script>
-<script>addRow("34A86CD6-6C16-48C1-82E4-EBED8DFAC8EC.PNG","34A86CD6-6C16-48C1-82E4-EBED8DFAC8EC.PNG",0,2868062,"2.7 MB",1793928421,"05/11/2026, 22:27:01");</script>
-<script>addRow("356a6130-25a6-4fb9-a164-965b122fc415.JPG","356a6130-25a6-4fb9-a164-965b122fc415.JPG",0,184019,"180 kB",1759746441,"06/10/2025, 07:27:21");</script>
-<script>addRow("36BB43B3-4E81-45ED-8040-33D13604CB21.PNG","36BB43B3-4E81-45ED-8040-33D13604CB21.PNG",0,1835813,"1.8 MB",1764963751,"05/12/2025, 16:42:31");</script>
-<script>addRow("37E60E01-36B3-4F29-A3D1-72129C9BDF9B.PNG","37E60E01-36B3-4F29-A3D1-72129C9BDF9B.PNG",0,3119807,"3.0 MB",1793928211,"05/11/2026, 22:23:31");</script>
-<script>addRow("3a Caminhada_vs1.jpg","3a%20Caminhada_vs1.jpg",0,159868,"156 kB",1762217929,"03/11/2025, 21:58:49");</script>
-<script>addRow("3ab8ac80-15be-414c-8bd7-ad1bf6d06347.JPG","3ab8ac80-15be-414c-8bd7-ad1bf6d06347.JPG",0,191965,"187 kB",1759746462,"06/10/2025, 07:27:42");</script>
-<script>addRow("401F31E9-E060-45F8-922A-75BCDF4A0CCE 2.PNG","401F31E9-E060-45F8-922A-75BCDF4A0CCE%202.PNG",0,1547855,"1.5 MB",1778932858,"16/05/2026, 09:00:58");</script>
-<script>addRow("4a Peregrinacao - Xico Peregrino 2026_8.pptx","4a%20Peregrinacao%20-%20Xico%20Peregrino%202026_8.pptx",0,6106793,"5.8 MB",1784167434,"15/07/2026, 23:03:54");</script>
-<script>addRow("4a Peregrinacao - Xico Peregrino 2026.pptx","4a%20Peregrinacao%20-%20Xico%20Peregrino%202026.pptx",0,6040108,"5.8 MB",1783854137,"12/07/2026, 08:02:17");</script>
-<script>addRow("4a_Jornada_Xico_Peregrino_COMPLETA_com_artes (1).pptx","4a_Jornada_Xico_Peregrino_COMPLETA_com_artes%20(1).pptx",0,47724851,"45.5 MB",1794056147,"07/11/2026, 09:55:47");</script>
-<script>addRow("4a_Jornada_Xico_Peregrino_COMPLETA_com_artes.pptx","4a_Jornada_Xico_Peregrino_COMPLETA_com_artes.pptx",0,47724851,"45.5 MB",1793641101,"02/11/2026, 14:38:21");</script>
-<script>addRow("4a_Jornada_Xico_Peregrino_Reuniao_Final_03-11-2026_v2.pptx","4a_Jornada_Xico_Peregrino_Reuniao_Final_03-11-2026_v2.pptx",0,5829885,"5.6 MB",1793638077,"02/11/2026, 13:47:57");</script>
-<script>addRow("6AFD4B47-3862-410A-A652-B0F97907DE60.PNG","6AFD4B47-3862-410A-A652-B0F97907DE60.PNG",0,1394618,"1.3 MB",1753585121,"26/07/2025, 23:58:41");</script>
-<script>addRow("6DF16056-2A95-4936-8ED0-39E2229DBCBF.PNG","6DF16056-2A95-4936-8ED0-39E2229DBCBF.PNG",0,1874116,"1.8 MB",1778932824,"16/05/2026, 09:00:24");</script>
-<script>addRow("6F65410A-3117-4FF5-BBDD-C3A5C551F96F.PNG","6F65410A-3117-4FF5-BBDD-C3A5C551F96F.PNG",0,2753185,"2.6 MB",1785239909,"28/07/2026, 08:58:29");</script>
-<script>addRow("7E809402-93EB-4246-AEDD-9C7E6B7C9889.PNG","7E809402-93EB-4246-AEDD-9C7E6B7C9889.PNG",0,2688140,"2.6 MB",1793928153,"05/11/2026, 22:22:33");</script>
-<script>addRow("7ec620ef-108a-46c6-a1d8-e2bbad1bc860.JPG","7ec620ef-108a-46c6-a1d8-e2bbad1bc860.JPG",0,156014,"152 kB",1697409902,"15/10/2023, 19:45:02");</script>
-<script>addRow("882BB202-1988-48BA-B255-38BADEB441B5.PNG","882BB202-1988-48BA-B255-38BADEB441B5.PNG",0,2759812,"2.6 MB",1793928085,"05/11/2026, 22:21:25");</script>
-<script>addRow("89382369-FC89-472D-B624-CEC261D47AB0.PNG","89382369-FC89-472D-B624-CEC261D47AB0.PNG",0,2831494,"2.7 MB",1793928317,"05/11/2026, 22:25:17");</script>
-<script>addRow("9466D844-2F1A-45DC-92EB-9FB62786219D.PNG","9466D844-2F1A-45DC-92EB-9FB62786219D.PNG",0,2725956,"2.6 MB",1785240157,"28/07/2026, 09:02:37");</script>
-<script>addRow("9830B66C-5A23-4F06-9C36-B4D97519BDC4.PNG","9830B66C-5A23-4F06-9C36-B4D97519BDC4.PNG",0,1922953,"1.8 MB",1791278315,"06/10/2026, 06:18:35");</script>
-<script>addRow("9977409B-F764-4903-8DE7-E969DACB41E0 2.PNG","9977409B-F764-4903-8DE7-E969DACB41E0%202.PNG",0,2771527,"2.6 MB",1793934230,"06/11/2026, 00:03:50");</script>
-<script>addRow("9977409B-F764-4903-8DE7-E969DACB41E0.PNG","9977409B-F764-4903-8DE7-E969DACB41E0.PNG",0,2771527,"2.6 MB",1793934230,"06/11/2026, 00:03:50");</script>
-<script>addRow("9d5a9a09-24f3-4215-bbfb-63c119a1fede.JPG","9d5a9a09-24f3-4215-bbfb-63c119a1fede.JPG",0,132368,"129 kB",1697409904,"15/10/2023, 19:45:04");</script>
-<script>addRow("a3d244bd-48c3-4723-921c-36f7c2ca034f.JPG","a3d244bd-48c3-4723-921c-36f7c2ca034f.JPG",0,46265,"45.2 kB",1765541425,"12/12/2025, 09:10:25");</script>
-<script>addRow("a8b5ea4d-2f3a-49c0-8912-7f123a646998.JPG","a8b5ea4d-2f3a-49c0-8912-7f123a646998.JPG",0,141337,"138 kB",1697409902,"15/10/2023, 19:45:02");</script>
-<script>addRow("ABF2EE68-B354-41E0-A8FD-5575FEC358F1.PNG","ABF2EE68-B354-41E0-A8FD-5575FEC358F1.PNG",0,472311,"461 kB",1789331965,"13/09/2026, 17:39:25");</script>
-<script>addRow("AGENDA_T4 DIAS.png","AGENDA_T4%20DIAS.png",0,139979,"137 kB",1762210305,"03/11/2025, 19:51:45");</script>
-<script>addRow("Apresentacao_Expansao_Rubi_2024_2025.pptx","Apresentacao_Expansao_Rubi_2024_2025.pptx",0,38070,"37.2 kB",1749919904,"14/06/2025, 13:51:44");</script>
-<script>addRow("Arge_Aliancas_ajustes_finos.html","Arge_Aliancas_ajustes_finos.html",0,1554327,"1.5 MB",1793975869,"06/11/2026, 11:37:49");</script>
-<script>addRow("Arge_Aliancas_colecoes_corrigidas.html","Arge_Aliancas_colecoes_corrigidas.html",0,1172182,"1.1 MB",1793975430,"06/11/2026, 11:30:30");</script>
-<script>addRow("Arge_Aliancas_colecoes_kits_populados.html","Arge_Aliancas_colecoes_kits_populados.html",0,1556601,"1.5 MB",1793979696,"06/11/2026, 12:41:36");</script>
-<script>addRow("Arge_Aliancas_fotos_incorporadas.html","Arge_Aliancas_fotos_incorporadas.html",0,1222922,"1.2 MB",1793975255,"06/11/2026, 11:27:35");</script>
-<script>addRow("Arge_Aliancas_instagram_conectado (1).html","Arge_Aliancas_instagram_conectado%20(1).html",0,1557196,"1.5 MB",1793979971,"06/11/2026, 12:46:11");</script>
-<script>addRow("Arge_Aliancas_instagram_conectado.html","Arge_Aliancas_instagram_conectado.html",0,1557196,"1.5 MB",1793979948,"06/11/2026, 12:45:48");</script>
-<script>addRow("Arge_Aliancas_layout_refinado.html","Arge_Aliancas_layout_refinado.html",0,1556060,"1.5 MB",1793979189,"06/11/2026, 12:33:09");</script>
-<script>addRow("Arge_Aliancas_site_atualizado.html","Arge_Aliancas_site_atualizado.html",0,436709,"426 kB",1793974904,"06/11/2026, 11:21:44");</script>
-<script>addRow("Arge_Aliancas_site_catalogo_atualizado.html","Arge_Aliancas_site_catalogo_atualizado.html",0,1554705,"1.5 MB",1793977889,"06/11/2026, 12:11:29");</script>
-<script>addRow("Arge_Aliancas_site_espacamento_corrigido.html","Arge_Aliancas_site_espacamento_corrigido.html",0,1554714,"1.5 MB",1793978100,"06/11/2026, 12:15:00");</script>
-<script>addRow("arge-site-demo.zip","arge-site-demo.zip",0,5252,"5.1 kB",1793970817,"06/11/2026, 10:13:37");</script>
-<script>addRow("arge-site-logo-atualizada.zip","arge-site-logo-atualizada.zip",0,77644,"75.8 kB",1793971085,"06/11/2026, 10:18:05");</script>
-<script>addRow("Arquivo Comprimido.zip","Arquivo%20Comprimido.zip",0,1739223,"1.7 MB",1794246954,"09/11/2026, 14:55:54");</script>
-<script>addRow("B5F8C796-22B6-4347-8C71-31CF540A69CC.PNG","B5F8C796-22B6-4347-8C71-31CF540A69CC.PNG",0,1903861,"1.8 MB",1788257928,"01/09/2026, 07:18:48");</script>
-<script>addRow("B6E1F9E2-F4F3-4877-A0C5-E8379AB0996D.PNG","B6E1F9E2-F4F3-4877-A0C5-E8379AB0996D.PNG",0,2198545,"2.1 MB",1788310898,"01/09/2026, 22:01:38");</script>
-<script>addRow("B715ED38-07DC-4CDC-BF55-FFAC4EF01E6E.PNG","B715ED38-07DC-4CDC-BF55-FFAC4EF01E6E.PNG",0,3873141,"3.7 MB",1786097232,"07/08/2026, 07:07:12");</script>
-<script>addRow("b76978f6-60e5-4bd8-a06d-318f746ebaa0.JPG","b76978f6-60e5-4bd8-a06d-318f746ebaa0.JPG",0,148446,"145 kB",1788007532,"29/08/2026, 09:45:32");</script>
-<script>addRow("B95C1649-5AD4-4980-B255-E0FF870DE069.PNG","B95C1649-5AD4-4980-B255-E0FF870DE069.PNG",0,1367261,"1.3 MB",1753584884,"26/07/2025, 23:54:44");</script>
-<script>addRow("Banner corporativo com negócios e contato.png","Banner%20corporativo%20com%20neg%C3%B3cios%20e%20contato.png",0,1501165,"1.4 MB",1793308658,"29/10/2026, 18:17:38");</script>
-<script>addRow("BC35B634-458E-4544-8EA0-925588B6B761.heic","BC35B634-458E-4544-8EA0-925588B6B761.heic",0,532564,"520 kB",1784716018,"22/07/2026, 07:26:58");</script>
-<script>addRow("c95dd3fa-2bcd-4b14-b4f7-c6454aca54b9.JPG","c95dd3fa-2bcd-4b14-b4f7-c6454aca54b9.JPG",0,96755,"94.5 kB",1765541426,"12/12/2025, 09:10:26");</script>
-<script>addRow("CA486A98-62A7-435A-84F3-A66C4ABEC8C9.PNG","CA486A98-62A7-435A-84F3-A66C4ABEC8C9.PNG",0,2207783,"2.1 MB",1795114442,"19/11/2026, 15:54:02");</script>
-<script>addRow("Cáculo Preço - Custo - Avaliação.xlsx","Ca%CC%81culo%20Prec%CC%A7o%20-%20Custo%20-%20Avaliac%CC%A7a%CC%83o.xlsx",0,22701,"22.2 kB",1749075808,"04/06/2025, 19:23:28");</script>
-<script>addRow("Calculo Preco - Custo -  Avaliação_VSMAIO2025 (1).xlsx","Calculo%20Preco%20-%20Custo%20-%20%20Avaliac%CC%A7a%CC%83o_VSMAIO2025%20(1).xlsx",0,201549,"197 kB",1750115049,"16/06/2025, 20:04:09");</script>
-<script>addRow("Calculo Preco - Custo -  Avaliação_VSMAIO2025.xlsx","Calculo%20Preco%20-%20Custo%20-%20%20Avaliac%CC%A7a%CC%83o_VSMAIO2025.xlsx",0,305268,"298 kB",1749076069,"04/06/2025, 19:27:49");</script>
-<script>addRow("Camisetas_Xico_Peregrino_2026.xlsx","Camisetas_Xico_Peregrino_2026.xlsx",0,5973,"5.8 kB",1792874116,"24/10/2026, 17:35:16");</script>
-<script>addRow("Capa.png","Capa.png",0,1589088,"1.5 MB",1784945953,"24/07/2026, 23:19:13");</script>
-<script>addRow("capalinkedin.png","capalinkedin.png",0,1501165,"1.4 MB",1793308767,"29/10/2026, 18:19:27");</script>
-<script>addRow("CapCut_7533790007644012597_installer.dmg","CapCut_7533790007644012597_installer.dmg",0,2296955,"2.2 MB",1754097222,"01/08/2025, 22:13:42");</script>
-<script>addRow("Captura de Tela 2025-05-12 à(s) 19.26.25.jpeg","Captura%20de%20Tela%202025-05-12%20a%CC%80(s)%2019.26.25.jpeg",0,1317558,"1.3 MB",1747088812,"12/05/2025, 19:26:52");</script>
-<script>addRow("Captura de Tela 2025-07-02 à(s) 11.20.06.jpeg","Captura%20de%20Tela%202025-07-02%20a%CC%80(s)%2011.20.06.jpeg",0,696438,"680 kB",1751466017,"02/07/2025, 11:20:17");</script>
-<script>addRow("Captura de Tela 2026-11-06 à(s) 11.48.35.png","Captura%20de%20Tela%202026-11-06%20a%CC%80(s)%2011.48.35.png",0,863838,"844 kB",1793976536,"06/11/2026, 11:48:56");</script>
-<script>addRow("Captura de Tela 2026-11-06 à(s) 11.49.46.png","Captura%20de%20Tela%202026-11-06%20a%CC%80(s)%2011.49.46.png",0,877234,"857 kB",1793976593,"06/11/2026, 11:49:53");</script>
-<script>addRow("Captura de Tela 2026-11-06 à(s) 11.50.54.png","Captura%20de%20Tela%202026-11-06%20a%CC%80(s)%2011.50.54.png",0,370512,"362 kB",1793976661,"06/11/2026, 11:51:01");</script>
-<script>addRow("Captura de Tela 2026-11-06 à(s) 12.00.46.png","Captura%20de%20Tela%202026-11-06%20a%CC%80(s)%2012.00.46.png",0,1624555,"1.5 MB",1793977253,"06/11/2026, 12:00:53");</script>
-<script>addRow("Captura de Tela 2026-11-06 à(s) 12.02.13.png","Captura%20de%20Tela%202026-11-06%20a%CC%80(s)%2012.02.13.png",0,1721258,"1.6 MB",1793977339,"06/11/2026, 12:02:19");</script>
-<script>addRow("Captura de Tela 2026-11-06 à(s) 12.05.00.png","Captura%20de%20Tela%202026-11-06%20a%CC%80(s)%2012.05.00.png",0,832733,"813 kB",1793977508,"06/11/2026, 12:05:08");</script>
-<script>addRow("Captura de Tela 2026-11-06 à(s) 12.06.26.png","Captura%20de%20Tela%202026-11-06%20a%CC%80(s)%2012.06.26.png",0,599739,"586 kB",1793977596,"06/11/2026, 12:06:36");</script>
-<script>addRow("Captura de Tela 2026-11-25 à(s) 12.10.59.png","Captura%20de%20Tela%202026-11-25%20a%CC%80(s)%2012.10.59.png",0,244305,"239 kB",1795619465,"25/11/2026, 12:11:05");</script>
-<script>addRow("CATÁLOGO_ARGE_ALIANÇAS.pdf","CATA%CC%81LOGO_ARGE_ALIANC%CC%A7AS.pdf",0,5034424,"4.8 MB",1753588772,"27/07/2025, 00:59:32");</script>
-<script>addRow("ChatGPT Image 11 de dez. de 2025 17_00_11.png","ChatGPT%20Image%2011%20de%20dez.%20de%202025%2017_00_11.png",0,1436903,"1.4 MB",1765483212,"11/12/2025, 17:00:12");</script>
-<script>addRow("ChatGPT Image 20 de jan. de 2026, 07_10_26.png","ChatGPT%20Image%2020%20de%20jan.%20de%202026,%2007_10_26.png",0,2702336,"2.6 MB",1768903826,"20/01/2026, 07:10:26");</script>
-<script>addRow("ChatGPT Image 21 de jul. de 2026, 23_18_23.png","ChatGPT%20Image%2021%20de%20jul.%20de%202026,%2023_18_23.png",0,1659925,"1.6 MB",1784686703,"21/07/2026, 23:18:23");</script>
-<script>addRow("ChatGPT Image 21 de jul. de 2026, 23_23_04.png","ChatGPT%20Image%2021%20de%20jul.%20de%202026,%2023_23_04.png",0,1658961,"1.6 MB",1784686984,"21/07/2026, 23:23:04");</script>
-<script>addRow("ChatGPT Image 27 de jul. de 2025, 00_30_56.png","ChatGPT%20Image%2027%20de%20jul.%20de%202025,%2000_30_56.png",0,1485074,"1.4 MB",1753587056,"27/07/2025, 00:30:56");</script>
-<script>addRow("ChatGPT Image 27 de jul. de 2025, 00_38_30.png","ChatGPT%20Image%2027%20de%20jul.%20de%202025,%2000_38_30.png",0,2084048,"2.0 MB",1753587510,"27/07/2025, 00:38:30");</script>
-<script>addRow("ChatGPT Image 27 de out. de 2025, 12_39_45.png","ChatGPT%20Image%2027%20de%20out.%20de%202025,%2012_39_45.png",0,1008895,"985 kB",1761579586,"27/10/2025, 12:39:46");</script>
-<script>addRow("ChatGPT Image 28 de jul. de 2026, 00_56_34.png","ChatGPT%20Image%2028%20de%20jul.%20de%202026,%2000_56_34.png",0,1395277,"1.3 MB",1785210994,"28/07/2026, 00:56:34");</script>
-<script>addRow("ChatGPT Image 8 de dez. de 2025 10_52_01.png","ChatGPT%20Image%208%20de%20dez.%20de%202025%2010_52_01.png",0,1949501,"1.9 MB",1765201922,"08/12/2025, 10:52:02");</script>
-<script>addRow("ChatGPT Image 8 de dez. de 2025 10_54_54.png","ChatGPT%20Image%208%20de%20dez.%20de%202025%2010_54_54.png",0,2289611,"2.2 MB",1765202094,"08/12/2025, 10:54:54");</script>
-<script>addRow("ChatGPT Image 8 de dez. de 2025 10_59_17.png","ChatGPT%20Image%208%20de%20dez.%20de%202025%2010_59_17.png",0,2664834,"2.5 MB",1765202358,"08/12/2025, 10:59:18");</script>
-<script>addRow("ChatGPTInstaller.dmg","ChatGPTInstaller.dmg",0,848907,"829 kB",1790766075,"30/09/2026, 08:01:15");</script>
-<script>addRow("Claude.dmg","Claude.dmg",0,331247690,"316 MB",1783796647,"11/07/2026, 16:04:07");</script>
-<script>addRow("Clique aqui para baixar: Carta_Encerramento_Operacao_Tambore_ARGE.docx","Clique%20aqui%20para%20baixar%3A%20Carta_Encerramento_Operacao_Tambore_ARGE.docx",0,37716,"36.8 kB",1751899339,"07/07/2025, 11:42:19");</script>
-<script>addRow("ComprResid_072025.jpeg","ComprResid_072025.jpeg",0,696438,"680 kB",1751466067,"02/07/2025, 11:21:07");</script>
-<script>addRow("Contrato Parceria - Laura Souguellis_vs08AGO25.docx","Contrato%20Parceria%20-%20Laura%20Souguellis_vs08AGO25.docx",0,12059,"11.8 kB",1754607568,"07/08/2025, 19:59:28");</script>
-<script>addRow("Controle 4a - 2026.xlsx","Controle%204a%20-%202026.xlsx",0,232806,"227 kB",1783736516,"10/07/2026, 23:21:56");</script>
-<script>addRow("Controle Peregrinacao 2026.xlsx","Controle%20Peregrinacao%202026.xlsx",0,38584,"37.7 kB",1785807821,"03/08/2026, 22:43:41");</script>
-<script>addRow("Controle Peregrinacao 2027.xlsx","Controle%20Peregrinacao%202027.xlsx",0,39637,"38.7 kB",1785808857,"03/08/2026, 23:00:57");</script>
-<script>addRow("Controle Peregrinacao 2028.xlsx","Controle%20Peregrinacao%202028.xlsx",0,39637,"38.7 kB",1785809667,"03/08/2026, 23:14:27");</script>
-<script>addRow("Controle_Peregrinacao_2026_1.xlsx","Controle_Peregrinacao_2026_1.xlsx",0,40907,"39.9 kB",1785904757,"05/08/2026, 01:39:17");</script>
-<script>addRow("Controle_Peregrinacao_2026.xlsx","Controle_Peregrinacao_2026.xlsx",0,37366,"36.5 kB",1785810217,"03/08/2026, 23:23:37");</script>
-<script>addRow("controle-de-custos (1).xlsx","controle-de-custos%20(1).xlsx",0,19732,"19.3 kB",1793755786,"03/11/2026, 22:29:46");</script>
-<script>addRow("controle-de-custos.xlsx","controle-de-custos.xlsx",0,19732,"19.3 kB",1793754293,"03/11/2026, 22:04:53");</script>
-<script>addRow("CORTA VENTO.jpg","CORTA%20VENTO.jpg",0,183820,"180 kB",1788258190,"01/09/2026, 07:23:10");</script>
-<script>addRow("Criação_De_Vídeo_Com_Narração_Personalizada.mp4","Cria%C3%A7%C3%A3o_De_V%C3%ADdeo_Com_Narra%C3%A7%C3%A3o_Personalizada.mp4",0,2689014,"2.6 MB",1767048203,"29/12/2025, 19:43:23");</script>
-<script>addRow("Criação_de_Vídeo_com_São_Francisco (1).mp4","Cria%C3%A7%C3%A3o_de_V%C3%ADdeo_com_S%C3%A3o_Francisco%20(1).mp4",0,1557840,"1.5 MB",1767236060,"31/12/2025, 23:54:20");</script>
-<script>addRow("Criação_de_Vídeo_com_São_Francisco.mp4","Cria%C3%A7%C3%A3o_de_V%C3%ADdeo_com_S%C3%A3o_Francisco.mp4",0,1557840,"1.5 MB",1767236042,"31/12/2025, 23:54:02");</script>
-<script>addRow("Criação_de_Vídeo_de_Agradecimento.mp4","Cria%C3%A7%C3%A3o_de_V%C3%ADdeo_de_Agradecimento.mp4",0,4150912,"4.0 MB",1767048209,"29/12/2025, 19:43:29");</script>
-<script>addRow("Criação_de_Vídeo_de_Feliz_Ano_Novo.mp4","Cria%C3%A7%C3%A3o_de_V%C3%ADdeo_de_Feliz_Ano_Novo.mp4",0,2410039,"2.3 MB",1767048215,"29/12/2025, 19:43:35");</script>
-<script>addRow("Criação_de_Vídeo_para_Instagram.mp4","Cria%C3%A7%C3%A3o_de_V%C3%ADdeo_para_Instagram.mp4",0,1023572,"1000 kB",1766029190,"18/12/2025, 00:39:50");</script>
-<script>addRow("Criação_de_Vídeo_Promocional_Personalizado.mp4","Cria%C3%A7%C3%A3o_de_V%C3%ADdeo_Promocional_Personalizado.mp4",0,929536,"908 kB",1766005446,"17/12/2025, 18:04:06");</script>
-<script>addRow("CultureFeedback.pdf","CultureFeedback.pdf",0,29636,"28.9 kB",1760037126,"09/10/2025, 16:12:06");</script>
-<script>addRow("Custos_4a_Peregrinacao_Xico_Peregrino_1.xlsx","Custos_4a_Peregrinacao_Xico_Peregrino_1.xlsx",0,24787,"24.2 kB",1783819200,"11/07/2026, 22:20:00");</script>
-<script>addRow("Custos_4a_Peregrinacao_Xico_Peregrino_2.xlsx","Custos_4a_Peregrinacao_Xico_Peregrino_2.xlsx",0,24834,"24.3 kB",1783900564,"12/07/2026, 20:56:04");</script>
-<script>addRow("Custos_4a_Peregrinacao_Xico_Peregrino_3.xlsx","Custos_4a_Peregrinacao_Xico_Peregrino_3.xlsx",0,27469,"26.8 kB",1784020206,"14/07/2026, 06:10:06");</script>
-<script>addRow("Custos_4a_Peregrinacao_Xico_Peregrino_4.xlsx","Custos_4a_Peregrinacao_Xico_Peregrino_4.xlsx",0,28718,"28.0 kB",1784082116,"14/07/2026, 23:21:56");</script>
-<script>addRow("Custos_4a_Peregrinacao_Xico_Peregrino_5.xlsx","Custos_4a_Peregrinacao_Xico_Peregrino_5.xlsx",0,28718,"28.0 kB",1784083086,"14/07/2026, 23:38:06");</script>
-<script>addRow("Custos_4a_Peregrinacao_Xico_Peregrino_6.xlsx","Custos_4a_Peregrinacao_Xico_Peregrino_6.xlsx",0,12715,"12.4 kB",1784086786,"15/07/2026, 00:39:46");</script>
-<script>addRow("Custos_4a_Peregrinacao_Xico_Peregrino_7.xlsx","Custos_4a_Peregrinacao_Xico_Peregrino_7.xlsx",0,18542,"18.1 kB",1784167238,"15/07/2026, 23:00:38");</script>
-<script>addRow("Custos_4a_Peregrinacao_Xico_Peregrino_8.xlsx","Custos_4a_Peregrinacao_Xico_Peregrino_8.xlsx",0,18542,"18.1 kB",1784167264,"15/07/2026, 23:01:04");</script>
-<script>addRow("Custos_4a_Peregrinacao_Xico_Peregrino_9.xlsx","Custos_4a_Peregrinacao_Xico_Peregrino_9.xlsx",0,18542,"18.1 kB",1784169952,"15/07/2026, 23:45:52");</script>
-<script>addRow("Custos_4a_Peregrinacao_Xico_Peregrino.xlsx","Custos_4a_Peregrinacao_Xico_Peregrino.xlsx",0,26247,"25.6 kB",1783800353,"11/07/2026, 17:05:53");</script>
-<script>addRow("CV_FERNANDO DOS SANTOS MELO_SET25.pdf","CV_FERNANDO%20DOS%20SANTOS%20MELO_SET25.pdf",0,99718,"97.4 kB",1758852550,"25/09/2025, 23:09:10");</script>
-<script>addRow("CV_Fernando_Melo_Executivo_2026_Revisado.docx","CV_Fernando_Melo_Executivo_2026_Revisado.docx",0,40050,"39.1 kB",1793983583,"06/11/2026, 13:46:23");</script>
-<script>addRow("CV_Fernando_Melo_Executivo_2026_Revisado.pdf","CV_Fernando_Melo_Executivo_2026_Revisado.pdf",0,74449,"72.7 kB",1793983527,"06/11/2026, 13:45:27");</script>
-<script>addRow("CV_Fernando_Melo_Executivo_2026_v2.docx","CV_Fernando_Melo_Executivo_2026_v2.docx",0,40432,"39.5 kB",1793981791,"06/11/2026, 13:16:31");</script>
-<script>addRow("CV_Fernando_Melo_Executivo_2026_v2.docx (1).pdf","CV_Fernando_Melo_Executivo_2026_v2.docx%20(1).pdf",0,107135,"105 kB",1793986401,"06/11/2026, 14:33:21");</script>
-<script>addRow("CV_Fernando_Melo_Executivo_2026_v2.docx.pdf","CV_Fernando_Melo_Executivo_2026_v2.docx.pdf",0,105568,"103 kB",1793982642,"06/11/2026, 13:30:42");</script>
-<script>addRow("CV_Fernando_Melo_Executivo_2026.docx","CV_Fernando_Melo_Executivo_2026.docx",0,40638,"39.7 kB",1793299701,"29/10/2026, 15:48:21");</script>
-<script>addRow("CV_Fernando_Melo_Executivo_2026.pdf","CV_Fernando_Melo_Executivo_2026.pdf",0,78553,"76.7 kB",1793299739,"29/10/2026, 15:48:59");</script>
-<script>addRow("CV_Fernando_Melo_Nov2026.docx.pdf","CV_Fernando_Melo_Nov2026.docx.pdf",0,105789,"103 kB",1793986604,"06/11/2026, 14:36:44");</script>
-<script>addRow("CV_FernandoMelo_2026_EDITAVEL.docx","CV_FernandoMelo_2026_EDITAVEL.docx",0,40107,"39.2 kB",1794249299,"09/11/2026, 15:34:59");</script>
-<script>addRow("CV_FernandoMelo_2026_PP.docx.pdf","CV_FernandoMelo_2026_PP.docx.pdf",0,102170,"99.8 kB",1794250407,"09/11/2026, 15:53:27");</script>
-<script>addRow("CV_FernandoMelo_2026.pdf","CV_FernandoMelo_2026.pdf",0,105789,"103 kB",1793986604,"06/11/2026, 14:36:44");</script>
-<script>addRow("CV_NOV2025_FERNANDO DOS SANTOS MELO (1).pdf","CV_NOV2025_FERNANDO%20DOS%20SANTOS%20MELO%20(1).pdf",0,83010,"81.1 kB",1762869388,"11/11/2025, 10:56:28");</script>
-<script>addRow("CV_NOV2025_FERNANDO DOS SANTOS MELO.docx","CV_NOV2025_FERNANDO%20DOS%20SANTOS%20MELO.docx",0,9247,"9.0 kB",1762869108,"11/11/2025, 10:51:48");</script>
-<script>addRow("D8B8E5CB-F155-4FB1-A2A5-61E271842F29.PNG","D8B8E5CB-F155-4FB1-A2A5-61E271842F29.PNG",0,1992321,"1.9 MB",1778629805,"12/05/2026, 20:50:05");</script>
-<script>addRow("DATA.pdf","DATA.pdf",0,39925,"39.0 kB",1750720399,"23/06/2025, 20:13:19");</script>
-<script>addRow("DD09070B-C65A-4134-AA26-2DA60079FAA3.PNG","DD09070B-C65A-4134-AA26-2DA60079FAA3.PNG",0,2351677,"2.2 MB",1794351776,"10/11/2026, 20:02:56");</script>
-<script>addRow("Design sem nome (1).pdf","Design%20sem%20nome%20(1).pdf",0,1959123,"1.9 MB",1769564615,"27/01/2026, 22:43:35");</script>
-<script>addRow("Design sem nome.pdf","Design%20sem%20nome.pdf",0,2233981,"2.1 MB",1761580500,"27/10/2025, 12:55:00");</script>
-<script>addRow("Design sem nome.zip","Design%20sem%20nome.zip",0,23157532,"22.1 MB",1784946634,"24/07/2026, 23:30:34");</script>
-<script>addRow("Dicas para evitar bolhas na trilha.png","Dicas%20para%20evitar%20bolhas%20na%20trilha.png",0,1886638,"1.8 MB",1794248577,"09/11/2026, 15:22:57");</script>
-<script>addRow("DISTRATO_ QUIOSQUE_TAMBORÉ_RUBI_V1 _espaço já entregue - com quitação_.pdf","DISTRATO_%20QUIOSQUE_TAMBORE%CC%81_RUBI_V1%20_espac%CC%A7o%20ja%CC%81%20entregue%20-%20com%20quitac%CC%A7a%CC%83o_.pdf",0,187634,"183 kB",1723852001,"16/08/2024, 20:46:41");</script>
-<script>addRow("DOC_CCB_1930289617_1 (1).pdf","DOC_CCB_1930289617_1%20(1).pdf",0,1450113,"1.4 MB",1752538127,"14/07/2025, 21:08:47");</script>
-<script>addRow("Documento Cancelamento.pdf","Documento%20Cancelamento.pdf",0,528344,"516 kB",1760618109,"16/10/2025, 09:35:09");</script>
-<script>addRow("Documento sem título (1).pdf","Documento%20sem%20t%C3%ADtulo%20(1).pdf",0,91117,"89.0 kB",1758843704,"25/09/2025, 20:41:44");</script>
-<script>addRow("Documento sem título.pdf","Documento%20sem%20t%C3%ADtulo.pdf",0,88534,"86.5 kB",1758838583,"25/09/2025, 19:16:23");</script>
-<script>addRow("Dossie_Previdenciario_CNIS_LC142.pdf","Dossie_Previdenciario_CNIS_LC142.pdf",0,1155009,"1.1 MB",1795529137,"24/11/2026, 11:05:37");</script>
-<script>addRow("Download: Formulário - Pré-Diagnóstico Empreendedor.docx","Download%3A%20Formula%CC%81rio%20-%20Pre%CC%81-Diagno%CC%81stico%20Empreendedor.docx",0,37370,"36.5 kB",1751985407,"08/07/2025, 11:36:47");</script>
-<script>addRow("drive-download-20251016T000946Z-1-001.zip","drive-download-20251016T000946Z-1-001.zip",0,32436480,"30.9 MB",1760573405,"15/10/2025, 21:10:05");</script>
-<script>addRow("Dropbox.zip","Dropbox.zip",0,48120944,"45.9 MB",1766159128,"19/12/2025, 12:45:28");</script>
-<script>addRow("E5190A9B-BB27-4156-92F8-9E8B06C2CC06.PNG","E5190A9B-BB27-4156-92F8-9E8B06C2CC06.PNG",0,2643950,"2.5 MB",1785240461,"28/07/2026, 09:07:41");</script>
-<script>addRow("EF86D32F-9213-49DB-B229-DBD3274A02F8.PNG","EF86D32F-9213-49DB-B229-DBD3274A02F8.PNG",0,1909479,"1.8 MB",1793930953,"05/11/2026, 23:09:13");</script>
-<script>addRow("Elisa Beatriz (1).pdf","Elisa%20Beatriz%20(1).pdf",0,91107,"89.0 kB",1769566921,"27/01/2026, 23:22:01");</script>
-<script>addRow("Elisa Beatriz.pdf","Elisa%20Beatriz.pdf",0,91107,"89.0 kB",1769566808,"27/01/2026, 23:20:08");</script>
-<script>addRow("Elisa.pdf","Elisa.pdf",0,61414,"60.0 kB",1769569073,"27/01/2026, 23:57:53");</script>
-<script>addRow("Estabelecimentos_Alphaville_Barueri.xlsx","Estabelecimentos_Alphaville_Barueri.xlsx",0,6102,"6.0 kB",1749399787,"08/06/2025, 13:23:07");</script>
-<script>addRow("ETIQUETAS_TRAÇEJADA.pdf","ETIQUETAS_TRAC%CC%A7EJADA.pdf",0,187743,"183 kB",1762214628,"03/11/2025, 21:03:48");</script>
-<script>addRow("extract-and-isolate-only-the-angel-figure-on-the-u.svg","extract-and-isolate-only-the-angel-figure-on-the-u.svg",0,397231,"388 kB",1778121513,"06/05/2026, 23:38:33");</script>
-<script>addRow("extract-and-isolate-only-the-basilica-of-nossa-sen.svg","extract-and-isolate-only-the-basilica-of-nossa-sen.svg",0,119420,"117 kB",1778121876,"06/05/2026, 23:44:36");</script>
-<script>addRow("Fatura_EMPRESAS_MASTERCARD_082026_ARGE_COMERCIO_DE_ALIANCAS_E_JOIAS_00165789911169.PDF","Fatura_EMPRESAS_MASTERCARD_082026_ARGE_COMERCIO_DE_ALIANCAS_E_JOIAS_00165789911169.PDF",0,2855712,"2.7 MB",1787017833,"17/08/2026, 22:50:33");</script>
-<script>addRow("FC1DE6FE-BAB6-4B12-85D4-1A3320B74C98.PNG","FC1DE6FE-BAB6-4B12-85D4-1A3320B74C98.PNG",0,1657577,"1.6 MB",1778671523,"13/05/2026, 08:25:23");</script>
-<script>addRow("FERNANDO DOS SANTOS MELO_KIT_DE_DESLIGAMENTO.docx - Clicksign.pdf","FERNANDO%20DOS%20SANTOS%20MELO_KIT_DE_DESLIGAMENTO.docx%20-%20Clicksign.pdf",0,1568123,"1.5 MB",1794413374,"11/11/2026, 13:09:34");</script>
-<script>addRow("FERNANDO DOS SANTOS MELO_KIT_HOMOLOG - Clicksign.pdf","FERNANDO%20DOS%20SANTOS%20MELO_KIT_HOMOLOG%20-%20Clicksign.pdf",0,1262432,"1.2 MB",1794618058,"13/11/2026, 22:00:58");</script>
-<script>addRow("fgwi6c3c_Sats_1_2025_12_02_11_11_47.zip","fgwi6c3c_Sats_1_2025_12_02_11_11_47.zip",0,31509,"30.8 kB",1764685139,"02/12/2025, 11:18:59");</script>
-<script>addRow("ficha2026.csv","ficha2026.csv",0,13942,"13.6 kB",1783726094,"10/07/2026, 20:28:14");</script>
-<script>addRow("Firefly_Gemini Flash_Crie um vídeo curto e elegante para redes sociais a partir de duas imagens estáticas. 327356.png","Firefly_Gemini%20Flash_Crie%20um%20v%C3%ADdeo%20curto%20e%20elegante%20para%20redes%20sociais%20a%20partir%20de%20duas%20imagens%20est%C3%A1ticas.%20327356.png",0,1286830,"1.2 MB",1766099098,"18/12/2025, 20:04:58");</script>
-<script>addRow("firestore.rules","firestore.rules",0,2460,"2.4 kB",1795117009,"19/11/2026, 16:36:49");</script>
-<script>addRow("Foto_5aJornada2027_ficha de Inscrição.PNG","Foto_5aJornada2027_ficha%20de%20Inscric%CC%A7a%CC%83o.PNG",0,2771527,"2.6 MB",1793934230,"06/11/2026, 00:03:50");</script>
-<script>addRow("Gemini_Generated_Image_a4kq8da4kq8da4kq.png","Gemini_Generated_Image_a4kq8da4kq8da4kq.png",0,1127242,"1.1 MB",1765736624,"14/12/2025, 15:23:44");</script>
-<script>addRow("Gemini_Generated_Image_dhi3xwdhi3xwdhi3.png","Gemini_Generated_Image_dhi3xwdhi3xwdhi3.png",0,7406557,"7.1 MB",1766007567,"17/12/2025, 18:39:27");</script>
-<script>addRow("Gemini_Generated_Image_f17jgyf17jgyf17j (1).png","Gemini_Generated_Image_f17jgyf17jgyf17j%20(1).png",0,7522423,"7.2 MB",1766029817,"18/12/2025, 00:50:17");</script>
-<script>addRow("Gemini_Generated_Image_f17jgyf17jgyf17j.png","Gemini_Generated_Image_f17jgyf17jgyf17j.png",0,7522423,"7.2 MB",1766029766,"18/12/2025, 00:49:26");</script>
-<script>addRow("Gemini_Generated_Image_gfp02ugfp02ugfp0.png","Gemini_Generated_Image_gfp02ugfp02ugfp0.png",0,2053249,"2.0 MB",1765736974,"14/12/2025, 15:29:34");</script>
-<script>addRow("Gemini_Generated_Image_jkhnuwjkhnuwjkhn (1).png","Gemini_Generated_Image_jkhnuwjkhnuwjkhn%20(1).png",0,1848080,"1.8 MB",1766028467,"18/12/2025, 00:27:47");</script>
-<script>addRow("Gemini_Generated_Image_jkhnuwjkhnuwjkhn.png","Gemini_Generated_Image_jkhnuwjkhnuwjkhn.png",0,1848080,"1.8 MB",1766010042,"17/12/2025, 19:20:42");</script>
-<script>addRow("Gemini_Generated_Image_savzrmsavzrmsavz.png","Gemini_Generated_Image_savzrmsavzrmsavz.png",0,2063208,"2.0 MB",1765483667,"11/12/2025, 17:07:47");</script>
-<script>addRow("Gemini_Generated_Image_tweoigtweoigtweo.png","Gemini_Generated_Image_tweoigtweoigtweo.png",0,1717356,"1.6 MB",1765737271,"14/12/2025, 15:34:31");</script>
-<script>addRow("GESTÃO RUBI _ 2025 - CTAS A PAGAR 2025 (1).pdf","GESTA%CC%83O%20RUBI%20_%202025%20-%20CTAS%20A%20PAGAR%202025%20(1).pdf",0,334399,"327 kB",1751341568,"01/07/2025, 00:46:08");</script>
-<script>addRow("GESTÃO RUBI _ 2025 - CTAS A PAGAR 2025.pdf","GEST%C3%83O%20RUBI%20_%202025%20-%20CTAS%20A%20PAGAR%202025.pdf",0,108917,"106 kB",1751341413,"01/07/2025, 00:43:33");</script>
-<script>addRow("Guia de Hospedagens do Caminho da Fé (1).png","Guia%20de%20Hospedagens%20do%20Caminho%20da%20F%C3%A9%20(1).png",0,2766961,"2.6 MB",1791851784,"12/10/2026, 21:36:24");</script>
-<script>addRow("Guia de Hospedagens do Caminho da Fé.png","Guia%20de%20Hospedagens%20do%20Caminho%20da%20F%C3%A9.png",0,2766961,"2.6 MB",1791851770,"12/10/2026, 21:36:10");</script>
-<script>addRow("HandBrake-1.10.2.dmg","HandBrake-1.10.2.dmg",0,43647223,"41.6 MB",1759800407,"06/10/2025, 22:26:47");</script>
-<script>addRow("image.png","image.png",0,45416,"44.4 kB",1751463721,"02/07/2025, 10:42:01");</script>
-<script>addRow("images-2.jpeg","images-2.jpeg",0,12719,"12.4 kB",1783868592,"12/07/2026, 12:03:12");</script>
-<script>addRow("images-4.jpeg","images-4.jpeg",0,25937,"25.3 kB",1783868915,"12/07/2026, 12:08:35");</script>
-<script>addRow("images.jpeg","images.jpeg",0,24223,"23.7 kB",1783868569,"12/07/2026, 12:02:49");</script>
-<script>addRow("IMG_0055.PNG","IMG_0055.PNG",0,1646428,"1.6 MB",1765936910,"16/12/2025, 23:01:50");</script>
-<script>addRow("IMG_0270.JPG","IMG_0270.JPG",0,78528,"76.7 kB",1767209315,"31/12/2025, 16:28:35");</script>
-<script>addRow("IMG_0278.JPG","IMG_0278.JPG",0,1101003,"1.0 MB",1767234809,"31/12/2025, 23:33:29");</script>
-<script>addRow("IMG_0651.HEIC","IMG_0651.HEIC",0,1388812,"1.3 MB",1730995101,"07/11/2024, 12:58:21");</script>
-<script>addRow("IMG_0712.HEIC","IMG_0712.HEIC",0,2171490,"2.1 MB",1731057513,"08/11/2024, 06:18:33");</script>
-<script>addRow("IMG_0953.jpg","IMG_0953.jpg",0,1462364,"1.4 MB",1731265311,"10/11/2024, 16:01:51");</script>
-<script>addRow("IMG_0955.HEIC","IMG_0955.HEIC",0,2540756,"2.4 MB",1731265922,"10/11/2024, 16:12:02");</script>
-<script>addRow("IMG_0957.HEIC","IMG_0957.HEIC",0,3388181,"3.2 MB",1731267795,"10/11/2024, 16:43:15");</script>
-<script>addRow("IMG_0958.HEIC","IMG_0958.HEIC",0,4636316,"4.4 MB",1731267801,"10/11/2024, 16:43:21");</script>
-<script>addRow("IMG_0965.HEIC","IMG_0965.HEIC",0,3203435,"3.1 MB",1731269311,"10/11/2024, 17:08:31");</script>
-<script>addRow("IMG_1084.HEIC","IMG_1084.HEIC",0,1079082,"1.0 MB",1793922526,"05/11/2026, 20:48:46");</script>
-<script>addRow("IMG_1165.HEIC","IMG_1165.HEIC",0,1824334,"1.7 MB",1793922511,"05/11/2026, 20:48:31");</script>
-<script>addRow("IMG_1166.HEIC","IMG_1166.HEIC",0,1691161,"1.6 MB",1793922501,"05/11/2026, 20:48:21");</script>
-<script>addRow("IMG_1169.HEIC","IMG_1169.HEIC",0,1257891,"1.2 MB",1731497951,"13/11/2024, 08:39:11");</script>
-<script>addRow("IMG_1247.HEIC","IMG_1247.HEIC",0,2130984,"2.0 MB",1793922499,"05/11/2026, 20:48:19");</script>
-<script>addRow("IMG_1255.HEIC","IMG_1255.HEIC",0,2173390,"2.1 MB",1793922510,"05/11/2026, 20:48:30");</script>
-<script>addRow("IMG_1257.HEIC","IMG_1257.HEIC",0,1395712,"1.3 MB",1793922492,"05/11/2026, 20:48:12");</script>
-<script>addRow("IMG_1275.HEIC","IMG_1275.HEIC",0,2454381,"2.3 MB",1731595232,"14/11/2024, 11:40:32");</script>
-<script>addRow("IMG_1283.HEIC","IMG_1283.HEIC",0,1216969,"1.2 MB",1731600076,"14/11/2024, 13:01:16");</script>
-<script>addRow("IMG_1445.HEIC","IMG_1445.HEIC",0,1784506,"1.7 MB",1731829865,"17/11/2024, 04:51:05");</script>
-<script>addRow("IMG_1461.HEIC","IMG_1461.HEIC",0,2948235,"2.8 MB",1731846874,"17/11/2024, 09:34:34");</script>
-<script>addRow("IMG_1788.HEIC","IMG_1788.HEIC",0,474549,"463 kB",1765486075,"11/12/2025, 17:47:55");</script>
-<script>addRow("IMG_2164.JPG","IMG_2164.JPG",0,1372961,"1.3 MB",1696693005,"07/10/2023, 12:36:45");</script>
-<script>addRow("IMG_2990.HEIC","IMG_2990.HEIC",0,3406239,"3.2 MB",1696945737,"10/10/2023, 10:48:57");</script>
-<script>addRow("IMG_3051.svg","IMG_3051.svg",0,1628216,"1.6 MB",1778120663,"06/05/2026, 23:24:23");</script>
-<script>addRow("IMG_3090_Original 2.heic","IMG_3090_Original%202.heic",0,659805,"644 kB",1675980406,"09/02/2023, 19:06:46");</script>
-<script>addRow("IMG_3090_Original.heic","IMG_3090_Original.heic",0,659805,"644 kB",1675980406,"09/02/2023, 19:06:46");</script>
-<script>addRow("IMG_4211.PNG","IMG_4211.PNG",0,541428,"529 kB",1784672828,"21/07/2026, 19:27:08");</script>
-<script>addRow("IMG_4229.JPG","IMG_4229.JPG",0,190360,"186 kB",1697487020,"16/10/2023, 17:10:20");</script>
-<script>addRow("IMG_4239.JPG","IMG_4239.JPG",0,128908,"126 kB",1697487035,"16/10/2023, 17:10:35");</script>
-<script>addRow("IMG_4320 3.JPG","IMG_4320%203.JPG",0,220624,"215 kB",1744000063,"07/04/2025, 01:27:43");</script>
-<script>addRow("IMG_4320 4.JPG","IMG_4320%204.JPG",0,220624,"215 kB",1744000063,"07/04/2025, 01:27:43");</script>
-<script>addRow("IMG_4350.JPG","IMG_4350.JPG",0,1666781,"1.6 MB",1697487237,"16/10/2023, 17:13:57");</script>
-<script>addRow("IMG_4371.JPG","IMG_4371.JPG",0,1649354,"1.6 MB",1697487263,"16/10/2023, 17:14:23");</script>
-<script>addRow("IMG_4389.jpg","IMG_4389.jpg",0,159316,"156 kB",1785207607,"28/07/2026, 00:00:07");</script>
-<script>addRow("IMG_4390.JPG","IMG_4390.JPG",0,37040,"36.2 kB",1785209596,"28/07/2026, 00:33:16");</script>
-<script>addRow("IMG_4535.JPG","IMG_4535.JPG",0,148311,"145 kB",1697487523,"16/10/2023, 17:18:43");</script>
-<script>addRow("IMG_5994.WEBP","IMG_5994.WEBP",0,39046,"38.1 kB",1793924759,"05/11/2026, 21:25:59");</script>
-<script>addRow("IMG_6025.HEIC","IMG_6025.HEIC",0,1608834,"1.5 MB",1793988121,"06/11/2026, 15:02:01");</script>
-<script>addRow("IMG_6026.HEIC","IMG_6026.HEIC",0,1620070,"1.5 MB",1793988293,"06/11/2026, 15:04:53");</script>
-<script>addRow("IMG_6388.HEIC","IMG_6388.HEIC",0,1915530,"1.8 MB",1752330748,"12/07/2025, 11:32:28");</script>
-<script>addRow("IMG_6543.HEIC","IMG_6543.HEIC",0,1220406,"1.2 MB",1794924693,"17/11/2026, 11:11:33");</script>
-<script>addRow("IMG_6563.HEIC","IMG_6563.HEIC",0,3301217,"3.1 MB",1794944453,"17/11/2026, 16:40:53");</script>
-<script>addRow("IMG_6794.HEIC","IMG_6794.HEIC",0,1155530,"1.1 MB",1795117100,"19/11/2026, 16:38:20");</script>
-<script>addRow("IMG_6795.HEIC","IMG_6795.HEIC",0,1210601,"1.2 MB",1795117604,"19/11/2026, 16:46:44");</script>
-<script>addRow("IMG_7988.HEIC","IMG_7988.HEIC",0,907522,"886 kB",1759790091,"06/10/2025, 19:34:51");</script>
-<script>addRow("IMG_7989.MOV","IMG_7989.MOV",0,29074634,"27.7 MB",1759796185,"06/10/2025, 21:16:25");</script>
-<script>addRow("IMG_7990.MOV","IMG_7990.MOV",0,16591051,"15.8 MB",1759796182,"06/10/2025, 21:16:22");</script>
-<script>addRow("IMG_7993.MOV","IMG_7993.MOV",0,22754126,"21.7 MB",1759796189,"06/10/2025, 21:16:29");</script>
-<script>addRow("IMG_7994.MOV","IMG_7994.MOV",0,24995823,"23.8 MB",1759796187,"06/10/2025, 21:16:27");</script>
-<script>addRow("IMG_7997.MOV","IMG_7997.MOV",0,16934202,"16.1 MB",1759796197,"06/10/2025, 21:16:37");</script>
-<script>addRow("IMG_7999.MOV","IMG_7999.MOV",0,14773150,"14.1 MB",1759796195,"06/10/2025, 21:16:35");</script>
-<script>addRow("IMG_8001.MOV","IMG_8001.MOV",0,13350922,"12.7 MB",1759796198,"06/10/2025, 21:16:38");</script>
-<script>addRow("IMG_8002.MOV","IMG_8002.MOV",0,17482669,"16.7 MB",1759796191,"06/10/2025, 21:16:31");</script>
-<script>addRow("IMG_8003.MOV","IMG_8003.MOV",0,17631162,"16.8 MB",1759796200,"06/10/2025, 21:16:40");</script>
-<script>addRow("IMG_8004.MOV","IMG_8004.MOV",0,11088739,"10.6 MB",1759796202,"06/10/2025, 21:16:42");</script>
-<script>addRow("IMG_8005.MOV","IMG_8005.MOV",0,11321562,"10.8 MB",1759796201,"06/10/2025, 21:16:41");</script>
-<script>addRow("IMG_8006.MOV","IMG_8006.MOV",0,22686767,"21.6 MB",1759796194,"06/10/2025, 21:16:34");</script>
-<script>addRow("IMG_8786 2.HEIC","IMG_8786%202.HEIC",0,1384776,"1.3 MB",1762524216,"07/11/2025, 11:03:36");</script>
-<script>addRow("IMG_8786.HEIC","IMG_8786.HEIC",0,1384776,"1.3 MB",1762524216,"07/11/2025, 11:03:36");</script>
-<script>addRow("IMG_9503.HEIC","IMG_9503.HEIC",0,2709535,"2.6 MB",1763716636,"21/11/2025, 06:17:16");</script>
-<script>addRow("IMG_9611.HEIC","IMG_9611.HEIC",0,2760084,"2.6 MB",1763916352,"23/11/2025, 13:45:52");</script>
-<script>addRow("IMG_9924.PNG","IMG_9924.PNG",0,1594152,"1.5 MB",1765482708,"11/12/2025, 16:51:48");</script>
-<script>addRow("IMG_9925.PNG","IMG_9925.PNG",0,2215800,"2.1 MB",1765482791,"11/12/2025, 16:53:11");</script>
-<script>addRow("IMG_9926.PNG","IMG_9926.PNG",0,1919449,"1.8 MB",1765482861,"11/12/2025, 16:54:21");</script>
-<script>addRow("IMG_9928.jpg","IMG_9928.jpg",0,441988,"432 kB",1765486201,"11/12/2025, 17:50:01");</script>
-<script>addRow("IMG_9988.JPG","IMG_9988.JPG",0,211442,"206 kB",1765845204,"15/12/2025, 21:33:24");</script>
-<script>addRow("IMG_9989.JPG","IMG_9989.JPG",0,797091,"778 kB",1765845328,"15/12/2025, 21:35:28");</script>
-<script>addRow("index (1).html","index%20(1).html",0,50516,"49.3 kB",1794926364,"17/11/2026, 11:39:24");</script>
-<script>addRow("index (2).html","index%20(2).html",0,54371,"53.1 kB",1794929830,"17/11/2026, 12:37:10");</script>
-<script>addRow("index (3).html","index%20(3).html",0,55915,"54.6 kB",1794933977,"17/11/2026, 13:46:17");</script>
-<script>addRow("index (4).html","index%20(4).html",0,102406,"100 kB",1795608792,"25/11/2026, 09:13:12");</script>
-<script>addRow("index (5).html","index%20(5).html",0,102406,"100 kB",1795609031,"25/11/2026, 09:17:11");</script>
-<script>addRow("index (6).html","index%20(6).html",0,102506,"100 kB",1795634859,"25/11/2026, 16:27:39");</script>
-<script>addRow("index.html","index.html",0,20742,"20.3 kB",1794523234,"12/11/2026, 19:40:34");</script>
-<script>addRow("Inscrição Xico Peregrino Jornada 2026 2.csv","Inscric%CC%A7a%CC%83o%20Xico%20Peregrino%20Jornada%202026%202.csv",0,13514,"13.2 kB",1786112084,"07/08/2026, 11:14:44");</script>
-<script>addRow("Inscrição Xico Peregrino Jornada 2026 3.csv","Inscric%CC%A7a%CC%83o%20Xico%20Peregrino%20Jornada%202026%203.csv",0,14004,"13.7 kB",1792857858,"24/10/2026, 13:04:18");</script>
-<script>addRow("Inscrição Xico Peregrino Jornada 2026-2.csv","Inscric%CC%A7a%CC%83o%20Xico%20Peregrino%20Jornada%202026-2.csv",0,13514,"13.2 kB",1787001986,"17/08/2026, 18:26:26");</script>
-<script>addRow("Inscrição Xico Peregrino Jornada 2026.csv","Inscric%CC%A7a%CC%83o%20Xico%20Peregrino%20Jornada%202026.csv",0,13942,"13.6 kB",1783275982,"05/07/2026, 15:26:22");</script>
-<script>addRow("Inscrição Xico Peregrino Jornada 2026.csv (1).zip","Inscri%C3%A7%C3%A3o%20Xico%20Peregrino%20Jornada%202026.csv%20(1).zip",0,5361,"5.2 kB",1783740495,"11/07/2026, 00:28:15");</script>
-<script>addRow("Inscrição Xico Peregrino Jornada 2026.csv (2).zip","Inscri%C3%A7%C3%A3o%20Xico%20Peregrino%20Jornada%202026.csv%20(2).zip",0,5220,"5.1 kB",1786126484,"07/08/2026, 15:14:44");</script>
-<script>addRow("Inscrição Xico Peregrino Jornada 2026.csv (3).zip","Inscri%C3%A7%C3%A3o%20Xico%20Peregrino%20Jornada%202026.csv%20(3).zip",0,5393,"5.3 kB",1792872259,"24/10/2026, 17:04:19");</script>
-<script>addRow("Inscrição Xico Peregrino Jornada 2026.csv.zip","Inscri%C3%A7%C3%A3o%20Xico%20Peregrino%20Jornada%202026.csv.zip",0,5361,"5.2 kB",1783290383,"05/07/2026, 19:26:23");</script>
-<script>addRow("Inserir um título.zip","Inserir%20um%20t%C3%ADtulo.zip",0,76731,"74.9 kB",1759861121,"07/10/2025, 15:18:41");</script>
-<script>addRow("KIT5AJORNADA_2027.PNG","KIT5AJORNADA_2027.PNG",0,2351677,"2.2 MB",1794351776,"10/11/2026, 20:02:56");</script>
-<script>addRow("Laura Souguellis.zip","Laura%20Souguellis.zip",0,48120944,"45.9 MB",1766090090,"18/12/2025, 17:34:50");</script>
-<script>addRow("Logo marca Arge Alianças.zip - 1.PNG","Logo%20marca%20Arge%20Alianc%CC%A7as.zip%20-%201.PNG",0,177484,"173 kB",1754518024,"06/08/2025, 19:07:04");</script>
-<script>addRow("Logo marca Arge Alianças.zip - 10.PNG","Logo%20marca%20Arge%20Alianc%CC%A7as.zip%20-%2010.PNG",0,105430,"103 kB",1754518024,"06/08/2025, 19:07:04");</script>
-<script>addRow("Logo marca Arge Alianças.zip - 2.PNG","Logo%20marca%20Arge%20Alianc%CC%A7as.zip%20-%202.PNG",0,1394618,"1.3 MB",1753585121,"26/07/2025, 23:58:41");</script>
-<script>addRow("Logo marca Arge Alianças.zip - 4.PNG","Logo%20marca%20Arge%20Alianc%CC%A7as.zip%20-%204.PNG",0,185993,"182 kB",1754518024,"06/08/2025, 19:07:04");</script>
-<script>addRow("Logo marca Arge Alianças.zip - 7.PNG","Logo%20marca%20Arge%20Alianc%CC%A7as.zip%20-%207.PNG",0,165761,"162 kB",1754518024,"06/08/2025, 19:07:04");</script>
-<script>addRow("Logo marca Arge Alianças.zip - 9.PNG","Logo%20marca%20Arge%20Alianc%CC%A7as.zip%20-%209.PNG",0,232210,"227 kB",1754518024,"06/08/2025, 19:07:04");</script>
-<script>addRow("Logomarca_ARGE_vazada.PNG","Logomarca_ARGE_vazada.PNG",0,1367261,"1.3 MB",1753584884,"26/07/2025, 23:54:44");</script>
-<script>addRow("logoSite.PNG","logoSite.PNG",0,1874116,"1.8 MB",1778932824,"16/05/2026, 09:00:24");</script>
-<script>addRow("logoSite1.PNG","logoSite1.PNG",0,2413869,"2.3 MB",1793920242,"05/11/2026, 20:10:42");</script>
-<script>addRow("logosite10.PNG","logosite10.PNG",0,2472483,"2.4 MB",1793931279,"05/11/2026, 23:14:39");</script>
-<script>addRow("logosite11.PNG","logosite11.PNG",0,2718807,"2.6 MB",1793931590,"05/11/2026, 23:19:50");</script>
-<script>addRow("logosite12.PNG","logosite12.PNG",0,2476419,"2.4 MB",1793933159,"05/11/2026, 23:45:59");</script>
-<script>addRow("logosite13.PNG","logosite13.PNG",0,2345833,"2.2 MB",1793933491,"05/11/2026, 23:51:31");</script>
-<script>addRow("logosite14.PNG","logosite14.PNG",0,3066823,"2.9 MB",1793933898,"05/11/2026, 23:58:18");</script>
-<script>addRow("logosite2.PNG","logosite2.PNG",0,3694857,"3.5 MB",1793920738,"05/11/2026, 20:18:58");</script>
-<script>addRow("logosite3.PNG","logosite3.PNG",0,2322623,"2.2 MB",1793920738,"05/11/2026, 20:18:58");</script>
-<script>addRow("logosite4.PNG","logosite4.PNG",0,2577653,"2.5 MB",1793929825,"05/11/2026, 22:50:25");</script>
-<script>addRow("logosite5.PNG","logosite5.PNG",0,2471012,"2.4 MB",1793930044,"05/11/2026, 22:54:04");</script>
-<script>addRow("logosite6.PNG","logosite6.PNG",0,2471012,"2.4 MB",1793930044,"05/11/2026, 22:54:04");</script>
-<script>addRow("logosite7.PNG","logosite7.PNG",0,2665688,"2.5 MB",1793930310,"05/11/2026, 22:58:30");</script>
-<script>addRow("logosite8.PNG","logosite8.PNG",0,2747761,"2.6 MB",1793930612,"05/11/2026, 23:03:32");</script>
-<script>addRow("logosite9.PNG","logosite9.PNG",0,1909479,"1.8 MB",1793930953,"05/11/2026, 23:09:13");</script>
-<script>addRow("logositeREDONDO.PNG","logositeREDONDO.PNG",0,2771527,"2.6 MB",1793934230,"06/11/2026, 00:03:50");</script>
-<script>addRow("Logotipo de Xico Peregrino (1).png","Logotipo%20de%20Xico%20Peregrino%20(1).png",0,963314,"941 kB",1761580382,"27/10/2025, 12:53:02");</script>
-<script>addRow("Logotipo de Xico Peregrino.png","Logotipo%20de%20Xico%20Peregrino.png",0,963314,"941 kB",1761580331,"27/10/2025, 12:52:11");</script>
-<script>addRow("logotipoTDB.PNG","logotipoTDB.PNG",0,1251796,"1.2 MB",1794436623,"11/11/2026, 19:37:03");</script>
-<script>addRow("Medalha de São Miguel em grafite.png","Medalha%20de%20S%C3%A3o%20Miguel%20em%20grafite.png",0,3215124,"3.1 MB",1795492820,"24/11/2026, 01:00:20");</script>
-<script>addRow("MensagensCDF_2026.pdf","MensagensCDF_2026.pdf",0,2136244,"2.0 MB",1789335738,"13/09/2026, 18:42:18");</script>
-<script>addRow("MEUINSS_1.pdf","MEUINSS_1.pdf",0,357791,"349 kB",1767822912,"07/01/2026, 18:55:12");</script>
-<script>addRow("MEUINSS_2.pdf","MEUINSS_2.pdf",0,387821,"379 kB",1767822956,"07/01/2026, 18:55:56");</script>
-<script>addRow("MEUINSS_3.pdf","MEUINSS_3.pdf",0,383349,"374 kB",1767822981,"07/01/2026, 18:56:21");</script>
-<script>addRow("Modelo - Declaração de Origem - Maragni.pdf","Modelo%20-%20Declarac%CC%A7a%CC%83o%20de%20Origem%20-%20Maragni.pdf",0,13292,"13.0 kB",1747936846,"22/05/2025, 15:00:46");</script>
-<script>addRow("NegociacoesCompleto_13686653_20250301_20250331_28adaf05ceee403b86773fdaa1568019.xlsx","NegociacoesCompleto_13686653_20250301_20250331_28adaf05ceee403b86773fdaa1568019.xlsx",0,21650,"21.1 kB",1746647140,"07/05/2025, 16:45:40");</script>
-<script>addRow("NegociacoesCompleto_13686653_20250401_20250430_3245d20a48d7409a82faeef9baa2325c.xlsx","NegociacoesCompleto_13686653_20250401_20250430_3245d20a48d7409a82faeef9baa2325c.xlsx",0,20140,"19.7 kB",1746647529,"07/05/2025, 16:52:09");</script>
-<script>addRow("NegociacoesCompleto_13686653_20250401_20250430_ac46cfa227c144b2937c05213467fb52.xlsx","NegociacoesCompleto_13686653_20250401_20250430_ac46cfa227c144b2937c05213467fb52.xlsx",0,20138,"19.7 kB",1746660461,"07/05/2025, 20:27:41");</script>
-<script>addRow("NegociacoesCompleto_13686653_20250501_20250506_2ce3a48edc89424ea30378935d6ffe92.xlsx","NegociacoesCompleto_13686653_20250501_20250506_2ce3a48edc89424ea30378935d6ffe92.xlsx",0,16150,"15.8 kB",1746648434,"07/05/2025, 17:07:14");</script>
-<script>addRow("NegociacoesCompleto_13686653_20250501_20250531_ddc54d3b9de84b12ad1439343c6cb877.xlsx","NegociacoesCompleto_13686653_20250501_20250531_ddc54d3b9de84b12ad1439343c6cb877.xlsx",0,21350,"20.8 kB",1748904867,"02/06/2025, 19:54:27");</script>
-<script>addRow("Nome_Arge_vazado.PNG","Nome_Arge_vazado.PNG",0,1394618,"1.3 MB",1753585121,"26/07/2025, 23:58:41");</script>
-<script>addRow("NomeArge_vazado.PNG","NomeArge_vazado.PNG",0,518668,"507 kB",1753585025,"26/07/2025, 23:57:05");</script>
-<script>addRow("NOVO TERMO E FICHA DE CADASTRO - SEM CIDADE .pdf","NOVO%20TERMO%20E%20FICHA%20DE%20CADASTRO%20-%20SEM%20CIDADE%20.pdf",0,161166,"157 kB",1721318608,"18/07/2024, 13:03:28");</script>
-<script>addRow("Offer_Document_Fernando_Melo.docx.pdf","Offer_Document_Fernando_Melo.docx.pdf",0,1098196,"1.0 MB",1766781061,"26/12/2025, 17:31:01");</script>
-<script>addRow("PHOTO-2023-10-16-15-00-53.jpg","PHOTO-2023-10-16-15-00-53.jpg",0,116463,"114 kB",1697485587,"16/10/2023, 16:46:27");</script>
-<script>addRow("PHOTO-2023-10-16-18-19-23.jpg","PHOTO-2023-10-16-18-19-23.jpg",0,396905,"388 kB",1697491084,"16/10/2023, 18:18:04");</script>
-<script>addRow("PHOTO-2023-10-16-19-43-48.jpg","PHOTO-2023-10-16-19-43-48.jpg",0,571395,"558 kB",1697496195,"16/10/2023, 19:43:15");</script>
-<script>addRow("PHOTO-2025-04-28-11-12-53.jpg","PHOTO-2025-04-28-11-12-53.jpg",0,413220,"404 kB",1719421687,"26/06/2024, 14:08:07");</script>
-<script>addRow("PHOTO-2025-04-30-11-18-16.jpg","PHOTO-2025-04-30-11-18-16.jpg",0,216993,"212 kB",1746022881,"30/04/2025, 11:21:21");</script>
-<script>addRow("PHOTO-2025-05-06-11-41-48.jpg","PHOTO-2025-05-06-11-41-48.jpg",0,4545110,"4.3 MB",1746542510,"06/05/2025, 11:41:50");</script>
-<script>addRow("PHOTO-2025-10-25-12-54-21.jpg","PHOTO-2025-10-25-12-54-21.jpg",0,410163,"401 kB",1761407662,"25/10/2025, 12:54:22");</script>
-<script>addRow("PHOTO-2025-10-27-13-50-31.jpg","PHOTO-2025-10-27-13-50-31.jpg",0,284677,"278 kB",1761583831,"27/10/2025, 13:50:31");</script>
-<script>addRow("PHOTO-2025-10-30-22-41-33.jpg","PHOTO-2025-10-30-22-41-33.jpg",0,188787,"184 kB",1761874717,"30/10/2025, 22:38:37");</script>
-<script>addRow("PHOTO-2025-11-14-12-46-26.jpg","PHOTO-2025-11-14-12-46-26.jpg",0,181495,"177 kB",1763138691,"14/11/2025, 13:44:51");</script>
-<script>addRow("PHOTO-2026-05-19-08-01-37.jpg","PHOTO-2026-05-19-08-01-37.jpg",0,1556443,"1.5 MB",1779188498,"19/05/2026, 08:01:38");</script>
-<script>addRow("PHOTO-2026-05-20-21-11-26 2.jpg","PHOTO-2026-05-20-21-11-26%202.jpg",0,132402,"129 kB",1779217015,"19/05/2026, 15:56:55");</script>
-<script>addRow("PHOTO-2026-06-26-09-14-46 2.jpg","PHOTO-2026-06-26-09-14-46%202.jpg",0,437734,"427 kB",1782482467,"26/06/2026, 11:01:07");</script>
-<script>addRow("PHOTO-2026-06-26-09-14-46.jpg","PHOTO-2026-06-26-09-14-46.jpg",0,437734,"427 kB",1782482467,"26/06/2026, 11:01:07");</script>
-<script>addRow("PHOTO-2026-07-11-17-01-54 2.jpg","PHOTO-2026-07-11-17-01-54%202.jpg",0,231155,"226 kB",1782583153,"27/06/2026, 14:59:13");</script>
-<script>addRow("PHOTO-2026-10-12-21-46-20.jpg","PHOTO-2026-10-12-21-46-20.jpg",0,241643,"236 kB",1791852380,"12/10/2026, 21:46:20");</script>
-<script>addRow("planilha-importacao.xlsx","planilha-importacao.xlsx",0,173609,"170 kB",1758032722,"16/09/2025, 11:25:22");</script>
-<script>addRow("Projeto-de-Expansao-2025.pdf","Projeto-de-Expansao-2025.pdf",0,1024787,"1001 kB",1750014169,"15/06/2025, 16:02:49");</script>
-<script>addRow("Quiosque Rubi_3x2m_Shopping Tamboré.pdf","Quiosque%20Rubi_3x2m_Shopping%20Tambore%CC%81.pdf",0,4043672,"3.9 MB",1709582781,"04/03/2024, 17:06:21");</script>
-<script>addRow("Receipt_02out.2026_114432.pdf","Receipt_02out.2026_114432.pdf",0,183156,"179 kB",1794223183,"09/11/2026, 08:19:43");</script>
-<script>addRow("Receipt_02out.2026_175506.pdf","Receipt_02out.2026_175506.pdf",0,189436,"185 kB",1794223215,"09/11/2026, 08:20:15");</script>
-<script>addRow("Receipt_06out.2026_022955.pdf","Receipt_06out.2026_022955.pdf",0,199106,"194 kB",1794223480,"09/11/2026, 08:24:40");</script>
-<script>addRow("Receipt_08out.2026_011321.pdf","Receipt_08out.2026_011321.pdf",0,201082,"196 kB",1794223531,"09/11/2026, 08:25:31");</script>
-<script>addRow("Receipt_08out.2026_015355.pdf","Receipt_08out.2026_015355.pdf",0,197505,"193 kB",1794223634,"09/11/2026, 08:27:14");</script>
-<script>addRow("Receipt_09out.2026_033846.pdf","Receipt_09out.2026_033846.pdf",0,198537,"194 kB",1794223674,"09/11/2026, 08:27:54");</script>
-<script>addRow("Receipt_14out.2026_015305.pdf","Receipt_14out.2026_015305.pdf",0,188774,"184 kB",1794223711,"09/11/2026, 08:28:31");</script>
-<script>addRow("Receipt_20out.2026_121028.pdf","Receipt_20out.2026_121028.pdf",0,184246,"180 kB",1794244436,"09/11/2026, 14:13:56");</script>
-<script>addRow("Receipt_21out.2026_041348.pdf","Receipt_21out.2026_041348.pdf",0,186861,"182 kB",1794244512,"09/11/2026, 14:15:12");</script>
-<script>addRow("Receipt_22out.2026_013702.pdf","Receipt_22out.2026_013702.pdf",0,196710,"192 kB",1794244572,"09/11/2026, 14:16:12");</script>
-<script>addRow("Revisão Frase, Tamanho Camiseta .csv","Revisa%CC%83o%20Frase,%20Tamanho%20Camiseta%20.csv",0,2658,"2.6 kB",1787608894,"24/08/2026, 19:01:34");</script>
-<script>addRow("Rubi_ARQ_Quiosque 6m²_REV00.pdf","Rubi_ARQ_Quiosque%206m%C2%B2_REV00.pdf",0,2032837,"1.9 MB",1709582765,"04/03/2024, 17:06:05");</script>
-<script>addRow("Rubi_ARQ_Quiosque 6m²_REV01-Model.pdf","Rubi_ARQ_Quiosque%206m%C2%B2_REV01-Model.pdf",0,36906,"36.0 kB",1712078029,"02/04/2024, 14:13:49");</script>
-<script>addRow("Rubi_MD_Quiosque 6m²_REV00.pdf","Rubi_MD_Quiosque%206m%C2%B2_REV00.pdf",0,69786,"68.2 kB",1709582741,"04/03/2024, 17:05:41");</script>
-<script>addRow("Rubi_SPMARKET (1).pdf","Rubi_SPMARKET%20(1).pdf",0,1240584,"1.2 MB",1750861620,"25/06/2025, 11:27:00");</script>
-<script>addRow("Rubi_SPMARKET (2).pdf","Rubi_SPMARKET%20(2).pdf",0,1240815,"1.2 MB",1751330145,"30/06/2025, 21:35:45");</script>
-<script>addRow("Rubi_SPMARKET (JUL25).pdf","Rubi_SPMARKET%20(JUL25).pdf",0,1240813,"1.2 MB",1751895293,"07/07/2025, 10:34:53");</script>
-<script>addRow("Rubi_SPMARKET.pdf","Rubi_SPMARKET.pdf",0,1236681,"1.2 MB",1750806534,"24/06/2025, 20:08:54");</script>
-<script>addRow("rustdesk.exe","rustdesk.exe",0,20025008,"19.1 MB",1754256021,"03/08/2025, 18:20:21");</script>
-<script>addRow("sandra.png","sandra.png",0,587777,"574 kB",1762300020,"04/11/2025, 20:47:00");</script>
-<script>addRow("SituacionalFeedback.pdf","SituacionalFeedback.pdf",0,21852,"21.3 kB",1760038381,"09/10/2025, 16:33:01");</script>
-<script>addRow("TAG_Xico Peregrino.pdf","TAG_Xico%20Peregrino.pdf",0,199433,"195 kB",1758032346,"16/09/2025, 11:19:06");</script>
-<script>addRow("TAMBORÉ - RUBI - ADITIVO (altera ponto) 29.04.2025 VRT v3.pdf","TAMBORE%CC%81%20-%20RUBI%20-%20ADITIVO%20(altera%20ponto)%2029.04.2025%20VRT%20v3.pdf",0,183072,"179 kB",1751898587,"07/07/2025, 11:29:47");</script>
-<script>addRow("TDB-Top1 · Técnicos de Bolso 2.png","TDB-Top1%20%C2%B7%20Te%CC%81cnicos%20de%20Bolso%202.png",0,267277,"261 kB",1794927443,"17/11/2026, 11:57:23");</script>
-<script>addRow("TDB-Top1 · Técnicos de Bolso 3.png","TDB-Top1%20%C2%B7%20Te%CC%81cnicos%20de%20Bolso%203.png",0,209810,"205 kB",1794927471,"17/11/2026, 11:57:51");</script>
-<script>addRow("TDB-Top1 · Técnicos de Bolso 4.png","TDB-Top1%20%C2%B7%20Te%CC%81cnicos%20de%20Bolso%204.png",0,430202,"420 kB",1794927519,"17/11/2026, 11:58:39");</script>
-<script>addRow("TDB-Top1 · Técnicos de Bolso 5.png","TDB-Top1%20%C2%B7%20Te%CC%81cnicos%20de%20Bolso%205.png",0,228819,"223 kB",1794927544,"17/11/2026, 11:59:04");</script>
-<script>addRow("TDB-Top1 · Técnicos de Bolso 6.png","TDB-Top1%20%C2%B7%20Te%CC%81cnicos%20de%20Bolso%206.png",0,251203,"245 kB",1794928240,"17/11/2026, 12:10:40");</script>
-<script>addRow("TDB-Top1 · Técnicos de Bolso 7.png","TDB-Top1%20%C2%B7%20Te%CC%81cnicos%20de%20Bolso%207.png",0,219186,"214 kB",1794928273,"17/11/2026, 12:11:13");</script>
-<script>addRow("TDB-Top1 · Técnicos de Bolso.png","TDB-Top1%20%C2%B7%20Te%CC%81cnicos%20de%20Bolso.png",0,211964,"207 kB",1794927277,"17/11/2026, 11:54:37");</script>
-<script>addRow("TDB-Top2 · Técnicos de Bolso 2.png","TDB-Top2%20%C2%B7%20Te%CC%81cnicos%20de%20Bolso%202.png",0,147543,"144 kB",1794928587,"17/11/2026, 12:16:27");</script>
-<script>addRow("TDB-Top2 · Técnicos de Bolso.png","TDB-Top2%20%C2%B7%20Te%CC%81cnicos%20de%20Bolso.png",0,142911,"140 kB",1794928557,"17/11/2026, 12:15:57");</script>
-<script>addRow("Termo Preenchido.docx","Termo%20Preenchido.docx",0,8481,"8.3 kB",1757957136,"15/09/2025, 14:25:36");</script>
-<script>addRow("termo_partes_relacionadas_preenchido.docx","termo_partes_relacionadas_preenchido.docx",0,174299,"170 kB",1751413137,"01/07/2025, 20:38:57");</script>
-<script>addRow("Texto do seu parágrafo.pdf","Texto%20do%20seu%20par%C3%A1grafo.pdf",0,44406,"43.4 kB",1756339608,"27/08/2025, 21:06:48");</script>
-<script>addRow("Unknown","Unknown",0,7773,"7.6 kB",1765483471,"11/12/2025, 17:04:31");</script>
-<script>addRow("Unknown-2","Unknown-2",0,7825,"7.6 kB",1765483504,"11/12/2025, 17:05:04");</script>
-<script>addRow("Ver as fotos recentes.jpeg","Ver%20as%20fotos%20recentes.jpeg",0,1490215,"1.4 MB",1747089664,"12/05/2025, 19:41:04");</script>
-<script>addRow("Ver as fotos recentes.png","Ver%20as%20fotos%20recentes.png",0,1883069,"1.8 MB",1767045221,"29/12/2025, 18:53:41");</script>
-<script>addRow("Viagens_Uber_Outubro_2026.xlsx","Viagens_Uber_Outubro_2026.xlsx",0,5129,"5.0 kB",1794246685,"09/11/2026, 14:51:25");</script>
-<script>addRow("Vídeo_de_Feliz_Ano_Novo_Personalizado.mp4","V%C3%ADdeo_de_Feliz_Ano_Novo_Personalizado.mp4",0,2670837,"2.5 MB",1767209981,"31/12/2025, 16:39:41");</script>
-<script>addRow("VIDEO-2025-04-21-16-19-15.mp4","VIDEO-2025-04-21-16-19-15.mp4",0,2816022,"2.7 MB",1745263154,"21/04/2025, 16:19:14");</script>
-<script>addRow("Wedding Band Pictures (1).zip","Wedding%20Band%20Pictures%20(1).zip",0,48120944,"45.9 MB",1766090125,"18/12/2025, 17:35:25");</script>
-<script>addRow("WhatsApp Image 2025-07-20 at 18.21.52.jpeg","WhatsApp%20Image%202025-07-20%20at%2018.21.52.jpeg",0,142435,"139 kB",1753272315,"23/07/2025, 09:05:15");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 07.59.23.jpeg","WhatsApp%20Image%202025-10-16%20at%2007.59.23.jpeg",0,71104,"69.4 kB",1760617573,"16/10/2025, 09:26:13");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 08.24.08.jpeg","WhatsApp%20Image%202025-10-16%20at%2008.24.08.jpeg",0,44931,"43.9 kB",1760617591,"16/10/2025, 09:26:31");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 08.24.29.jpeg","WhatsApp%20Image%202025-10-16%20at%2008.24.29.jpeg",0,76470,"74.7 kB",1760617591,"16/10/2025, 09:26:31");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 08.24.48.jpeg","WhatsApp%20Image%202025-10-16%20at%2008.24.48.jpeg",0,48633,"47.5 kB",1760617591,"16/10/2025, 09:26:31");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 08.26.13.jpeg","WhatsApp%20Image%202025-10-16%20at%2008.26.13.jpeg",0,43964,"42.9 kB",1760617591,"16/10/2025, 09:26:31");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 08.26.39.jpeg","WhatsApp%20Image%202025-10-16%20at%2008.26.39.jpeg",0,48979,"47.8 kB",1760617591,"16/10/2025, 09:26:31");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 09.10.09.jpeg","WhatsApp%20Image%202025-10-16%20at%2009.10.09.jpeg",0,57943,"56.6 kB",1760617598,"16/10/2025, 09:26:38");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 09.10.25.jpeg","WhatsApp%20Image%202025-10-16%20at%2009.10.25.jpeg",0,57955,"56.6 kB",1760617603,"16/10/2025, 09:26:43");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 19.24.01.jpeg","WhatsApp%20Image%202025-10-16%20at%2019.24.01.jpeg",0,29049,"28.4 kB",1760653615,"16/10/2025, 19:26:55");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 19.24.28.jpeg","WhatsApp%20Image%202025-10-16%20at%2019.24.28.jpeg",0,33321,"32.5 kB",1760653615,"16/10/2025, 19:26:55");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 19.24.50.jpeg","WhatsApp%20Image%202025-10-16%20at%2019.24.50.jpeg",0,27290,"26.7 kB",1760653615,"16/10/2025, 19:26:55");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 19.25.12.jpeg","WhatsApp%20Image%202025-10-16%20at%2019.25.12.jpeg",0,28138,"27.5 kB",1760653615,"16/10/2025, 19:26:55");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 19.26.14.jpeg","WhatsApp%20Image%202025-10-16%20at%2019.26.14.jpeg",0,65824,"64.3 kB",1760653615,"16/10/2025, 19:26:55");</script>
-<script>addRow("WhatsApp Image 2025-10-16 at 19.26.41.jpeg","WhatsApp%20Image%202025-10-16%20at%2019.26.41.jpeg",0,61584,"60.1 kB",1760653615,"16/10/2025, 19:26:55");</script>
-<script>addRow("WhatsApp Image 2025-11-01 at 18.48.45 (1).jpeg","WhatsApp%20Image%202025-11-01%20at%2018.48.45%20(1).jpeg",0,217440,"212 kB",1762299565,"04/11/2025, 20:39:25");</script>
-<script>addRow("WhatsApp Image 2025-11-01 at 18.48.45 (2).jpeg","WhatsApp%20Image%202025-11-01%20at%2018.48.45%20(2).jpeg",0,172549,"169 kB",1762299571,"04/11/2025, 20:39:31");</script>
-<script>addRow("WhatsApp Image 2025-11-01 at 18.48.45.jpeg","WhatsApp%20Image%202025-11-01%20at%2018.48.45.jpeg",0,140774,"137 kB",1762299560,"04/11/2025, 20:39:20");</script>
-<script>addRow("WhatsApp Image 2025-12-02 at 19.28.30.jpeg","WhatsApp%20Image%202025-12-02%20at%2019.28.30.jpeg",0,44376,"43.3 kB",1764770517,"03/12/2025, 11:01:57");</script>
-<script>addRow("whatsapp_xico_peregrino.png","whatsapp_xico_peregrino.png",0,122373,"120 kB",1793926276,"05/11/2026, 21:51:16");</script>
-<script>addRow("Xico Peregrino - JaguaréSP (1).pdf","Xico%20Peregrino%20-%20Jaguar%C3%A9SP%20(1).pdf",0,81946,"80.0 kB",1751982599,"08/07/2025, 10:49:59");</script>
-<script>addRow("Xico Peregrino - JaguaréSP (2).pdf","Xico%20Peregrino%20-%20Jaguar%C3%A9SP%20(2).pdf",0,81946,"80.0 kB",1751982622,"08/07/2025, 10:50:22");</script>
-<script>addRow("Xico Peregrino - JaguaréSP.pdf","Xico%20Peregrino%20-%20Jaguar%C3%A9SP.pdf",0,81467,"79.6 kB",1751982547,"08/07/2025, 10:49:07");</script>
-<script>addRow("Xico Peregrino - OsascoSP_1.pdf","Xico%20Peregrino%20-%20OsascoSP_1.pdf",0,315650,"308 kB",1751942131,"07/07/2025, 23:35:31");</script>
-<script>addRow("Xico Peregrino e o Caminho da Fé.png","Xico%20Peregrino%20e%20o%20Caminho%20da%20F%C3%A9.png",0,1008895,"985 kB",1761579790,"27/10/2025, 12:43:10");</script>
-<script>addRow("Xico Peregrino_2025.mp4","Xico%20Peregrino_2025.mp4",0,4335066,"4.1 MB",1762207599,"03/11/2025, 19:06:39");</script>
-<script>addRow("Xico_Peregrino_Nov_2026 (1).pdf","Xico_Peregrino_Nov_2026%20(1).pdf",0,2451901,"2.3 MB",1783828573,"12/07/2026, 00:56:13");</script>
-<script>addRow("Xico_Peregrino_Nov_2026 (2).pdf","Xico_Peregrino_Nov_2026%20(2).pdf",0,6044915,"5.8 MB",1784169826,"15/07/2026, 23:43:46");</script>
-<script>addRow("Xico_Peregrino_Nov_2026 (3).pdf","Xico_Peregrino_Nov_2026%20(3).pdf",0,4608666,"4.4 MB",1784252795,"16/07/2026, 22:46:35");</script>
-<script>addRow("Xico_Peregrino_Nov_2026 (4).pdf","Xico_Peregrino_Nov_2026%20(4).pdf",0,4608666,"4.4 MB",1784253044,"16/07/2026, 22:50:44");</script>
-<script>addRow("Xico_Peregrino_Nov_2026.pdf","Xico_Peregrino_Nov_2026.pdf",0,2451224,"2.3 MB",1783828407,"12/07/2026, 00:53:27");</script>
-<script>addRow("Xico_Peregrino_Nov_2026.pptx","Xico_Peregrino_Nov_2026.pptx",0,15892161,"15.2 MB",1783828401,"12/07/2026, 00:53:21");</script>
