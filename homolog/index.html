@@ -137,6 +137,15 @@
   details.mais[open]>summary::after{transform:rotate(90deg)}
   details.mais .corpo{padding:0 16px 8px;border-top:1px solid var(--line)}
   .logo{width:72px;height:72px;border-radius:36px;background:var(--pri);display:flex;align-items:center;justify-content:center;color:#fff;margin:0 auto}
+  /* v2.5.6: teste grátis e tutoriais */
+  .tfaixa{display:flex;gap:10px;align-items:center;background:var(--ok-l);border:1px solid #BBF7D0;border-radius:14px;padding:10px 12px;color:#166534}
+  .tfaixa b{display:block;font-size:14px}.tfaixa span{display:block;font-size:12px;opacity:.9;margin-top:2px}
+  .tfaixa.fim{background:var(--bad-l);border-color:#FECACA;color:#7F1D1D}
+  .tfaixa .btn3{white-space:nowrap;flex-shrink:0}
+  details.tut>summary{color:var(--pri-d);font-size:15px}
+  details.tut .corpo p{padding:12px 0 6px;line-height:1.55}
+  .mTeste{background:var(--ok-l);color:#166534;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:600}
+  .mTeste.fim{background:var(--bad-l);color:#7F1D1D}
 </style>
 </head>
 <body>
@@ -176,7 +185,8 @@
       <h1 style="font-size:30px;line-height:1.15;font-weight:800">Agenda on-line para a sua barbearia</h1>
       <p style="font-size:16px;line-height:1.5;color:#4B4970">Seus clientes marcam pelo celular. Você corta e confere tudo aqui.</p>
     </div>
-    <a id="btnTeste" class="btn" href="#" target="_blank" rel="noopener">Teste grátis por 7 dias</a>
+    <a id="btnTeste" class="btn" href="?teste">Teste grátis por 7 dias</a>
+    <a id="btnZapTdb" class="link" href="#" target="_blank" rel="noopener" style="align-self:center;margin-top:-10px">Dúvidas? Fale com a gente no WhatsApp</a>
     <div class="card cardp stack">
       <p class="tt" style="font-size:17px;font-weight:700">Entrar na Área da Empresa</p>
       <div><label class="lbl" for="lEmail">E-mail</label><input id="lEmail" type="email" class="field" autocomplete="username" placeholder="seu@email.com"></div>
@@ -188,14 +198,47 @@
   </div>
 </section>
 
+<!-- ================= v2.5.6: TESTE GRÁTIS (link da bio) ================= -->
+<section id="vTeste" class="hidden wrap" style="padding:28px 20px">
+  <div class="stack" style="gap:18px">
+    <div class="stack" style="gap:10px;text-align:center">
+      <span class="pill" style="align-self:center;background:var(--ok-l);color:#166534">7 dias grátis · sem cartão</span>
+      <h1 style="font-size:27px;line-height:1.15;font-weight:800">Monte a agenda on-line da sua barbearia em 5 minutos</h1>
+      <p style="font-size:15px;line-height:1.5;color:#4B4970">Agenda, caixa e equipe no celular. Seus clientes marcam pelo link, sem baixar aplicativo.</p>
+    </div>
+    <div id="tForm" class="card cardp stack">
+      <div><label class="lbl" for="tNome">Nome da barbearia</label><input id="tNome" class="field" placeholder="ex.: Barbearia do João" autocomplete="organization"></div>
+      <div><label class="lbl" for="tId">Seu link vai ficar assim</label><p id="tBase" class="xs muted" style="word-break:break-all;margin-bottom:4px"></p><input id="tId" class="field" placeholder="barbeariadojoao" autocapitalize="none"><p class="xs muted" style="margin-top:4px">Só letras e números. Não muda depois.</p></div>
+      <div><label class="lbl" for="tZap">WhatsApp da barbearia (com DDD)</label><input id="tZap" class="field" inputmode="tel" placeholder="(11) 91234-5678" autocomplete="tel"></div>
+      <div id="tConta" class="stack" style="gap:12px">
+        <div><label class="lbl" for="tEmail">Seu e-mail</label><input id="tEmail" type="email" class="field" autocomplete="username" placeholder="seu@email.com"></div>
+        <div><label class="lbl" for="tSenha">Crie uma senha (mínimo 6 letras ou números)</label><input id="tSenha" type="password" class="field" autocomplete="new-password"></div>
+      </div>
+      <p id="tLogado" class="sm hidden"></p>
+      <button id="tBtn" data-act="testeCriar" class="btn ok">Começar meu teste grátis</button>
+      <p class="xs muted" style="text-align:center">Depois de 7 dias a agenda pausa para novos horários e nada é apagado. Para continuar, é só falar com a Técnicos de Bolso.</p>
+    </div>
+    <div id="tConfirma" class="card cardp stack hidden" style="gap:12px">
+      <p class="tt" style="font-weight:800;font-size:18px">Falta só confirmar o seu e-mail</p>
+      <p id="tConfTxt" class="sm" style="line-height:1.55"></p>
+      <button id="tJa" data-act="testeJa" class="btn">Já confirmei</button>
+      <button data-act="testeReenviar" class="btn3">Reenviar o e-mail</button>
+    </div>
+    <p class="sm muted" style="text-align:center;line-height:1.6">Já tem conta? <a href="./">Entrar</a><br>É barbeiro de uma equipe? Peça ao dono para liberar o seu acesso.<br><span class="ver"></span></p>
+    <button id="tSair" data-act="sair" class="link hidden" style="align-self:center">Sair desta conta</button>
+  </div>
+</section>
+
 <!-- ================= ESPAÇO DO BARBEIRO ================= -->
 <section id="vBarbeiro" class="hidden" style="padding-bottom:96px">
   <div class="topbar"><div class="wrap pad stack" style="gap:12px">
     <div class="row">
       <div class="grow"><span class="area emp"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l1-5h16l1 5"></path><path d="M4 9v11h16V9"></path><path d="M10 20v-6h4v6"></path></svg>Área da Empresa</span><p id="bOla" class="sm muted" style="margin-top:6px">Painel da barbearia</p><p id="bNome" class="tt" style="font-size:20px;font-weight:800;line-height:1.2"></p></div>
       <button id="btnAbrir" data-act="barb" class="pill" style="border:none;min-height:44px;cursor:pointer"></button>
+      <button id="btnAjustes" data-act="ajustes" class="iconbtn hidden" aria-label="Minha barbearia (serviços e horários)" title="Minha barbearia"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></button>
       <button data-act="sair" class="iconbtn" aria-label="Sair" title="Sair"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5M21 12H9"></path></svg></button>
     </div>
+    <div id="bTeste" class="hidden"></div>
   </div></div>
 
   <!-- v2.5.2: Painel do dia (só o dono) -->
@@ -303,7 +346,7 @@
     </div>
     <div id="eLista" class="stack" style="gap:10px"></div>
     <button id="eSalvar" data-act="salvarEquipe" class="btn">Salvar comissões</button>
-    <p class="xs muted" style="text-align:center">Para incluir ou renomear um profissional, fale com a Técnicos de Bolso.</p>
+    <p class="xs muted" style="text-align:center">Para incluir ou renomear um profissional, toque na engrenagem lá em cima (Minha barbearia).</p>
   </div>
 
   <!-- Meus números (barbeiro da equipe) -->
@@ -321,6 +364,40 @@
   </div>
 
 
+  <!-- v2.5.6: Minha barbearia (o dono ajusta serviços, horários e equipe) -->
+  <div id="bAjustes" class="wrap pad stack hidden">
+    <div class="stack" style="gap:4px"><p id="ajTit" class="tt" style="font-size:20px;font-weight:800">Minha barbearia</p><p id="ajSub" class="sm muted">Tudo o que você salvar aqui aparece na hora no seu link de agendamento.</p></div>
+    <div class="card cardp stack" style="gap:12px">
+      <p class="cap">1. Serviços e preços</p>
+      <div id="ajServ" class="stack" style="gap:8px"></div>
+      <button type="button" data-act="addServA" class="btn3" style="width:100%">+ Adicionar serviço</button>
+    </div>
+    <div class="card cardp stack" style="gap:12px">
+      <p class="cap">2. Horário de funcionamento</p>
+      <div class="grid3">
+        <div><label class="lbl" for="ajInicio">Abre às</label><input id="ajInicio" type="time" class="field"></div>
+        <div><label class="lbl" for="ajFim">Último horário</label><input id="ajFim" type="time" class="field"></div>
+        <div><label class="lbl" for="ajIntervalo">Cada horário</label><select id="ajIntervalo" class="field"><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
+      </div>
+      <div><span class="lbl">Dias em que fecha</span><div id="ajDias" class="row" style="flex-wrap:wrap;gap:4px 12px"></div></div>
+    </div>
+    <div class="card cardp stack" style="gap:8px">
+      <p class="cap">3. Quem atende</p>
+      <label class="lbl" for="ajProfs">Nomes dos profissionais, separados por vírgula</label>
+      <input id="ajProfs" class="field" placeholder="ex.: João, Pedro">
+      <p class="xs muted">Os clientes escolhem com quem cortar. Se for só você, coloque só o seu nome.</p>
+    </div>
+    <div class="card cardp stack" style="gap:12px">
+      <p class="cap">4. Contato da barbearia</p>
+      <div><label class="lbl" for="ajNome">Nome da barbearia</label><input id="ajNome" class="field"></div>
+      <div class="grid2">
+        <div><label class="lbl" for="ajZap">WhatsApp (com DDD)</label><input id="ajZap" class="field" inputmode="tel"></div>
+        <div><label class="lbl" for="ajInsta">Instagram (sem @)</label><input id="ajInsta" class="field" autocapitalize="none"></div>
+      </div>
+      <div><label class="lbl" for="ajEnd">Endereço (opcional)</label><input id="ajEnd" class="field" placeholder="Rua, número - Bairro"></div>
+    </div>
+    <button id="ajSalvar" data-act="salvarAjustes" class="btn">Salvar</button>
+  </div>
   <nav class="nav"><div id="bNav" class="in"></div></nav>
 </section>
 
@@ -376,6 +453,7 @@
     <div class="grid2"><button type="button" data-act="fecharForm" class="btn2">Cancelar</button><button class="btn">Salvar</button></div>
   </form>
 
+  <div id="mFiltro" class="per" style="grid-template-columns:repeat(2,minmax(0,1fr))" role="group" aria-label="Mostrar barbearias"></div>
   <div id="mSaloes" class="stack" style="gap:10px"></div>
 
   <div class="stack" style="gap:10px;margin-top:6px">
@@ -467,7 +545,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.5.5";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.5.6";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -490,6 +568,8 @@ const CONFIG_HOMOLOGACAO = {
 const HOMOLOG = /\/homolog(\/|$)/.test(location.pathname);
 const firebaseConfig = HOMOLOG ? CONFIG_HOMOLOGACAO : CONFIG_PRODUCAO;
 const MAX_DIAS = 60;
+const TESTE_DIAS = 7;                             // v2.5.6: duração do teste grátis
+const TESTE_URL = new URLSearchParams(location.search).has("teste");
 const DIAS_SEM = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 /* ================= UTILIDADES ================= */
@@ -569,7 +649,17 @@ const unsubs = {};
 const off = k => { if (unsubs[k]) { unsubs[k](); delete unsubs[k]; } };
 const emailUser = () => (user?.email || "").toLowerCase();
 const isMaster = () => emailUser() === MASTER_EMAIL;
-const indisponivel = () => travado || salao?.barbeariaFechada === true;
+const indisponivel = () => travado || salao?.barbeariaFechada === true || testeAcabou(salao);
+/* v2.5.6: teste grátis. O prazo conta a partir de testeInicio (hora do servidor); as regras do banco conferem o mesmo prazo */
+const emTeste = s => s?.teste === true;
+const inicioTeste = s => s?.testeInicio?.toMillis ? s.testeInicio.toMillis() : Date.now();
+const fimTeste = s => inicioTeste(s) + TESTE_DIAS * 864e5;
+const testeAcabou = s => emTeste(s) && Date.now() > fimTeste(s);
+const diasTeste = s => Math.max(0, Math.ceil((fimTeste(s) - Date.now()) / 864e5));
+const fimTesteTxt = s => new Date(fimTeste(s)).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+const txtDias = n => n === 1 ? "falta 1 dia" : `faltam ${n} dias`;
+const txtAg = n => n === 1 ? "1 agendamento" : `${n} agendamentos`;
+let donosMap = null, ctMap = {}, mFiltro = "todas", migrados = new Set(), qtdAgTeste = 0, onbFeito = false, tutAberto = false;
 
 /* ================= FIREBASE ================= */
 const dSalao = id => F.doc(fire, "saloes", id);
@@ -578,6 +668,7 @@ const cOc = id => F.collection(fire, "saloes", id, "ocupados");
 const dGeral = () => F.doc(fire, "sistema", "geral");
 const dContador = id => F.doc(fire, "saloes", id, "contador", "protocolo");
 const dConfig = id => F.doc(fire, "saloes", id, "privado", "config");
+const dDono = email => F.doc(fire, "donos", email);   // v2.5.6: qual barbearia é de qual e-mail (o e-mail sai da página pública)
 const cEquipe = id => F.collection(fire, "saloes", id, "equipe");
 const dAcesso = email => F.doc(fire, "acessos", email);
 const cAt = id => F.collection(fire, "saloes", id, "atendimentos");
@@ -587,7 +678,8 @@ const dCaixa = (id, dia) => F.doc(fire, "saloes", id, "caixas", dia);
 async function iniciar() {
   document.querySelectorAll(".ver").forEach(el => el.textContent = VERSAO + (HOMOLOG ? " · homologação" : ""));
   if (HOMOLOG) $("#faixaHomolog").classList.remove("hidden");
-  $("#btnTeste").href = `https://wa.me/${ZAP_TDB}?text=${encodeURIComponent("Olá! Quero testar a agenda on-line da Técnicos de Bolso por 7 dias grátis.")}`;
+  $("#btnZapTdb").href = `https://wa.me/${ZAP_TDB}?text=${encodeURIComponent("Olá! Tenho uma dúvida sobre a agenda on-line da Técnicos de Bolso.")}`;
+  montarTutoriais();
   try {
     const base = "https://www.gstatic.com/firebasejs/10.12.2/";
     [AppMod, F, A] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js"), import(base + "firebase-auth.js")]);
@@ -601,25 +693,29 @@ async function iniciar() {
 function erroConexao(e) { console.error(e); $("#statusConexao").textContent = "Sem conexão com o banco de dados."; }
 function ver(v, msg) {
   $("#carregando").classList.add("hidden");
-  ["Landing", "Barbeiro", "Master", "Salao", "Erro"].forEach(x => $("#v" + x).classList.toggle("hidden", x.toLowerCase() !== v));
+  ["Landing", "Teste", "Barbeiro", "Master", "Salao", "Erro"].forEach(x => $("#v" + x).classList.toggle("hidden", x.toLowerCase() !== v));
   if (msg) $("#erroTxt").textContent = msg;
   window.scrollTo({ top: 0 });
 }
 
 /* ================= ENTRAR E ROTEAR ================= */
-const offEspaco = () => ["cfg", "eq", "cxA", "cxM", "cxF", "nM", "agB", "pnA", "pnM", "pnG", "asP", "asS"].forEach(off);
+const offEspaco = () => ["cfg", "eq", "cxA", "cxM", "cxF", "nM", "agB", "pnA", "pnM", "pnG", "asP", "asS", "ct"].forEach(off);
 async function rotear() {
-  off("saloes"); off("meu"); off("dAg"); off("mAg"); offEspaco();
+  off("saloes"); off("donos"); off("meu"); off("dAg"); off("mAg"); offEspaco();
   papel = null; eu = null; espacoId = null; config = {}; equipeDocs = [];
   document.body.classList.remove("pc");
-  if (!user) { meuSalao = null; fecharFolha(); return ver("landing"); }
+  onbFeito = false; tutAberto = false;
+  if (!user) { meuSalao = null; fecharFolha(); return TESTE_URL ? verTeste() : ver("landing"); }
   if (isMaster()) { ouvirSaloes(); return ver("master"); }
-  const q = await F.getDocs(F.query(F.collection(fire, "saloes"), F.where("emailDono", "==", emailUser())));
-  if (!q.empty) { papel = "dono"; return abrirEspaco(q.docs[0].id); }
+  /* v2.5.6: primeiro procura em donos/{email}; barbearia antiga ainda tem o e-mail no próprio cadastro */
+  let meuId = null;
+  try { const d = await F.getDoc(dDono(emailUser())); if (d.exists()) meuId = d.data().salaoId; } catch (err) { console.warn("donos:", err.code || err); }
+  if (!meuId) { const q = await F.getDocs(F.query(F.collection(fire, "saloes"), F.where("emailDono", "==", emailUser()))); if (!q.empty) meuId = q.docs[0].id; }
+  if (meuId) { papel = "dono"; return abrirEspaco(meuId); }
   /* v2.4.1: barbeiro da equipe (acessos/{email} diz qual barbearia abrir) */
   let ac = null;
   try { const s = await F.getDoc(dAcesso(emailUser())); if (s.exists()) ac = s.data(); } catch (err) { console.error(err); }
-  if (!ac?.salaoId) { ver("landing"); aviso("Esta conta ainda não está ligada a uma barbearia. Fale com a Técnicos de Bolso."); return A.signOut(AU); }
+  if (!ac?.salaoId) return fluxoTeste();   // v2.5.6: conta sem barbearia segue para o teste grátis
   if (!user.emailVerified && !(await pedirConfirmacao())) return;
   let eq = null;
   try { const s = await F.getDoc(F.doc(fire, "saloes", ac.salaoId, "equipe", emailUser())); if (s.exists()) eq = s.data(); } catch (err) { console.error(err); }
@@ -656,6 +752,172 @@ async function esqueci(email) {
   catch (err) { console.error(err); aviso("Não foi possível enviar o e-mail de redefinição."); }
 }
 
+/* ================= v2.5.6: TESTE GRÁTIS (cadastro pelo link da bio) ================= */
+const PEND = "tdbTesteNovo";
+const lerPend = () => { try { return JSON.parse(localStorage.getItem(PEND) || "{}"); } catch { return {}; } };
+const guardarPend = p => { try { localStorage.setItem(PEND, JSON.stringify(p)); } catch {} };
+const limparPend = () => { try { localStorage.removeItem(PEND); } catch {} };
+let idEditado = false;
+function verTeste() {
+  ver("teste");
+  const p = lerPend();
+  $("#tBase").textContent = linkInicio() + "?b=" + ($("#tId").value || "seulink");
+  if (p.nome && !$("#tNome").value) { $("#tNome").value = p.nome; $("#tId").value = p.id || ""; $("#tZap").value = p.zapTxt || ""; idEditado = true; atualizarBase(); }
+  const logado = !!user;
+  $("#tConta").classList.toggle("hidden", logado);
+  $("#tLogado").classList.toggle("hidden", !logado);
+  $("#tSair").classList.toggle("hidden", !logado);
+  if (logado) $("#tLogado").innerHTML = `Você entrou como <b>${esc(user.email)}</b>. Preencha os dados da barbearia para começar.`;
+  const aguardando = logado && !user.emailVerified && p.id;
+  $("#tForm").classList.toggle("hidden", !!aguardando);
+  $("#tConfirma").classList.toggle("hidden", !aguardando);
+  if (aguardando) $("#tConfTxt").innerHTML = `Enviamos um link para <b>${esc(user.email)}</b>. Abra o e-mail (veja também o spam), toque no link e volte aqui para tocar em “Já confirmei”.`;
+}
+function atualizarBase() { $("#tBase").textContent = linkInicio() + "?b=" + (slug($("#tId").value) || "seulink"); }
+/* conta logada sem barbearia: confirma o e-mail e cria a barbearia em teste */
+async function fluxoTeste() {
+  const p = lerPend();
+  if (!p.id) return verTeste();
+  if (!user.emailVerified) {
+    if (!verifEnviado) { verifEnviado = true; try { await A.sendEmailVerification(user); } catch (err) { console.error(err); } }
+    return verTeste();
+  }
+  return criarTeste();
+}
+async function testeCriar(btn) {
+  const nome = $("#tNome").value.trim(), id = slug($("#tId").value || nome), zapTxt = $("#tZap").value.trim(), zap = zapNum(zapTxt);
+  if (nome.length < 3) return aviso("Digite o nome da barbearia.");
+  if (id.length < 3 || id.length > 30) return aviso("O link precisa ter de 3 a 30 letras ou números.");
+  if (zap.length < 12) return aviso("Confira o WhatsApp com DDD, ex.: (11) 91234-5678.");
+  btn.disabled = true; const txt = btn.textContent; btn.textContent = "Aguarde…";
+  try {
+    const s = await F.getDoc(dSalao(id));
+    if (s.exists()) { aviso(`O link “${id}” já está em uso. Escolha outro, por exemplo ${id}${String(Date.now()).slice(-2)}.`); return; }
+    guardarPend({ nome, id, zap, zapTxt });
+    if (user) { await fluxoTeste(); return; }
+    const email = $("#tEmail").value.trim().toLowerCase(), senha = $("#tSenha").value;
+    if (!email || !email.includes("@")) return aviso("Digite o seu e-mail.");
+    if (senha.length < 6) return aviso("A senha precisa ter pelo menos 6 letras ou números.");
+    try { await A.createUserWithEmailAndPassword(AU, email, senha); }
+    catch (err) {
+      if (err.code !== "auth/email-already-in-use") throw err;
+      try { await A.signInWithEmailAndPassword(AU, email, senha); }
+      catch (e2) { aviso("Este e-mail já tem cadastro, mas a senha não confere. Use a mesma senha de antes ou toque em “Entrar” e depois em “Esqueci a senha”."); return; }
+    }
+    $("#tSenha").value = "";   // quem segue daqui é o rotear(), que chama fluxoTeste()
+  } catch (err) {
+    console.error(err);
+    aviso(err.code === "auth/invalid-email" ? "Esse e-mail não parece certo. Confira." : err.code === "auth/weak-password" ? "Senha fraca. Use pelo menos 6 letras ou números." : "Não foi possível começar agora. Verifique a internet e tente de novo.");
+  } finally { btn.disabled = false; btn.textContent = txt; }
+}
+async function testeJa(btn) {
+  btn.disabled = true;
+  try { await user.reload(); await AU.currentUser.getIdToken(true); user = AU.currentUser; } catch (err) { console.error(err); }
+  btn.disabled = false;
+  if (!user?.emailVerified) return aviso(`Ainda não apareceu a confirmação de ${user?.email}. Toque no link do e-mail e tente de novo. Não achou? Veja o spam ou toque em “Reenviar o e-mail”.`);
+  criarTeste();
+}
+async function criarTeste() {
+  const p = lerPend(), email = emailUser();
+  if (!p.id) return verTeste();
+  ver("teste"); $("#tConfirma").classList.add("hidden"); $("#tForm").classList.add("hidden");
+  $("#carregando").classList.remove("hidden"); $("#carregando").textContent = "Criando a sua barbearia…";
+  try {
+    const s = await F.getDoc(dSalao(p.id));
+    if (s.exists()) { $("#carregando").classList.add("hidden"); guardarPend({ ...p, id: "" }); verTeste(); $("#tId").value = ""; return aviso(`O link “${p.id}” acabou de ser usado por outra barbearia. Escolha outro e toque de novo em “Começar”.`); }
+    const b = F.writeBatch(fire);
+    b.set(dSalao(p.id), { nome: p.nome, whatsapp: p.zap, status: "vaga", plano: "completo", assinantes: false, teste: true, testeInicio: F.serverTimestamp(),
+      inicio: "09:00", fim: "19:00", intervalo: 30, diasFechados: [0], profissionais: ["Profissional"], servicos: SERVICOS_TESTE, agendaPronta: false, barbeariaFechada: false });
+    b.set(dDono(email), { salaoId: p.id, origem: "teste", criadoEm: F.serverTimestamp() });
+    await b.commit();
+    limparPend();
+    $("#carregando").textContent = "Carregando…";
+    rotear();
+  } catch (err) {
+    console.error(err); $("#carregando").classList.add("hidden"); $("#carregando").textContent = "Carregando…"; verTeste();
+    aviso(err.code === "permission-denied" ? "Não foi possível criar a barbearia. Talvez este e-mail já tenha um teste. Fale com a Técnicos de Bolso pelo WhatsApp." : "Não foi possível criar agora. Verifique a internet e tente de novo.");
+  }
+}
+/* faixa do teste no topo do espaço do dono */
+function zapContinuar() { return `https://wa.me/${ZAP_TDB}?text=${encodeURIComponent(`Olá! Quero continuar usando a agenda da ${meuSalao?.nome || "minha barbearia"} (link ${meuSalao?.id || ""}) depois do teste grátis.`)}`; }
+function desenharTeste() {
+  const b = $("#bTeste"), s = meuSalao;
+  if (papel !== "dono" || !emTeste(s)) { b.classList.add("hidden"); return; }
+  b.classList.remove("hidden");
+  b.innerHTML = testeAcabou(s)
+    ? `<div class="tfaixa fim"><div class="grow"><b>Seu teste grátis terminou</b><span>Os clientes não conseguem marcar horário novo. Seus dados estão guardados.</span></div><a class="btn3" href="${zapContinuar()}" target="_blank" rel="noopener">Quero continuar</a></div>`
+    : `<div class="tfaixa"><div class="grow"><b>Teste grátis: ${txtDias(diasTeste(s))}</b><span>${txtAg(qtdAgTeste)} até agora · vai até ${fimTesteTxt(s)}</span></div><a class="btn3" href="${zapContinuar()}" target="_blank" rel="noopener">Quero continuar</a></div>`;
+}
+/* ----- Minha barbearia ----- */
+function abrirAjustes(onb) {
+  const s = meuSalao; if (!s || papel !== "dono") return;
+  $("#ajTit").textContent = onb ? "Passo 1 de 2: monte a sua agenda" : "Minha barbearia";
+  $("#ajSub").textContent = onb ? "Confira os serviços, os preços e o horário. Deixamos um exemplo pronto: é só trocar pelo que você faz." : "Tudo o que você salvar aqui aparece na hora no seu link de agendamento.";
+  $("#ajSalvar").textContent = onb ? "Salvar e ir para o passo 2" : "Salvar";
+  $("#ajSalvar").dataset.onb = onb ? "1" : "";
+  $("#ajServ").innerHTML = (s.servicos?.length ? s.servicos : [{}]).map(linhaServico).join("");
+  $("#ajInicio").value = s.inicio || "09:00"; $("#ajFim").value = s.fim || "19:00"; $("#ajIntervalo").value = String(intervaloDe(s));
+  $("#ajDias").innerHTML = DIAS_SEM.map((d, i) => `<label class="chk"><input type="checkbox" value="${i}" ${(s.diasFechados || []).includes(i) ? "checked" : ""}>${d}</label>`).join("");
+  $("#ajProfs").value = (s.profissionais || []).join(", ");
+  $("#ajNome").value = s.nome || ""; $("#ajZap").value = s.whatsapp || ""; $("#ajInsta").value = s.instagram || ""; $("#ajEnd").value = s.endereco || "";
+  navegar("bAjustes");
+}
+function lerServicos(box) {
+  const servicos = [];
+  for (const r of box.querySelectorAll(".servRow")) {
+    const n = r.querySelector(".sNome").value.trim(), p = r.querySelector(".sPreco").value.trim(), nota = r.querySelector(".sNota").value.trim();
+    if (!n && !p && !nota) continue;
+    const preco = Number(p.replace(",", "."));
+    if (!n || !p || !isFinite(preco) || preco < 0) { aviso(`Confira o serviço "${n || "sem nome"}": preencha o nome e o preço (ex.: 45 ou 45,50).`); return null; }
+    servicos.push(nota ? { nome: n, preco, nota } : { nome: n, preco });
+  }
+  if (!servicos.length) { aviso("Cadastre pelo menos um serviço."); return null; }
+  return servicos;
+}
+async function salvarAjustes(btn) {
+  const servicos = lerServicos($("#ajServ")); if (!servicos) return;
+  const inicio = $("#ajInicio").value, fim = $("#ajFim").value;
+  if (!inicio || !fim) return aviso("Confira o horário de funcionamento.");
+  const profissionais = [...new Set($("#ajProfs").value.split(",").map(x => x.trim()).filter(Boolean))];
+  if (!profissionais.length) return aviso("Coloque pelo menos um nome em “Quem atende”.");
+  const nome = $("#ajNome").value.trim(); if (!nome) return aviso("Digite o nome da barbearia.");
+  /* quem tem acesso de barbeiro não pode sumir da lista sem antes pausar o acesso (o acesso é ligado ao nome) */
+  const fica = new Set(profissionais.map(slug));
+  const preso = equipeDocs.find(e => e.ativo && !fica.has(e.profId));
+  if (preso) return aviso(`${preso.nome} tem acesso de barbeiro. Para tirar ou renomear, pause o acesso dele em Equipe antes.`);
+  const dados = { nome, whatsapp: zapNum($("#ajZap").value), instagram: $("#ajInsta").value.trim().replace(/^@/, ""), endereco: $("#ajEnd").value.trim(),
+    inicio, fim, intervalo: Number($("#ajIntervalo").value), diasFechados: [...document.querySelectorAll("#ajDias input:checked")].map(x => +x.value),
+    profissionais, servicos, agendaPronta: true };
+  const onb = btn.dataset.onb === "1";
+  btn.disabled = true;
+  try {
+    await F.updateDoc(dSalao(espacoId), dados);
+    if (onb) { navegar(temAssin(meuSalao) ? "bAgenda" : "bCompartilhar"); aviso("Pronto, sua agenda está no ar!\n\nPasso 2: mande o seu link para os clientes e coloque na bio do Instagram. A mensagem já está pronta nesta tela."); }
+    else aviso("Salvo! Os clientes já veem as mudanças no seu link.");
+  } catch (err) {
+    console.error(err);
+    aviso(err.code === "permission-denied" ? "Sua conta ainda não pode mudar estes dados. Fale com a Técnicos de Bolso." : "Não foi possível salvar. Verifique a internet e tente de novo.");
+  } finally { btn.disabled = false; }
+}
+/* ----- tutorial curto no topo de cada tela ----- */
+const TUTORIAL = {
+  bPainel: "Aqui fica o resumo da barbearia: quanto entrou, quantos clientes vieram e a agenda do dia. Toque em Hoje, Semana ou Mês para mudar o período. O botão de planilha baixa tudo para o Excel ou o Google Planilhas.",
+  bAgenda: "Aqui aparecem os clientes que marcaram pelo seu link. Use as setas para trocar o dia. Terminou o corte? Toque em “Concluir atendimento” e o valor vai sozinho para o Caixa. Chegou alguém sem horário? Use o botão “Chegou cliente sem horário?”. O botão verde lá em cima abre e fecha a agenda para os clientes.",
+  bCompartilhar: "Copie o seu link e mande para os clientes pelo WhatsApp, ou coloque na bio do Instagram. Quem tem o link marca sozinho, sem baixar aplicativo e sem precisar esperar você responder.",
+  bCaixa: "Mostra quanto entrou, a comissão dos barbeiros, as despesas e o que fica para a casa. Os cortes concluídos entram sozinhos. Use “Entrou dinheiro” para venda de produtos e “Saiu dinheiro” para contas e vales. No fim do dia, abra “Conferir a gaveta” para fechar o caixa.",
+  bEquipe: "Diga qual profissional é você e a comissão de cada barbeiro nos atendimentos. Para o barbeiro ver a própria agenda no celular dele, toque em “Dar acesso” e informe o e-mail dele. Para incluir um nome novo, use a engrenagem lá em cima.",
+  bAssin: "Clube mensal: primeiro crie um plano em “Planos do clube” (ex.: 4 cortes por R$ 120). Depois cadastre o assinante e registre o pagamento. A cada corte o uso é descontado, e a lista “A renovar” mostra quem precisa pagar de novo.",
+  bNumeros: "Seus atendimentos e quanto você tem a receber, hoje e no mês. É uma prévia: o valor oficial é o do fechamento feito pelo dono.",
+  bAjustes: "Cadastre os serviços com preço, o horário em que a barbearia abre e o último horário de atendimento, os dias em que fecha e quem atende. Tudo aparece na hora no seu link de agendamento."
+};
+function montarTutoriais() {
+  Object.entries(TUTORIAL).forEach(([id, txt]) => {
+    const tela = document.getElementById(id); if (!tela) return;
+    const alvo = tela.querySelector(":scope > .colA") || tela;
+    alvo.insertAdjacentHTML("afterbegin", `<details class="mais tut"><summary>Como usar esta tela</summary><div class="corpo"><p class="sm">${esc(txt)}</p></div></details>`);
+  });
+}
+
 /* ================= ESPAÇO DO BARBEIRO ================= */
 const ICO = {
   agenda: '<rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path>',
@@ -676,7 +938,7 @@ const temCaixa = s => planoDe(s) !== "agenda";
 const temAssin = s => temCaixa(s) && s?.assinantes === true;
 const nomePlano = s => "Plano " + PLANOS[planoDe(s)] + (temAssin(s) ? " + Assinantes" : "");
 const svgNav = p => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
-const TELAS = ["bPainel", "bAssin", "bAgenda", "bCompartilhar", "bCaixa", "bEquipe", "bNumeros"];
+const TELAS = ["bPainel", "bAssin", "bAgenda", "bCompartilhar", "bCaixa", "bEquipe", "bNumeros", "bAjustes"];
 function itensNav() {
   const ag = temAgenda(meuSalao), cx = temCaixa(meuSalao);
   const l = papel === "barbeiro"
@@ -719,6 +981,8 @@ function abrirEspaco(id) {
   ver("barbeiro"); planoAtual = null; TELAS.forEach(x => $("#" + x).classList.add("hidden")); $("#bNav").innerHTML = "";
   $("#bData").value = hojeISO(); $("#cxData").value = hojeISO();
   $("#btnAbrir").classList.toggle("hidden", papel !== "dono");
+  $("#btnAjustes").classList.toggle("hidden", papel !== "dono");
+  $("#bTeste").classList.add("hidden"); qtdAgTeste = 0;
   unsubs.meu = F.onSnapshot(dSalao(id), s => {
     meuSalao = { id: s.id, ...s.data() };
     const chave = planoDe(meuSalao) + "|" + temAssin(meuSalao);
@@ -727,6 +991,13 @@ function abrirEspaco(id) {
     $("#bOla").textContent = papel === "barbeiro" ? "Olá, " + eu.nome + "!" : "Painel da barbearia";
     $("#bOla").classList.toggle("hidden", papel !== "barbeiro");
     desenharEstado(); desenharCompartilhar(); desenharEquipe();
+    /* v2.5.6: teste grátis (faixa, contador de agendamentos, tutoriais abertos e primeiro passo) */
+    if (papel === "dono" && emTeste(meuSalao)) {
+      if (!unsubs.ct) unsubs.ct = F.onSnapshot(dContador(id), c => { qtdAgTeste = c.exists() ? c.data().n || 0 : 0; desenharTeste(); }, err => console.error(err));
+      if (!tutAberto) { tutAberto = true; document.querySelectorAll("details.tut").forEach(d => d.open = true); }
+      if (!onbFeito && meuSalao.agendaPronta !== true) { onbFeito = true; abrirAjustes(true); }
+    } else off("ct");
+    desenharTeste();
   }, erroConexao);
   unsubs.cfg = F.onSnapshot(dConfig(id), s => { config = s.exists() ? s.data() : {}; desenharEquipe(); }, erroConexao);
   if (papel === "dono") {
@@ -1497,19 +1768,49 @@ function desenharNumeros() {
 
 /* ================= MASTER ================= */
 function ouvirSaloes() {
-  off("saloes");
+  off("saloes"); off("donos"); donosMap = null;
   unsubs.saloes = F.onSnapshot(F.collection(fire, "saloes"), s => {
     saloes = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(x => x.nome).sort((a, b) => (a.ordem ?? 99) - (b.ordem ?? 99));
-    desenharMaster();
+    desenharMaster(); migrarEmails();
   }, erroConexao);
+  /* v2.5.6: e-mail de cada dono fica em donos/{email}, que só o master e o próprio dono leem */
+  unsubs.donos = F.onSnapshot(F.collection(fire, "donos"), s => {
+    donosMap = {}; s.docs.forEach(d => { donosMap[d.data().salaoId] = d.id; });
+    desenharMaster(); migrarEmails();
+  }, err => { console.warn("donos (regras v2.5.6 ainda não publicadas?):", err.code || err); donosMap = null; });
+}
+const emailDe = s => s?.emailDono || (donosMap || {})[s?.id] || "";
+/* tira o e-mail do cadastro público das barbearias antigas (só roda se as regras novas já estiverem publicadas) */
+async function migrarEmails() {
+  if (!donosMap) return;
+  const donoDe = Object.fromEntries(Object.entries(donosMap).map(([sid, em]) => [em, sid]));
+  for (const s of saloes) {
+    const em = (s.emailDono || "").toLowerCase();
+    if (!em || migrados.has(s.id) || (donoDe[em] && donoDe[em] !== s.id)) continue;
+    migrados.add(s.id);
+    try { const b = F.writeBatch(fire); b.set(dDono(em), { salaoId: s.id, origem: "master", criadoEm: F.serverTimestamp() }); b.update(dSalao(s.id), { emailDono: F.deleteField() }); await b.commit(); }
+    catch (err) { console.warn("migrar e-mail", s.id, err.code || err); }
+  }
+}
+function linhaTeste(s) {
+  if (!emTeste(s)) return "";
+  if (!(s.id in ctMap)) { ctMap[s.id] = 0; F.getDoc(dContador(s.id)).then(c => { ctMap[s.id] = c.exists() ? c.data().n || 0 : 0; desenharMaster(); }).catch(err => console.error(err)); }
+  const novo = Date.now() - inicioTeste(s) < 2 * 864e5;
+  return testeAcabou(s)
+    ? `<p class="mTeste fim">Teste grátis terminou em ${fimTesteTxt(s)} · ${txtAg(ctMap[s.id])}</p>`
+    : `<p class="mTeste">${novo ? "NOVO · " : ""}Teste grátis: ${txtDias(diasTeste(s))} · ${txtAg(ctMap[s.id])}</p>`;
 }
 function desenharMaster() {
   if (!isMaster()) return;
   $("#mSeed").innerHTML = "";
-  $("#mSaloes").innerHTML = saloes.map(s => `
+  const nTeste = saloes.filter(emTeste).length;
+  if (!nTeste) mFiltro = "todas";
+  $("#mFiltro").classList.toggle("hidden", !nTeste);
+  $("#mFiltro").innerHTML = `<button data-mf="todas" aria-pressed="${mFiltro === "todas"}">Todas (${saloes.length})</button><button data-mf="teste" aria-pressed="${mFiltro === "teste"}">Em teste (${nTeste})</button>`;
+  $("#mSaloes").innerHTML = saloes.filter(s => mFiltro === "todas" || emTeste(s)).map(s => `
     <div class="card cardp stack" style="gap:10px">
       <div class="row" style="align-items:flex-start">
-        <div class="grow"><p style="font-weight:700">${esc(s.nome)}</p><p class="xs muted" style="word-break:break-all">${esc(linkCliente(s.id))}</p><p class="xs" style="font-weight:700;color:var(--pri)">${esc(nomePlano(s))}</p><p class="xs muted">${s.status === "ativa" ? "Ativa" : "Vaga / teste"} · ${esc(s.emailDono || "sem e-mail")} · ${intervaloDe(s)} min</p></div>
+        <div class="grow"><p style="font-weight:700">${esc(s.nome)}</p><p class="xs muted" style="word-break:break-all">${esc(linkCliente(s.id))}</p><p class="xs" style="font-weight:700;color:var(--pri)">${esc(nomePlano(s))}</p><p class="xs muted">${s.status === "ativa" ? "Ativa" : "Vaga / teste"} · ${esc(emailDe(s) || "sem e-mail")} · ${intervaloDe(s)} min</p>${linhaTeste(s)}</div>
         <span class="xs" style="font-weight:700;color:${s.barbeariaFechada ? "var(--bad)" : "var(--ok)"}">${s.barbeariaFechada ? "Fechada" : "Aberta"}</span>
       </div>
       <div class="grid3">
@@ -1518,6 +1819,7 @@ function desenharMaster() {
         <button class="btn3" data-act="editar" data-id="${esc(s.id)}">Editar</button>
         <button class="btn3" data-act="enviarAcesso" data-id="${esc(s.id)}" style="grid-column:span 2">Enviar acesso no WhatsApp</button>
         <button class="btn3" data-act="redefinir" data-id="${esc(s.id)}">Nova senha</button>
+        ${emTeste(s) ? `<button class="btn3" data-act="ativarPlano" data-id="${esc(s.id)}" style="grid-column:span 2;background:var(--ok-l);color:#166534;border-color:#BBF7D0">Ativar plano (pagou)</button><button class="btn3" data-act="maisTeste" data-id="${esc(s.id)}">+7 dias</button>` : ""}
       </div>
     </div>`).join("") || `<p class="muted">Nenhuma barbearia cadastrada.</p>`;
   const sel = $("#mAgSalao"), atual = sel.value;
@@ -1535,7 +1837,7 @@ function ouvirAgendaMaster() {
 }
 function msgAcesso(s) {
   return `Olá! ${temAgenda(s) ? "Sua agenda on-line" : "Seu caixa on-line"} da ${s.nome} está ${temAgenda(s) ? "pronta" : "pronto"}.\n\n` +
-    `Para entrar: abra ${linkInicio()} e entre com o e-mail ${s.emailDono} e a sua senha.\n` +
+    `Para entrar: abra ${linkInicio()} e entre com o e-mail ${emailDe(s)} e a sua senha.\n` +
     `Esqueceu a senha? Toque em “Esqueci a senha” na mesma tela.\n\n` +
     (temAgenda(s) ? `Link para os seus clientes agendarem:\n${linkCliente(s.id)}\n\n` +
     `Dica: dentro da sua agenda, em “Compartilhar”, tem a mensagem pronta para mandar aos clientes.` : `Seu plano: ${nomePlano(s)}.`);
@@ -1571,7 +1873,7 @@ function abrirForm(id) {
   $("#fDias").innerHTML = DIAS_SEM.map((d, i) => `<label class="chk"><input type="checkbox" value="${i}" ${(v.diasFechados || []).includes(i) ? "checked" : ""}>${d}</label>`).join("");
   $("#fProfs").value = (v.profissionais || []).join(", ");
   $("#fServList").innerHTML = (v.servicos?.length ? v.servicos : [{}]).map(linhaServico).join("");
-  $("#fEmail").value = v.emailDono || ""; $("#fSenha").value = "";
+  $("#fEmail").value = emailDe(v); $("#fSenha").value = "";
   f.classList.remove("hidden"); f.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 async function salvarForm(e) {
@@ -1598,10 +1900,16 @@ async function salvarForm(e) {
   if (senha && (senha.length < 6 || !emailDono)) return aviso("Para criar o acesso, informe o e-mail e uma senha com pelo menos 6 caracteres.");
   const dados = { nome, status: $("#fStatus").value, ordem: Number($("#fOrdem").value) || 99, endereco: $("#fEndereco").value.trim(), mapsUrl: $("#fMaps").value.trim(),
     whatsapp: zapNum($("#fZap").value), instagram: $("#fInsta").value.trim().replace(/^@/, ""), inicio, fim, intervalo: Number($("#fIntervalo").value),
-    diasFechados, profissionais, servicos, emailDono,
+    diasFechados, profissionais, servicos,
     plano: $("#fPlano").value, assinantes: $("#fPlano").value !== "agenda" && $("#fAssinantes").checked };
   try {
-    await F.setDoc(dSalao(id), dados, { merge: true });
+    if (donosMap) {   // v2.5.6: regras novas publicadas → e-mail fica fora da página pública
+      const antigo = emailDe(saloes.find(x => x.id === id)), b = F.writeBatch(fire);
+      b.set(dSalao(id), { ...dados, emailDono: F.deleteField() }, { merge: true });
+      if (antigo && antigo !== emailDono && donosMap[id] === antigo) b.delete(dDono(antigo));
+      if (emailDono) b.set(dDono(emailDono), { salaoId: id, origem: "master", criadoEm: F.serverTimestamp() });
+      await b.commit();
+    } else await F.setDoc(dSalao(id), { ...dados, emailDono }, { merge: true });
     let msg = "Barbearia salva.";
     if (senha) msg += " " + await criarAcesso(emailDono, senha);
     $("#formSalao").classList.add("hidden"); aviso(msg);
@@ -1742,7 +2050,7 @@ function desenharEstado() {
   $("#btnAgendar").disabled = fechado;
   $("#btnAgendar").textContent = fechado ? "Agendamentos indisponíveis" : lerMeus().some(c => (estadoMeu[c.protocolo] || "ativo") === "ativo") ? "Agendar outro horário" : "Agendar horário";
   $("#avisoFechado").classList.toggle("hidden", !fechado);
-  $("#avisoFechado p").textContent = travado ? "Os agendamentos estão temporariamente indisponíveis." : "A barbearia não está recebendo agendamentos no momento.";
+  $("#avisoFechado p").textContent = travado ? "Os agendamentos estão temporariamente indisponíveis." : testeAcabou(salao) ? "A agenda on-line está pausada no momento. Fale com a barbearia pelo WhatsApp." : "A barbearia não está recebendo agendamentos no momento.";
   $("#fs").disabled = fechado; $("#btnConfirmar").disabled = fechado;
   desenharHoras();
 }
@@ -1752,7 +2060,7 @@ async function gravar(o, tok, antigo) {
   const ocRef = F.doc(fire, "saloes", salao.id, "ocupados", o.chave);
   return F.runTransaction(fire, async tx => {
     const g = await tx.get(dGeral()), s = await tx.get(dSalao(salao.id)), oc = await tx.get(ocRef), ct = await tx.get(dContador(salao.id));
-    if ((g.exists() && g.data().bloqueado) || s.data()?.barbeariaFechada) throw new Error("bloqueado");
+    if ((g.exists() && g.data().bloqueado) || s.data()?.barbeariaFechada || testeAcabou(s.data())) throw new Error("bloqueado");
     if (oc.exists()) throw new Error("ocupado");
     const n = (ct.exists() ? ct.data().n : 0) + 1;
     const protocolo = "TDB-" + pad(n, 5);
@@ -1888,8 +2196,9 @@ document.addEventListener("click", async e => {
     if (f.fcat != null) folhaCtx.cat = f.fcat;
     return desenharFolha();
   }
-  const t = e.target.closest("[data-nav],[data-per],[data-pper],[data-asf],[data-cxdia],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
+  const t = e.target.closest("[data-nav],[data-per],[data-pper],[data-asf],[data-mf],[data-cxdia],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
   const d = t.dataset;
+  if (d.mf) { mFiltro = d.mf; return desenharMaster(); }
   if (d.nav) return navegar(d.nav);
   if (d.per) return trocarPer(d.per);
   if (d.pper) { pnPer = d.pper; return ouvirPainel(); }
@@ -1902,6 +2211,25 @@ document.addEventListener("click", async e => {
   switch (d.act) {
     case "fechar": $("#modal").classList.add("hidden"); break;
     case "entrar": entrar(); break;
+    /* v2.5.6 */
+    case "testeCriar": testeCriar(t); break;
+    case "testeJa": testeJa(t); break;
+    case "testeReenviar": try { await A.sendEmailVerification(user); aviso("Enviamos de novo para " + user.email + ". Veja também o spam."); } catch (err) { console.error(err); aviso(err.code === "auth/too-many-requests" ? "Já enviamos agora há pouco. Espere alguns minutos e veja o spam." : "Não foi possível reenviar."); } break;
+    case "ajustes": abrirAjustes(false); break;
+    case "addServA": $("#ajServ").insertAdjacentHTML("beforeend", linhaServico()); $("#ajServ").lastElementChild.querySelector(".sNome").focus(); break;
+    case "salvarAjustes": salvarAjustes(t); break;
+    case "ativarPlano": {
+      const s = saloes.find(x => x.id === d.id); if (!s) return;
+      if (!(await confirmar(`Ativar o plano da ${s.nome}? O teste grátis sai e a agenda volta a funcionar sem prazo. O plano fica como ${nomePlano(s)} (troque em Editar, se precisar).`, "Ativar"))) return;
+      try { await F.updateDoc(dSalao(s.id), { teste: false, ativadoEm: F.serverTimestamp() }); } catch (err) { console.error(err); aviso("Não foi possível ativar."); }
+      break;
+    }
+    case "maisTeste": {
+      const s = saloes.find(x => x.id === d.id); if (!s) return;
+      if (!(await confirmar(`Dar mais ${TESTE_DIAS} dias de teste para a ${s.nome}, contando a partir de hoje?`, "Dar mais dias"))) return;
+      try { await F.updateDoc(dSalao(s.id), { testeInicio: F.serverTimestamp() }); } catch (err) { console.error(err); aviso("Não foi possível alterar."); }
+      break;
+    }
     case "esqueci": esqueci(); break;
     case "sair": if (A) { await A.signOut(AU); } break;
     case "agendar": if (!indisponivel()) { remarcando = null; resumo(); $("#agTitulo").textContent = "Agendar horário"; $("#agSub").textContent = salao.nome; mostrarTela("agendar"); } break;
@@ -1993,14 +2321,14 @@ document.addEventListener("click", async e => {
     case "copiar": copiar(linkCliente(d.id)); break;
     case "enviarAcesso": {
       const s = saloes.find(x => x.id === d.id); if (!s) return;
-      if (!s.emailDono) return aviso("Cadastre o e-mail do dono antes de enviar o acesso.");
+      if (!emailDe(s)) return aviso("Cadastre o e-mail do dono antes de enviar o acesso.");
       const url = (s.whatsapp ? `https://wa.me/${s.whatsapp}` : "https://wa.me/") + "?text=" + encodeURIComponent(msgAcesso(s));
       window.open(url, "_blank", "noopener"); break;
     }
     case "redefinir": {
-      const s = saloes.find(x => x.id === d.id); if (!s?.emailDono) return aviso("Esta barbearia não tem e-mail de acesso.");
-      if (!(await confirmar(`Enviar um link de nova senha para ${s.emailDono}?`, "Enviar"))) return;
-      esqueci(s.emailDono); break;
+      const s = saloes.find(x => x.id === d.id); if (!emailDe(s)) return aviso("Esta barbearia não tem e-mail de acesso.");
+      if (!(await confirmar(`Enviar um link de nova senha para ${emailDe(s)}?`, "Enviar"))) return;
+      esqueci(emailDe(s)); break;
     }
   }
 });
@@ -2013,6 +2341,10 @@ $("#mAgData").addEventListener("change", ouvirAgendaMaster);
 $("#mAgSalao").addEventListener("change", ouvirAgendaMaster);
 $("#fPlano").addEventListener("change", infoPlano);
 $("#asBusca").addEventListener("input", desenharAssin);
+/* v2.5.6: o link do teste acompanha o nome digitado, até a pessoa mexer no link */
+$("#tNome").addEventListener("input", () => { if (!idEditado) $("#tId").value = slug($("#tNome").value).slice(0, 30); atualizarBase(); });
+$("#tId").addEventListener("input", () => { idEditado = true; atualizarBase(); });
+$("#tSenha").addEventListener("keydown", e => { if (e.key === "Enter") testeCriar($("#tBtn")); });
 /* v2.5.3: prévia da divisão do plano enquanto digita; busca de assinante na folha */
 document.addEventListener("input", e => {
   if (!folhaCtx || !e.target.closest("#folha")) return;
