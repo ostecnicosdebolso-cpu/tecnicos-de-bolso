@@ -95,6 +95,12 @@
   .per button:focus-visible{outline:3px solid var(--pri-l);outline-offset:1px}
   .diaRow{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:0;border-bottom:1px solid var(--line);background:none;font:inherit;text-align:left;cursor:pointer;color:var(--ink)}
   .diaRow:last-child{border-bottom:0}
+  .pbar{display:grid;grid-template-columns:70px minmax(0,1fr) auto;align-items:center;gap:10px;font-size:14px;padding:5px 0}
+  .pbar i{display:block;height:10px;border-radius:6px;background:var(--pri)}
+  .pbar b{white-space:nowrap}
+  .pitem{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 16px;border-bottom:1px solid #F0F1F5}
+  .pitem:last-child{border-bottom:0}.pitem .h{font-family:Montserrat,sans-serif;font-weight:800}
+  .pitem .st{font-size:12px;font-weight:700}
   .semHora{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border:2px dashed var(--line2);border-radius:16px;background:transparent;color:var(--ink);text-align:left;cursor:pointer}
   .semHora .mais{width:40px;height:40px;border-radius:20px;background:var(--pri-l);color:var(--pri);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;flex-shrink:0}
   .heroLogo{width:56px;height:56px;min-width:56px;border-radius:28px;background:#fff;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15)}
@@ -175,6 +181,19 @@
       <button data-act="sair" class="iconbtn" aria-label="Sair" title="Sair"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5M21 12H9"></path></svg></button>
     </div>
   </div></div>
+
+  <!-- v2.5.2: Painel do dia (só o dono) -->
+  <div id="bPainel" class="wrap pad stack hidden">
+    <div class="per" role="group" aria-label="Período do painel"><button data-pper="dia" aria-pressed="true">Hoje</button><button data-pper="semana" aria-pressed="false">Semana</button><button data-pper="mes" aria-pressed="false">Mês</button></div>
+    <div class="resumo">
+      <div class="lin" style="font-size:14px;opacity:.9"><span id="pnTit">Entrou hoje</span><span id="pnPerTxt"></span></div>
+      <b id="pnGrande" style="font-family:Montserrat,sans-serif;font-size:34px;line-height:1;margin-top:-6px">R$ 0</b>
+      <div id="pnLinhas" class="stack" style="gap:12px"></div>
+    </div>
+    <div id="pnKpis" class="grid3"></div>
+    <div id="pnFormasBox" class="card cardp"><p class="cap" style="margin-bottom:6px">De onde veio o dinheiro</p><div id="pnFormas"></div></div>
+    <div class="stack" style="gap:8px"><p id="pnListaTit" class="cap" style="margin-left:2px">Agenda de hoje</p><div id="pnLista" class="card" style="overflow:hidden"></div></div>
+  </div>
 
   <!-- Agenda -->
   <div id="bAgenda" class="wrap pad stack">
@@ -415,7 +434,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.5.1";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.5.2";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -510,7 +529,7 @@ let verCanc = false, agendaDono = [], agBalcao = [];
 /* v2.4.1: espaço do dono e da equipe */
 let papel = null, eu = null, espacoId = null, config = {}, equipeDocs = [];
 let cxAt = [], cxMov = [], cxFech = null, numAt = [], folhaCtx = null, verifEnviado = false;
-let planoAtual = null, cxPer = "dia";   // v2.5.1: período do caixa (dia, semana ou mês)   // v2.5.0: plano que o menu está mostrando
+let planoAtual = null, cxPer = "dia", pnPer = "dia", pnAt = [], pnMov = [], pnAg = [];   // v2.5.1: período do caixa (dia, semana ou mês)   // v2.5.0: plano que o menu está mostrando
 const SALAO_ID = slug(new URLSearchParams(location.search).get("b"));
 const unsubs = {};
 const off = k => { if (unsubs[k]) { unsubs[k](); delete unsubs[k]; } };
@@ -554,7 +573,7 @@ function ver(v, msg) {
 }
 
 /* ================= ENTRAR E ROTEAR ================= */
-const offEspaco = () => ["cfg", "eq", "cxA", "cxM", "cxF", "nM", "agB"].forEach(off);
+const offEspaco = () => ["cfg", "eq", "cxA", "cxM", "cxF", "nM", "agB", "pnA", "pnM", "pnG"].forEach(off);
 async function rotear() {
   off("saloes"); off("meu"); off("dAg"); off("mAg"); offEspaco();
   papel = null; eu = null; espacoId = null; config = {}; equipeDocs = [];
@@ -608,7 +627,8 @@ const ICO = {
   compartilhar: '<circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"></path>',
   caixa: '<rect x="2" y="6" width="20" height="13" rx="2"></rect><circle cx="12" cy="12.5" r="2.5"></circle><path d="M6 6V4h12v2"></path>',
   equipe: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"></path>',
-  numeros: '<path d="M3 3v18h18"></path><path d="M7 15l4-4 3 3 5-6"></path>'
+  numeros: '<path d="M3 3v18h18"></path><path d="M7 15l4-4 3 3 5-6"></path>',
+  painel: '<rect x="3" y="3" width="7" height="9" rx="1.5"></rect><rect x="14" y="3" width="7" height="5" rx="1.5"></rect><rect x="14" y="12" width="7" height="9" rx="1.5"></rect><rect x="3" y="16" width="7" height="5" rx="1.5"></rect>'
 };
 /* ================= v2.5.0: PLANOS ================= */
 /* o plano fica em saloes/{id}.plano e só o master muda (as regras já não deixam o dono mexer).
@@ -620,12 +640,12 @@ const temCaixa = s => planoDe(s) !== "agenda";
 const temAssin = s => temCaixa(s) && s?.assinantes === true;
 const nomePlano = s => "Plano " + PLANOS[planoDe(s)] + (temAssin(s) ? " + Assinantes" : "");
 const svgNav = p => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
-const TELAS = ["bAgenda", "bCompartilhar", "bCaixa", "bEquipe", "bNumeros"];
+const TELAS = ["bPainel", "bAgenda", "bCompartilhar", "bCaixa", "bEquipe", "bNumeros"];
 function itensNav() {
   const ag = temAgenda(meuSalao), cx = temCaixa(meuSalao);
   const l = papel === "barbeiro"
     ? [ag && ["bAgenda", "Agenda", ICO.agenda], cx && ["bNumeros", "Meus números", ICO.numeros]]
-    : [ag && ["bAgenda", "Agenda", ICO.agenda], cx && ["bCaixa", "Caixa", ICO.caixa], ["bEquipe", "Equipe", ICO.equipe], ag && ["bCompartilhar", "Compartilhar", ICO.compartilhar]];
+    : [["bPainel", "Painel", ICO.painel], ag && ["bAgenda", "Agenda", ICO.agenda], cx && ["bCaixa", "Caixa", ICO.caixa], ["bEquipe", "Equipe", ICO.equipe], ag && ["bCompartilhar", "Compartilhar", ICO.compartilhar]];
   return l.filter(Boolean);
 }
 /* monta o menu e as telas conforme o plano; roda de novo se o master trocar o plano com o app aberto */
@@ -640,7 +660,7 @@ function aplicarPlano() {
   $("#nAvulso").classList.toggle("hidden", !soCaixa);
   $("#cxDica").textContent = soCaixa ? "Atendimento vai no botão acima. “Entrou” e “Saiu” são para o que vem de fora, como venda de pomada ou conta de luz."
     : "Os cortes entram sozinhos quando você toca em “Concluir atendimento”. Aqui é só para o que vem de fora, como venda de pomada ou conta de luz.";
-  ouvirAgendaDono(); desenharEquipe(true);
+  ouvirAgendaDono(); desenharEquipe(true); ouvirPainel();
 }
 function montarNav() {
   const itens = itensNav();
@@ -832,9 +852,10 @@ function msgComprovante(at) {
 /* ----- caixa do dia (só o dono) ----- */
 /* v2.5.1: período do caixa. Semana = segunda a domingo. */
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
-function periodoCx(dia) {
-  if (cxPer === "semana") { const ini = somaDias(dia, -((diaSemana(dia) + 6) % 7)); return [ini, somaDias(ini, 6)]; }
-  if (cxPer === "mes") { const [y, m] = dia.split("-").map(Number); return [dia.slice(0, 8) + "01", iso(new Date(y, m, 0, 12))]; }
+function periodoCx(dia) { return periodoDe(cxPer, dia); }
+function periodoDe(per, dia) {
+  if (per === "semana") { const ini = somaDias(dia, -((diaSemana(dia) + 6) % 7)); return [ini, somaDias(ini, 6)]; }
+  if (per === "mes") { const [y, m] = dia.split("-").map(Number); return [dia.slice(0, 8) + "01", iso(new Date(y, m, 0, 12))]; }
   return [dia, dia];
 }
 function rotuloPer(dia) {
@@ -920,6 +941,78 @@ function desenharCaixa() {
     : `<p class="sm muted">Opcional. No fim do dia, conte as notas e moedas da gaveta e o app diz se bateu, sobrou ou faltou.</p><button class="btn" data-act="fecharCaixa">Contar a gaveta de ${dia === hojeISO() ? "hoje" : dBR(dia).slice(0, 5)}</button>`;
   $("#cxFechTit").textContent = f ? (f.diferencaCent === 0 ? "Gaveta conferida: bateu ✓" : `Gaveta conferida: ${f.diferencaCent > 0 ? "sobrou" : "faltou"} ${brlC(Math.abs(f.diferencaCent))}`) : "Conferir a gaveta no fim do dia";
 }
+/* ================= v2.5.2: PAINEL DO DIA (dono) =================
+   Uma tela só com o que o dono quer ver: quanto entrou, quanto fica, a agenda e o dia a dia.
+   Usa os mesmos dados do Caixa e da Agenda; não grava nada. */
+function ouvirPainel() {
+  if (papel !== "dono" || !espacoId || !meuSalao) return;
+  off("pnA"); off("pnM"); off("pnG"); pnAt = []; pnMov = []; pnAg = [];
+  const id = espacoId, [ini, fim] = periodoDe(pnPer, hojeISO());
+  const filtro = () => ini === fim ? [F.where("data", "==", ini)] : [F.where("data", ">=", ini), F.where("data", "<=", fim)];
+  const erro = err => { console.error(err); $("#pnLista").innerHTML = `<p class="pad muted">Sem permissão para ver o painel.</p>`; };
+  if (temCaixa(meuSalao)) {
+    unsubs.pnA = F.onSnapshot(F.query(cAt(id), ...filtro()), s => { pnAt = s.docs.map(d => ({ id: d.id, ...d.data() })); desenharPainel(); }, erro);
+    unsubs.pnM = F.onSnapshot(F.query(cMov(id), ...filtro()), s => { pnMov = s.docs.map(d => ({ id: d.id, ...d.data() })); desenharPainel(); }, erro);
+  }
+  if (temAgenda(meuSalao)) unsubs.pnG = F.onSnapshot(F.query(cAg(id), ...filtro()), s => { pnAg = s.docs.map(d => ({ id: d.id, ...d.data() })); desenharPainel(); }, erro);
+  desenharPainel();
+}
+function desenharPainel() {
+  if (papel !== "dono" || !meuSalao) return;
+  const cx = temCaixa(meuSalao), ag = temAgenda(meuSalao), hoje = hojeISO(), [ini, fim] = periodoDe(pnPer, hoje);
+  document.querySelectorAll("[data-pper]").forEach(b => b.setAttribute("aria-pressed", b.dataset.pper === pnPer));
+  const soma = l => l.reduce((t, x) => t + (Number(x.valorCent) || 0), 0);
+  const at = pnAt.filter(x => !x.estornado), mv = pnMov.filter(x => !x.estornado);
+  const entMov = mv.filter(x => x.tipo === "entrada"), desp = mv.filter(x => x.tipo === "saida" && x.categoria !== "vale" && x.categoria !== "retirada");
+  const entrou = soma(at) + soma(entMov), com = at.reduce((t, x) => t + (x.repasseCent || 0), 0), gastos = soma(desp);
+  const marc = pnAg.filter(p => !cancelado(p)), pend = marc.filter(p => p.status !== "Concluído" && p.data >= hoje);
+  const aReceber = pend.reduce((t, p) => t + Math.round(Number(p.preco || 0) * 100), 0);
+  const nomePer = pnPer === "dia" ? "hoje" : pnPer === "semana" ? "na semana" : "no mês";
+  $("#pnPerTxt").textContent = pnPer === "dia" ? rotuloDia(hoje).replace("Hoje · ", "") : pnPer === "semana" ? `${dBR(ini).slice(0, 5)} a ${dBR(fim).slice(0, 5)}` : cap1(MESES[+hoje.slice(5, 7) - 1]);
+  const lin = (t, v) => `<div class="lin"><span>${t}</span><b>${v}</b></div>`;
+  if (cx) {
+    $("#pnTit").textContent = "Entrou " + nomePer;
+    $("#pnGrande").textContent = brlC(entrou);
+    $("#pnLinhas").innerHTML = lin("Comissão dos barbeiros", "− " + brlC(com)) + lin("Despesas", "− " + brlC(gastos))
+      + `<div class="casa"><span style="font-weight:700">Fica para a casa</span><b>${brlC(entrou - com - gastos)}</b></div>`;
+  } else {
+    $("#pnTit").textContent = "Clientes marcados " + nomePer;
+    $("#pnGrande").textContent = String(marc.length);
+    $("#pnLinhas").innerHTML = lin("Valor previsto dos horários", brlC(marc.reduce((t, p) => t + Math.round(Number(p.preco || 0) * 100), 0)));
+  }
+  const k = (v, t, c) => `<div class="stat"><span class="xs muted">${t}</span><b ${c ? `style="color:${c}"` : ""}>${v}</b></div>`;
+  $("#pnKpis").innerHTML = cx
+    ? k(at.length, "Atendimentos") + k(at.length ? brlC(Math.round(soma(at) / at.length)) : "—", "Ticket médio") + (ag ? k(brlC(aReceber), "A receber", "var(--pri)") : k(brlC(gastos), "Despesas"))
+    : k(marc.filter(p => p.status === "Concluído").length, "Concluídos") + k(pend.length, "Ainda vêm") + k(pnAg.filter(cancelado).length, "Cancelados", "var(--bad)");
+  $("#pnFormasBox").classList.toggle("hidden", !cx);
+  if (cx) {
+    const f = FORMAS.map(([c, t]) => [t, soma(at.filter(x => x.forma === c)) + soma(entMov.filter(x => x.forma === c))]), mx = Math.max(1, ...f.map(x => x[1]));
+    $("#pnFormas").innerHTML = f.map(([t, v]) => `<div class="pbar"><span>${t}</span><i style="width:${Math.max(v ? 4 : 0, Math.round(v / mx * 100))}%"></i><b>${brlC(v)}</b></div>`).join("");
+  }
+  if (pnPer === "dia") {
+    $("#pnListaTit").textContent = ag ? "Agenda de hoje" : "Atendimentos de hoje";
+    const itens = [];
+    if (ag) marc.forEach(p => { const feito = p.status === "Concluído", a = feito && pnAt.find(x => x.agendamentoId === p.id);
+      itens.push([p.horario, `<div class="pitem"><span class="h">${esc(p.horario)}</span><div><p style="font-weight:600">${esc(p.nome)}</p><p class="xs muted">${esc(p.servico)}${p.profissional ? " · " + esc(p.profissional) : ""}</p></div>
+        <div style="text-align:right"><b style="white-space:nowrap">${a ? brlC(a.valorCent) : brl(p.preco)}</b><p class="st" style="color:${feito ? "var(--ok)" : "var(--muted)"}">${feito ? "feito" : p.horario < agoraHH() ? "atrasado" : "marcado"}</p></div></div>`]); });
+    if (cx) at.filter(x => !ag || x.origem !== "agenda").forEach(x => itens.push([x.hora || "", `<div class="pitem"><span class="h">${esc(x.hora || "")}</span><div><p style="font-weight:600">${esc(x.clienteNome || "Cliente")}</p><p class="xs muted">${esc(x.servico)} · ${esc(x.profNome || "")}</p></div>
+        <div style="text-align:right"><b style="white-space:nowrap">${brlC(x.valorCent)}</b><p class="st" style="color:var(--ok)">${ag ? "sem horário" : esc(nomeForma(x.forma))}</p></div></div>`]));
+    itens.sort((a, b) => a[0].localeCompare(b[0]));
+    $("#pnLista").innerHTML = itens.length ? itens.map(i => i[1]).join("") : `<p class="pad muted" style="text-align:center">Nada ${ag ? "marcado" : "lançado"} para hoje ainda.</p>`;
+  } else {
+    $("#pnListaTit").textContent = "Dia a dia";
+    const dias = {}, g = d => dias[d] ||= { ent: 0, cli: 0, at: 0 };
+    at.forEach(x => { g(x.data).ent += x.valorCent || 0; g(x.data).at++; });
+    entMov.forEach(x => { g(x.data).ent += x.valorCent || 0; });
+    marc.forEach(p => { g(p.data).cli++; });
+    const l = Object.keys(dias).sort().reverse();
+    $("#pnLista").innerHTML = l.length ? l.map(d => { const x = dias[d], fut = d > hoje;
+      return `<div class="pitem" style="grid-template-columns:minmax(0,1fr) auto"><div><p style="font-weight:700">${esc(rotuloDia(d))}</p><p class="xs muted">${[cx && !fut ? `${x.at} atendimento${x.at === 1 ? "" : "s"}` : "", ag && x.cli ? (fut ? `${x.cli} marcado${x.cli === 1 ? "" : "s"}` : `${x.cli} na agenda`) : ""].filter(Boolean).join(" · ")}</p></div>
+        <b style="white-space:nowrap">${cx ? (fut ? "a vir" : brlC(x.ent)) : ""}</b></div>`; }).join("")
+      : `<p class="pad muted" style="text-align:center">Nada no período ainda.</p>`;
+  }
+}
+
 /* v2.5.1: na semana e no mês, a lista vira "dia a dia"; tocar num dia abre o caixa daquele dia */
 function desenharDiaADia(k) {
   const dias = {}, soma = (d, campo, v) => { const g = dias[d] ||= { ent: 0, com: 0, desp: 0, qtd: 0 }; g[campo] += v; };
@@ -1494,10 +1587,11 @@ document.addEventListener("click", async e => {
     if (f.fcat != null) folhaCtx.cat = f.fcat;
     return desenharFolha();
   }
-  const t = e.target.closest("[data-nav],[data-per],[data-cxdia],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
+  const t = e.target.closest("[data-nav],[data-per],[data-pper],[data-cxdia],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
   const d = t.dataset;
   if (d.nav) return navegar(d.nav);
   if (d.per) return trocarPer(d.per);
+  if (d.pper) { pnPer = d.pper; return ouvirPainel(); }
   if (d.cxdia) { $("#cxData").value = d.cxdia; return trocarPer("dia"); }
   if (d.dia) { diaSel = d.dia; horaSel = null; desenharDias(); ouvirDia(); desenharHoras(); if (t.id === "btnProxDia") { const on = $("#dias .day.on"); if (on) on.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }); } return; }
   if (d.hora) { horaSel = d.hora; desenharHoras(); return; }
