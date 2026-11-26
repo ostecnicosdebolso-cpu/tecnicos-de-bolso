@@ -548,7 +548,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.5.8";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.5.9";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -1188,7 +1188,7 @@ async function salvarAtend(btn) {
   const tel = zapNum(at.clienteTelefone);
   abrirFolha({ tipo: "feito", html: `<div class="stack" style="align-items:center;text-align:center;gap:6px"><p class="tt" style="font-size:20px;font-weight:800;color:var(--ok)">Atendimento registrado</p>
       <p style="font-size:16px">${esc(servico)} · ${assin ? (naCarencia ? `<b>Assinatura</b> · na carência` : `<b>Assinatura</b> · usou ${at.usoN} de ${at.usoDe}`) : `<b>${brlC(valorCent)}</b> em ${esc(nomeForma(at.forma))}`}</p>
-      <p class="sm muted">${esc(at.profNome)}${assin ? (naCarencia ? " · o valor de quem atendeu entra quando ele pagar" : ` · abatido do saldo: ${brlC(at.repasseCent)} (resta ${brlC(saldoDe(assin).resta - at.repasseCent)})`) : pct ? ` · comissão de ${String(pct).replace(".", ",")}%: ${brlC(at.repasseCent)}` : ""}</p></div>
+      <p class="sm muted">${esc(at.profNome)}${assin ? (naCarencia ? " · o valor de quem atendeu entra quando ele pagar" : ` · parte do rateio: ${brlC(at.repasseCent)} (falta ratear ${brlC(saldoDe(assin).resta - at.repasseCent)})`) : pct ? ` · comissão de ${String(pct).replace(".", ",")}%: ${brlC(at.repasseCent)}` : ""}</p></div>
     ${tel.length >= 12 ? `<a class="btn ok" href="https://wa.me/${tel}?text=${encodeURIComponent(msgComprovante(at))}" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>` : ""}
     <button type="button" class="btn2" data-act="fecharFolha">Fechar</button>` });
 }
@@ -1266,7 +1266,7 @@ function desenharCaixa() {
   $("#cxSep").classList.toggle("hidden", !temAssin(meuSalao));
   if (temAssin(meuSalao)) $("#cxSep").innerHTML = [["Avulsos", k.sep.avulsos], ["Pagamentos de assinatura", k.sep.assinaturas], ["Outras entradas", k.sep.outras]]
     .filter(x => x[1] || x[0] !== "Outras entradas").map(([t, v]) => `<div class="lin" style="font-size:14px"><span>${t}</span><b style="font-size:15px">${brlC(v)}</b></div>`).join("")
-    + (k.sep.usos ? `<div class="lin" style="font-size:13px;opacity:.85"><span>${k.sep.usos} uso${k.sep.usos === 1 ? "" : "s"} de assinatura (já pagos antes)</span><span>abatido do saldo ${brlC(k.sep.repAs)}</span></div>` : "");
+    + (k.sep.usos ? `<div class="lin" style="font-size:13px;opacity:.85"><span>${k.sep.usos} uso${k.sep.usos === 1 ? "" : "s"} de assinatura (já pagos antes)</span><span>rateio ${brlC(k.sep.repAs)}</span></div>` : "");
   $("#cxFormas").innerHTML = FORMAS.map(([f, t]) => `<div class="listrow"><span>${t}</span><b>${brlC(k.porForma[f])}</b></div>`).join("") + `<p class="xs muted" style="padding:4px 0 8px">Já descontado o que saiu em cada forma.</p>`;
   const grupos = {};
   const G = n => grupos[n] ||= { qtd: 0, total: 0, com: 0, vale: 0, usos: 0, rep: 0, sob: 0 };
@@ -1275,7 +1275,7 @@ function desenharCaixa() {
   cxGrupos = grupos;
   const nomes = Object.keys(grupos).sort();
   $("#cxProfs").innerHTML = nomes.length ? nomes.map(n => { const g = grupos[n], pagar = g.com - g.vale;
-      return `<div class="listrow"><div><p style="font-weight:700">${esc(n)}</p><p class="xs muted">${g.qtd} avulso${g.qtd === 1 ? "" : "s"} · comissão ${brlC(g.com - g.rep)}${g.usos ? ` · ${g.usos} de assinatura · abatido do saldo ${brlC(g.rep - g.sob)}` : ""}${g.sob ? ` · sobra dividida ${brlC(g.sob)}` : ""}${g.vale ? ` · já pegou ${brlC(g.vale)} de vale` : ""}</p></div>
+      return `<div class="listrow"><div><p style="font-weight:700">${esc(n)}</p><p class="xs muted">${g.qtd} avulso${g.qtd === 1 ? "" : "s"} · comissão ${brlC(g.com - g.rep)}${g.usos ? ` · ${g.usos} de assinatura · rateio ${brlC(g.rep - g.sob)}` : ""}${g.sob ? ` · sobra dividida ${brlC(g.sob)}` : ""}${g.vale ? ` · já pegou ${brlC(g.vale)} de vale` : ""}</p></div>
         ${!g.com && !g.vale ? `<span class="sm muted">sem comissão</span>` : `<div style="text-align:right;flex-shrink:0"><p class="xs muted">${pagar >= 0 ? "Pagar" : "Ficou devendo"}</p><b style="font-size:17px;white-space:nowrap;color:${pagar >= 0 ? "var(--ok)" : "var(--bad)"}">${brlC(Math.abs(pagar))}</b></div>`}</div>`; }).join("")
     : `<p class="sm muted" style="padding:12px 0">Nenhum atendimento ${umDia ? "neste dia" : "no período"}.</p>`;
   if (!umDia) return desenharDiaADia(k);
@@ -1428,7 +1428,7 @@ function blocoUsoAssin(c) {
     info = pode !== true ? `<p class="sm" style="color:var(--bad);font-weight:600">${esc(pode)}</p>`
       : servico && !servicoNoPlano(a, servico) ? `<p class="sm" style="color:var(--bad);font-weight:600">${esc(servico)} não está no plano ${esc(a.planoNome)}. Cobre como avulso.</p>`
       : car ? `<p class="sm" style="color:var(--warn);font-weight:600">${esc(a.nome)} está na carência (venceu em ${dBR(a.pagoAte).slice(0, 5)}). Pode usar 1 vez: o uso entra no próximo mês quando ele pagar, e o valor de quem atendeu é lançado nessa hora.</p>`
-      : `<p class="sm" style="color:var(--ok);font-weight:600">${esc(a.nome)} · ${esc(a.planoNome)} · vai usar ${(a.usados || 0) + 1} de ${a.n}${a.tipoLimite === "semana" ? ` (semana ${semanaDo(a, data) + 1})` : ""}. Abate ${brlC(repasseDoUso(a))} do saldo para quem atender (resta ${brlC(saldoDe(a).resta - repasseDoUso(a))}).</p>`; }
+      : `<p class="sm" style="color:var(--ok);font-weight:600">${esc(a.nome)} · ${esc(a.planoNome)} · vai usar ${(a.usados || 0) + 1} de ${a.n}${a.tipoLimite === "semana" ? ` (semana ${semanaDo(a, data) + 1})` : ""}. Parte do rateio para quem atender: ${brlC(repasseDoUso(a))} (falta ratear ${brlC(saldoDe(a).resta - repasseDoUso(a))}).</p>`; }
   return `<div class="stack" style="gap:8px"><p class="lbl">Qual assinante</p>
     ${asList.length > 6 ? `<input class="field" data-campo="asBusca" placeholder="Buscar nome e tocar fora" value="${esc(c.asBusca || "")}">` : ""}
     <div class="row" style="flex-wrap:wrap;gap:8px">${lista.length ? lista.slice(0, 20).map(x => `<button type="button" class="chip ${x.id === c.assin ? "on" : ""}" data-fassin="${esc(x.id)}">${esc(x.nome)}</button>`).join("") : `<p class="sm muted">Nenhum assinante encontrado.</p>`}</div>${info}</div>`;
@@ -1454,7 +1454,7 @@ function desenharAssin() {
     const M = mesesDe(p), k = contaPlano(p.valorCent, p.percBarbearia, 1), porMes = Math.round(k.parte / M);
     const nn = ehPacote(p) ? p.atendimentosPorCiclo : p.tipo === "semana" ? null : p.atendimentosPorCiclo;
     const por = nn ? brlC(Math.round((ehPacote(p) ? k.parte : porMes) / nn)) : `${brlC(Math.round(porMes / 4))} ou ${brlC(Math.round(porMes / 5))}`;
-    return `<div class="listrow"><div><p style="font-weight:700">${esc(p.nome)} · ${brlC(p.valorCent)}${M > 1 ? ` <span class="xs muted">(${M} meses)</span>` : ""}</p><p class="xs muted">${esc(txtLimite(p))} · casa ${p.percBarbearia}% · abate ${por} do saldo por atendimento · sobra ${p.sobra === "rateio" ? "dividida entre quem atendeu" : "fica com a casa"}${carenciaDe(p) ? ` · carência ${carenciaDe(p)} dias` : ""}${(p.servicos || []).length ? " · " + esc(p.servicos.join(", ")) : ""}</p></div><button class="btn3" data-act="editPlano" data-id="${esc(p.id)}">Editar</button></div>`; }).join("")
+    return `<div class="listrow"><div><p style="font-weight:700">${esc(p.nome)} · ${brlC(p.valorCent)}${M > 1 ? ` <span class="xs muted">(${M} meses)</span>` : ""}</p><p class="xs muted">${esc(txtLimite(p))} · casa ${p.percBarbearia}% · rateio de ${por} por atendimento · sobra ${p.sobra === "rateio" ? "dividida entre quem atendeu" : "fica com a casa"}${carenciaDe(p) ? ` · carência ${carenciaDe(p)} dias` : ""}${(p.servicos || []).length ? " · " + esc(p.servicos.join(", ")) : ""}</p></div><button class="btn3" data-act="editPlano" data-id="${esc(p.id)}">Editar</button></div>`; }).join("")
     || `<p class="sm muted" style="padding:8px 0">Nenhum plano ainda.</p>`;
 }
 function msgLembrete(a, st) {
@@ -1472,7 +1472,7 @@ function cardAssin(a, destacar) {
     <div class="row" style="align-items:flex-start"><button class="grow" data-act="fichaAssin" data-id="${esc(a.id)}" style="all:unset;cursor:pointer;flex:1"><p style="font-weight:700;font-size:16px;text-decoration:underline;text-decoration-color:var(--line2)">${esc(a.nome)}</p><p class="sm muted">${esc(a.planoNome || "")} · ${brlC(a.valorProprioCent ?? planoDoAs(a)?.valorCent ?? 0)}${a.meses > 1 ? ` · mês ${a.mesIdx + 1} de ${a.meses}` : ""}${a.diaAdesao && !pac ? " · vence todo dia " + a.diaAdesao : ""}</p></button>
       <span class="xs" style="font-weight:700;color:${st.c};text-align:right">${esc(st.t)}</span></div>
     ${a.cicloAtualId && st.k !== "aguarda" ? `<div><div style="display:flex;gap:4px">${Array.from({ length: n }, (_, i) => `<i style="flex:1;height:8px;border-radius:4px;background:${i < u ? "var(--pri)" : "var(--line)"}"></i>`).join("")}</div><p class="xs muted" style="margin-top:4px">Usou ${u} de ${n}${a.tipoLimite === "semana" && a.cicloInicio && hojeISO() >= a.cicloInicio && hojeISO() < a.vencimento ? ` · semana ${Math.min(n, semanaDo(a, hojeISO()) + 1)} de ${n}` : ""}${a.ultimoUso ? " · último em " + dBR(a.ultimoUso).slice(0, 5) : ""}${a.usosCarencia ? ` · <b style="color:var(--warn)">usou ${a.usosCarencia} na carência</b>` : ""}</p>
-      <p class="xs" style="margin-top:2px">Saldo dos barbeiros ${pac ? "no pacote" : "no mês"}: <b>${brlC(sd.saldo)}</b> · abatido ${brlC(sd.abatido)} · resta <b>${brlC(sd.resta)}</b></p></div>` : ""}
+      <p class="xs" style="margin-top:2px">Saldo em rateio ${pac ? "no pacote" : "no mês"}: <b>${brlC(sd.saldo)}</b> · ${n} vindas · ${brlC(Math.round(sd.saldo / (n || 1)))} por atendimento · já rateado ${brlC(sd.abatido)} · falta ratear <b>${brlC(sd.resta)}</b></p></div>` : ""}
     ${lembrado && st.lembrar ? `<p class="xs" style="color:var(--ok)">Lembrete enviado em ${dBR(a.lembradoEm).slice(0, 5)}</p>` : ""}
     <div class="grid3">
       <button class="btn3" data-act="pagarAssin" data-id="${esc(a.id)}" style="${st.renovar ? "background:var(--ok-l);color:#166534;border-color:#BBF7D0" : ""}">${!a.cicloAtualId ? "Marcar pago" : pac ? "Vender outro" : "Renovar"}</button>
@@ -1495,7 +1495,7 @@ async function abrirFicha(id) {
   const usos = todos.filter(x => x.origem !== "rateio"), sobras = todos.filter(x => x.origem === "rateio");
   const doMes = x => x.cicloId === a.cicloAtualId && (x.mesInicio ? x.mesInicio === a.cicloInicio : x.data >= a.cicloInicio && x.data < a.vencimento);
   const doCiclo = usos.filter(doMes).reverse();
-  const linha = x => `<div class="listrow"><div><p style="font-weight:600">${esc(dBR(x.data).slice(0, 5))} · ${esc(x.servico)}</p><p class="xs muted">${esc(x.profNome || "")}${x.carencia && !x.cicloId ? " · na carência, aguardando pagamento" : ""}</p></div><span class="sm" style="white-space:nowrap">abatido ${brlC(x.repasseCent)}</span></div>`;
+  const linha = x => `<div class="listrow"><div><p style="font-weight:600">${esc(dBR(x.data).slice(0, 5))} · ${esc(x.servico)}</p><p class="xs muted">${esc(x.profNome || "")}${x.carencia && !x.cicloId ? " · na carência, aguardando pagamento" : ""}</p></div><span class="sm" style="white-space:nowrap">rateio ${brlC(x.repasseCent)}</span></div>`;
   let semanas = "";
   if (a.cicloAtualId && a.cicloInicio) {
     semanas = a.tipoLimite === "semana"
@@ -1508,7 +1508,7 @@ async function abrirFicha(id) {
   $("#folha .in").innerHTML = `<p class="tt" style="font-size:19px;font-weight:800">${esc(a.nome)}</p>
     <p class="sm muted">${esc(a.planoNome || "")} · ${esc(txtLimite(planoDoAs(a)))}${a.diaAdesao && !pac ? " · vence todo dia " + a.diaAdesao : ""}${a.telefone ? " · " + esc(a.telefone) : ""}</p>
     ${a.cicloAtualId ? `<div class="card cardp" style="background:var(--bg);border:none"><p class="cap" style="margin-bottom:4px">${pac ? "Pacote" : a.meses > 1 ? `Mês ${a.mesIdx + 1} de ${a.meses}` : "Mês atual"} · ${dBR(a.cicloInicio || a.vencimento).slice(0, 5)} a ${dBR(a.vencimento).slice(0, 5)} · usou ${a.usados || 0} de ${a.n}</p>
-      <div class="grid3" style="margin:6px 0 8px"><div class="stat"><span class="xs muted">Saldo dos barbeiros</span><b>${brlC(sd.saldo)}</b></div><div class="stat"><span class="xs muted">Abatido</span><b>${brlC(sd.abatido)}</b></div><div class="stat"><span class="xs muted">Resta</span><b>${brlC(sd.resta)}</b></div></div>
+      <div class="grid3" style="margin:6px 0 8px"><div class="stat"><span class="xs muted">Saldo em rateio</span><b>${brlC(sd.saldo)}</b></div><div class="stat"><span class="xs muted">Já rateado</span><b>${brlC(sd.abatido)}</b></div><div class="stat"><span class="xs muted">Falta ratear</span><b>${brlC(sd.resta)}</b></div></div>
       ${a.meses > 1 ? `<p class="xs muted" style="margin-bottom:6px">Pago até ${dBR(a.pagoAte)}. Cada mês tem o próprio saldo.</p>` : ""}
       <p class="xs muted" style="margin-bottom:6px">Se sobrar saldo no fim ${pac ? "do pacote" : "do mês"}, ${txtSobra(a.destinoSobra)}.</p>${semanas}</div>` : `<p class="sm" style="color:var(--bad)">Aguardando pagamento.</p>`}
     ${usos.some(x => x.carencia && !x.cicloId) ? `<p class="sm" style="color:var(--warn)">Usou na carência e ainda não pagou: ${usos.filter(x => x.carencia && !x.cicloId).map(x => dBR(x.data).slice(0, 5) + " com " + esc(x.profNome || "")).join(", ")}.</p>` : ""}
@@ -1612,7 +1612,7 @@ async function planilhaAssinantes() {
   catch (err) { console.error(err); return aviso("Não foi possível ler os atendimentos. Verifique a internet."); }
   const lista = asList.filter(a => a.ativo !== false || a.cicloAtualId);
   const maxN = Math.max(5, ...lista.map(a => a.n || 0));
-  const cab = ["Nome", "Plano", "Valor (R$)", "Início do mês", "Profissional", ...Array.from({ length: maxN }, (_, i) => (lista.some(a => a.tipoLimite !== "semana") ? "Uso " : "Semana ") + (i + 1)), "Usos", "Data de renovação", "Saldo dos barbeiros (R$)", "Abatido do saldo (R$)", "Resta (R$)", "Sobra vai para", "Situação", "WhatsApp"];
+  const cab = ["Nome", "Plano", "Valor (R$)", "Início do mês", "Profissional", ...Array.from({ length: maxN }, (_, i) => (lista.some(a => a.tipoLimite !== "semana") ? "Uso " : "Semana ") + (i + 1)), "Usos", "Data de renovação", "Saldo em rateio (R$)", "Já rateado (R$)", "Falta ratear (R$)", "Sobra vai para", "Situação", "WhatsApp"];
   const linhas = lista.map(a => {
     const u = usos.filter(x => x.assinanteId === a.id && x.cicloId === a.cicloAtualId && (x.mesInicio ? x.mesInicio === a.cicloInicio : x.data >= a.cicloInicio)).sort((x, y) => x.data.localeCompare(y.data));
     const cont = {}; u.forEach(x => cont[x.profNome] = (cont[x.profNome] || 0) + 1);
@@ -1630,7 +1630,7 @@ async function planilhaAssinantes() {
 function planilhaFechamento() {
   const [ini, fim] = periodoCx($("#cxData").value || hojeISO()), g = cxGrupos, nomes = Object.keys(g).sort();
   if (!nomes.length) return aviso("Nenhum atendimento no período.");
-  const cab = ["Profissional", "Atendimentos avulsos", "Valor dos avulsos (R$)", "Comissão dos avulsos (R$)", "Usos de assinatura", "Abatido do saldo das assinaturas (R$)", "Sobra dividida (R$)", "Vales (R$)", "Total a pagar (R$)"];
+  const cab = ["Profissional", "Atendimentos avulsos", "Valor dos avulsos (R$)", "Comissão dos avulsos (R$)", "Usos de assinatura", "Rateio das assinaturas (R$)", "Sobra dividida (R$)", "Vales (R$)", "Total a pagar (R$)"];
   const linhas = nomes.map(n => { const x = g[n]; return [n, { n: x.qtd }, reais(x.total), reais(x.com - x.rep), { n: x.usos }, reais(x.rep - x.sob), reais(x.sob), reais(x.vale), reais(x.com - x.vale)]; });
   const T = k => nomes.reduce((t, n) => t + (k(g[n]) || 0), 0);
   linhas.push(["TOTAL", { n: T(x => x.qtd) }, reais(T(x => x.total)), reais(T(x => x.com - x.rep)), { n: T(x => x.usos) }, reais(T(x => x.rep - x.sob)), reais(T(x => x.sob)), reais(T(x => x.vale)), reais(T(x => x.com - x.vale))]);
@@ -1644,7 +1644,7 @@ function folhaPlano(c) {
   const v = txtParaCent(c.valor || "") || 0, perc = Number(String(c.perc || "").replace(",", ".")) || 0, n = sem ? 4 : parseInt(c.n, 10) || 0, k = contaPlano(v, perc, 1);
   const porMes = Math.round(k.parte / M), por = n ? Math.round((pac ? k.parte : porMes) / n) : 0;
   const prev = !(v && n) ? "Preencha valor e atendimentos para ver a divisão."
-    : `A casa fica com <b>${brlC(k.casa)}</b>. O saldo dos barbeiros é <b>${brlC(k.parte)}</b>${M > 1 ? `, ou <b>${brlC(porMes)}</b> por mês` : ""}. ${sem ? `Cada atendimento abate <b>${brlC(Math.round(porMes / 4))}</b> no mês de 4 semanas e <b>${brlC(Math.round(porMes / 5))}</b> no de 5.` : `Cada atendimento abate <b>${brlC(por)}</b> do saldo para quem atender.`} Se sobrar, ${txtSobra(c.sobra)}.`;
+    : `A casa fica com <b>${brlC(k.casa)}</b>. O saldo em rateio é <b>${brlC(k.parte)}</b>${M > 1 ? `, ou <b>${brlC(porMes)}</b> por mês` : ""}. ${sem ? `Ele é fracionado pelas vindas: <b>${brlC(Math.round(porMes / 4))}</b> por atendimento no mês de 4 semanas e <b>${brlC(Math.round(porMes / 5))}</b> no de 5.` : `Fracionado em ${n} vindas: <b>${brlC(por)}</b> para quem atender cada uma.`} Se sobrar, ${txtSobra(c.sobra)}.`;
   return `<p class="tt" style="font-size:19px;font-weight:800">${c.id ? "Editar plano" : "Novo plano do clube"}</p>
     <div class="stack" style="gap:8px"><p class="lbl">Tipo</p><div class="row" style="flex-wrap:wrap;gap:8px">${chips(PERIODOS, per, "fpper")}</div>
       <p class="xs muted">${pac ? "Pacote: uma quantidade de atendimentos com prazo. Não renova sozinho." : M > 1 ? `Paga ${M} meses de uma vez. O uso continua contado mês a mês.` : "Paga todo mês."}</p></div>
@@ -1730,8 +1730,8 @@ function folhaPagar(c) {
   const cic = cicloNovo(a, p), kk = contaPlano(v, p.percBarbearia ?? 60, 1), porMes = Math.round(kk.parte / (cic.M || 1));
   const por = cic.n ? Math.round((cic.pac ? kk.parte : porMes) / cic.n) : 0;
   const txt = cic.erro ? `<p class="sm" style="color:var(--bad);font-weight:600">${esc(cic.erro)}</p>`
-    : cic.pac ? `<p class="sm">Pacote de <b>${cic.n} atendimentos</b>, vale de <b>${dBR(cic.inicio).slice(0, 5)}</b> a <b>${dBR(cic.pagoAte)}</b>. A casa fica com ${brlC(kk.casa)}. Saldo dos barbeiros ${brlC(kk.parte)}: cada atendimento abate ${brlC(por)}.</p>`
-    : `<p class="sm">${cic.M > 1 ? `<b>${cic.M} meses</b>, de <b>${dBR(cic.inicio).slice(0, 5)}</b> a <b>${dBR(cic.pagoAte)}</b> (vence todo dia ${cic.dia}).` : `Mês de <b>${dBR(cic.inicio).slice(0, 5)}</b> a <b>${dBR(cic.venc).slice(0, 5)}</b> (vence todo dia ${cic.dia}).`} ${p.tipo === "semana" ? `1 atendimento por semana (${cic.n} semanas no primeiro mês).` : `<b>${cic.n}</b> atendimentos por mês.`} A casa fica com ${brlC(kk.casa)}. Saldo dos barbeiros ${brlC(porMes)} por mês: cada atendimento abate ${brlC(por)}.</p>`;
+    : cic.pac ? `<p class="sm">Pacote de <b>${cic.n} atendimentos</b>, vale de <b>${dBR(cic.inicio).slice(0, 5)}</b> a <b>${dBR(cic.pagoAte)}</b>. A casa fica com ${brlC(kk.casa)}. Saldo em rateio ${brlC(kk.parte)}, fracionado em ${cic.n} vindas: ${brlC(por)} por atendimento.</p>`
+    : `<p class="sm">${cic.M > 1 ? `<b>${cic.M} meses</b>, de <b>${dBR(cic.inicio).slice(0, 5)}</b> a <b>${dBR(cic.pagoAte)}</b> (vence todo dia ${cic.dia}).` : `Mês de <b>${dBR(cic.inicio).slice(0, 5)}</b> a <b>${dBR(cic.venc).slice(0, 5)}</b> (vence todo dia ${cic.dia}).`} ${p.tipo === "semana" ? `1 atendimento por semana (${cic.n} semanas no primeiro mês).` : `<b>${cic.n}</b> atendimentos por mês.`} A casa fica com ${brlC(kk.casa)}. Saldo em rateio ${brlC(porMes)} por mês, fracionado em ${cic.n} vindas: ${brlC(por)} por atendimento.</p>`;
   return `<p class="tt" style="font-size:19px;font-weight:800">${!a.cicloAtualId ? "Marcar pago" : cic.pac ? "Vender novo pacote" : "Renovar assinatura"}</p>
     <p class="sm muted">${esc(a.nome)} · ${esc(p.nome || a.planoNome || "")}</p>
     <div class="stack" style="gap:8px"><p class="lbl">Forma de pagamento</p><div class="grid3">${chips(FORMAS, c.forma, "fforma")}</div></div>
@@ -1818,7 +1818,7 @@ function baixarPlanilha(origem) {
     "", num(Math.round(Number(p.preco || 0) * 100)), "", p.status]]));
   if (!L.length) return aviso("Não há nada para baixar neste período.");
   L.sort((a, b) => a[0].localeCompare(b[0]));
-  const cab = ["Data", "Hora", "Tipo", "Serviço ou descrição", "Cliente", "Profissional", "Forma", "Valor (R$)", "Comissão ou abatido do saldo (R$)", "Situação"];
+  const cab = ["Data", "Hora", "Tipo", "Serviço ou descrição", "Cliente", "Profissional", "Forma", "Valor (R$)", "Comissão ou rateio (R$)", "Situação"];
   const cel = (v, i) => { let t = String(v ?? "");
     if (i !== 7 && /^[=+\-@]/.test(t)) t = "'" + t;   // texto que começa com = + - @ não vira fórmula
     return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
@@ -2109,7 +2109,7 @@ function desenharNumeros() {
   const usA = ok.filter(x => x.forma === "assinatura" && !sb(x)), sob = ok.filter(sb), car = usA.filter(x => x.carencia && !x.cicloId);
   $("#nAssin").classList.toggle("hidden", !usA.length && !sob.length);
   $("#nAssin").innerHTML = `<p class="cap">Assinaturas este mês</p>
-    <div class="grid3"><div class="stat"><span class="xs muted">Usos</span><b>${usA.length}</b></div><div class="stat"><span class="xs muted">Abatido do saldo</span><b class="ent">${brlC(com(usA))}</b></div><div class="stat"><span class="xs muted">Sobra dividida</span><b class="ent">${brlC(com(sob))}</b></div></div>
+    <div class="grid3"><div class="stat"><span class="xs muted">Usos</span><b>${usA.length}</b></div><div class="stat"><span class="xs muted">Rateio</span><b class="ent">${brlC(com(usA))}</b></div><div class="stat"><span class="xs muted">Sobra dividida</span><b class="ent">${brlC(com(sob))}</b></div></div>
     ${car.length ? `<p class="xs muted">${car.length} uso${car.length === 1 ? "" : "s"} na carência: o valor entra quando o cliente pagar.</p>` : ""}`;
   const l = numAt.filter(x => x.data === hojeISO()).sort((a, b) => String(a.hora).localeCompare(String(b.hora)));
   $("#nLista").innerHTML = l.length ? l.map(x => `<div class="mov ${x.estornado ? "est" : ""}"><div class="grow"><p style="font-weight:600;font-size:15px">${esc(x.hora)} · ${esc(x.servico)}</p><p class="xs muted">${esc([nomeForma(x.forma), x.clienteNome, x.estornado ? "ESTORNADO" : ""].filter(Boolean).join(" · "))}</p></div><div style="text-align:right"><p class="v">${brlC(x.valorCent)}</p><p class="xs ent" style="font-weight:700">${brlC(x.repasseCent)}</p></div></div>`).join("")
