@@ -142,6 +142,9 @@
   .tfaixa b{display:block;font-size:14px}.tfaixa span{display:block;font-size:12px;opacity:.9;margin-top:2px}
   .tfaixa.fim{background:var(--bad-l);border-color:#FECACA;color:#7F1D1D}
   .tfaixa .btn3{white-space:nowrap;flex-shrink:0}
+  /* v2.6.1: demonstração */
+  .tfaixa.demo{background:#EEEBFF;border-color:#D9D3FF;color:#1E1B4B}
+  .tfaixa.demo .btn{width:auto;min-height:44px;padding:0 16px;font-size:14px;white-space:nowrap;flex-shrink:0}
   details.tut>summary{color:var(--pri-d);font-size:15px}
   details.tut .corpo p{padding:12px 0 6px;line-height:1.55}
   .mTeste{background:var(--ok-l);color:#166534;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:600}
@@ -203,6 +206,7 @@
     <div class="base">
       <a id="btnTeste" class="btn" href="?teste" data-act="irTeste">Testar grátis por 7 dias</a>
       <p class="miudo">Sem cartão · sem baixar aplicativo</p>
+      <a id="btnDemo" class="btn2" href="?demo">Ver uma barbearia de exemplo</a>
       <button id="btnJaTenho" data-act="mostrarLogin" class="link" style="align-self:center;font-size:15px">Já tenho conta</button>
       <div id="lBox" class="card cardp stack hidden">
         <p class="tt" style="font-size:17px;font-weight:700">Entrar</p>
@@ -565,7 +569,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.6.0";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.6.1";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -644,7 +648,7 @@ const slotsDe = s => {
 };
 const fechadoNoDia = (s, d) => (s.diasFechados || []).includes(diaSemana(d));
 const token = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, "0")).join("");
-const linkCliente = id => location.origin + location.pathname + "?b=" + encodeURIComponent(id);
+const linkCliente = id => location.origin + location.pathname + (new URLSearchParams(location.search).has("demo") ? "?demo&b=" : "?b=") + encodeURIComponent(id);
 const linkInicio = () => location.origin + location.pathname;
 function aviso(t) { $("#modalTxt").textContent = t; $("#modal").classList.remove("hidden"); }
 let resolverConf = null;
@@ -695,11 +699,200 @@ const cAt = id => F.collection(fire, "saloes", id, "atendimentos");
 const cMov = id => F.collection(fire, "saloes", id, "movimentos");
 const dCaixa = (id, dia) => F.doc(fire, "saloes", id, "caixas", dia);
 
+/* ================= v2.6.1: DEMONSTRAÇÃO (barbearia de exemplo, sem cadastro) =================
+   Abre com "?demo". Não conecta no Firebase: um banco de mentira no próprio celular faz o papel do Firestore.
+   Tudo o que a pessoa mexer fica só neste aparelho e some em 12 horas (ou no botão "Recomeçar"). */
+const DEMO = new URLSearchParams(location.search).has("demo");
+const DEMO_ID = "barbeariaexemplo", DEMO_EMAIL = "dono@exemplo.com", DEMO_CHAVE = "tdbDemo", DEMO_VER = 1;
+class TsDemo { constructor(ms) { this.ms = ms; } toMillis() { return this.ms; } toDate() { return new Date(this.ms); } get seconds() { return Math.floor(this.ms / 1000); } }
+function bancoDemo() {
+  const docs = new Map(), subs = new Set(), SV = { __sv: 1 }, DEL = { __del: 1 };
+  let seq = 0, timer = null;
+  const nid = () => Date.now().toString(36) + (seq++).toString(36) + Math.random().toString(36).slice(2, 6);
+  const cl = v => v instanceof TsDemo ? v : Array.isArray(v) ? v.map(cl) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, cl(x)])) : v;
+  const fix = v => v === SV ? new TsDemo(Date.now()) : v;
+  const salvar = () => {
+    try { localStorage.setItem(DEMO_CHAVE, JSON.stringify({ v: DEMO_VER, criado: B.criado, docs: [...docs] }, (k, v) => v instanceof TsDemo ? { __ts: v.ms } : v)); } catch {}
+  };
+  const carregar = () => {
+    try {
+      const j = JSON.parse(localStorage.getItem(DEMO_CHAVE) || "null", (k, v) => v && typeof v === "object" && "__ts" in v ? new TsDemo(v.__ts) : v);
+      if (!j || j.v !== DEMO_VER || Date.now() - j.criado > 12 * 36e5) return false;
+      docs.clear(); j.docs.forEach(([p, d]) => docs.set(p, d)); B.criado = j.criado; return true;
+    } catch { return false; }
+  };
+  const pai = p => p.split("/").slice(0, -1).join("/");
+  const snapDoc = path => ({ id: path.split("/").pop(), ref: { path, id: path.split("/").pop() }, exists: () => docs.has(path), data: () => docs.has(path) ? cl(docs.get(path)) : undefined });
+  const bate = (d, w) => { const v = d[w.f]; return w.op === "==" ? v === w.v : w.op === ">=" ? v != null && v >= w.v : w.op === "<=" ? v != null && v <= w.v : w.op === ">" ? v != null && v > w.v : w.op === "<" ? v != null && v < w.v : false; };
+  const snapQ = q => {
+    const l = [...docs.keys()].filter(p => pai(p) === q.path && (q.ws || []).every(w => bate(docs.get(p), w))).map(snapDoc);
+    return { docs: l, empty: !l.length, size: l.length, forEach: f => l.forEach(f) };
+  };
+  const snap = t => t.tipo === "doc" ? snapDoc(t.path) : snapQ(t);
+  const avisar = () => { if (timer) return; timer = setTimeout(() => { timer = null; subs.forEach(s => { try { s.cb(snap(s.t)); } catch (e) { console.error(e); } }); }, 0); };
+  const gravar = (path, data, merge) => {
+    const base = merge && docs.has(path) ? cl(docs.get(path)) : {};
+    Object.entries(data).forEach(([k, v]) => { if (v === DEL) delete base[k]; else base[k] = cl(fix(v)); });
+    docs.set(path, base);
+  };
+  const atualizar = (path, data) => { if (!docs.has(path)) { const e = new Error("not-found"); e.code = "not-found"; throw e; } gravar(path, data, true); };
+  const fim = () => { salvar(); avisar(); };
+  const caminho = (b, segs) => [b && b.path, ...segs].filter(Boolean).join("/");
+  const B = {
+    criado: Date.now(), docs, salvar, carregar, avisar,
+    getFirestore: () => ({ path: "" }),
+    collection: (b, ...s) => ({ tipo: "col", path: caminho(b, s), id: s.at(-1) }),
+    doc: (b, ...s) => { const path = s.length ? caminho(b, s) : caminho(b, [nid()]); return { tipo: "doc", path, id: path.split("/").pop() }; },
+    query: (c, ...ws) => ({ tipo: "q", path: c.path, ws }),
+    where: (f, op, v) => ({ f, op, v }),
+    serverTimestamp: () => SV, deleteField: () => DEL,
+    onSnapshot: (t, cb) => { const s = { t, cb }; subs.add(s); setTimeout(() => { if (subs.has(s)) cb(snap(t)); }, 0); return () => subs.delete(s); },
+    getDoc: async r => snapDoc(r.path),
+    getDocs: async q => snapQ(q.tipo === "col" ? { path: q.path, ws: [] } : q),
+    setDoc: async (r, d, o) => { gravar(r.path, d, o?.merge); fim(); },
+    updateDoc: async (r, d) => { atualizar(r.path, d); fim(); },
+    addDoc: async (c, d) => { const r = B.doc(c); gravar(r.path, d); fim(); return r; },
+    deleteDoc: async r => { docs.delete(r.path); fim(); },
+    writeBatch: () => { const ops = []; const b = { set: (r, d, o) => (ops.push(() => gravar(r.path, d, o?.merge)), b), update: (r, d) => (ops.push(() => atualizar(r.path, d)), b), delete: r => (ops.push(() => docs.delete(r.path)), b), commit: async () => { ops.forEach(f => f()); fim(); } }; return b; },
+    runTransaction: async (db, fn) => { const ops = []; const tx = { get: async r => snapDoc(r.path), set: (r, d, o) => (ops.push(() => gravar(r.path, d, o?.merge)), tx), update: (r, d) => (ops.push(() => atualizar(r.path, d)), tx), delete: r => (ops.push(() => docs.delete(r.path)), tx) }; const res = await fn(tx); ops.forEach(f => f()); fim(); return res; }
+  };
+  /* o link do cliente aberto em outra aba grava no mesmo aparelho: a agenda do dono atualiza sozinha */
+  window.addEventListener("storage", e => { if (e.key === DEMO_CHAVE && carregar()) avisar(); });
+  return B;
+}
+/* login de mentira: na demonstração ninguém entra nem cria conta */
+const AUTH_DEMO = {
+  signOut: async () => { location.href = linkInicio(); },
+  sendEmailVerification: async () => {}, sendPasswordResetEmail: async () => {},
+  createUserWithEmailAndPassword: async () => ({ user: {} }), getAuth: () => ({}), onAuthStateChanged: () => {}
+};
+/* a barbearia de exemplo: 5 semanas de histórico, a agenda de hoje e dos próximos dias, caixa e assinantes */
+function montarDemo(B) {
+  let semente = 7; const rnd = () => { semente = (semente * 16807) % 2147483647; return semente / 2147483647; };
+  const pega = l => l[Math.floor(rnd() * l.length)];
+  const P = (...s) => "saloes/" + DEMO_ID + (s.length ? "/" + s.join("/") : "");
+  const put = (p, d) => B.docs.set(p, d);
+  const ts = (data, hora) => new TsDemo(new Date(`${data}T${hora || "12:00"}:00`).getTime());
+  const hoje = hojeISO(), agora = mm(agoraHH());
+  const PROFS = ["Rafael", "Bruno", "Diego"];
+  const SERV = [{ nome: "Corte", preco: 45 }, { nome: "Barba", preco: 35 }, { nome: "Corte + Barba", preco: 70 }, { nome: "Pezinho", preco: 15 }, { nome: "Sobrancelha", preco: 20 }];
+  const PESO = [0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 4];
+  const NOMES = ["Lucas Almeida", "Pedro Henrique", "Mateus Souza", "Gabriel Lima", "João Victor", "Thiago Rocha", "Felipe Martins", "André Costa", "Caio Ribeiro", "Vinícius Alves",
+    "Leonardo Dias", "Gustavo Pereira", "Rodrigo Nunes", "Marcelo Fernandes", "Daniel Barros", "Eduardo Gomes", "Henrique Castro", "Samuel Moreira", "Igor Teixeira", "Renato Lopes",
+    "Fábio Carvalho", "Otávio Mendes", "Murilo Freitas", "Paulo Sérgio", "Ricardo Araújo", "Wesley Santos", "Diogo Pires", "Bruno Cardoso", "Alan Vieira", "Sérgio Monteiro"];
+  const fone = i => "1198" + pad(700 + i * 13, 3) + pad(1000 + i * 271 % 9000, 4);
+  const FORMA = ["pix", "pix", "pix", "pix", "cartao", "cartao", "cartao", "dinheiro", "dinheiro"];
+  const COM = { rafael: 0, bruno: 40, diego: 40 };
+  put(P(), { nome: "Barbearia Exemplo", whatsapp: "5511999990000", status: "vaga", plano: "completo", assinantes: true, teste: false,
+    inicio: "09:00", fim: "19:30", intervalo: 30, diasFechados: [0], profissionais: PROFS, servicos: SERV, agendaPronta: true, barbeariaFechada: false,
+    instagram: "@barbeariaexemplo", endereco: "Rua das Flores, 120 · Centro" });
+  put(P("privado", "config"), { comissoes: { bruno: 40, diego: 40 }, donoProfId: "rafael" });
+  put(P("equipe", "bruno@exemplo.com"), { nome: "Bruno", profId: "bruno", papel: "barbeiro", ativo: true, criadoPor: DEMO_EMAIL, criadoEm: ts(somaDias(hoje, -60)) });
+  put(P("equipe", "diego@exemplo.com"), { nome: "Diego", profId: "diego", papel: "barbeiro", ativo: true, criadoPor: DEMO_EMAIL, criadoEm: ts(somaDias(hoje, -40)) });
+  let prot = 0, nAt = 0, nMv = 0;
+  const atendimento = (at, id) => { put(P("atendimentos", id || "at" + (++nAt)), { mes: at.data.slice(0, 7), criadoPor: DEMO_EMAIL, criadoEm: ts(at.data, at.hora), estornado: false, ...at }); return id || "at" + nAt; };
+  const movimento = m => put(P("movimentos", "mv" + (++nMv)), { mes: m.data.slice(0, 7), forma: "pix", descricao: "", criadoPor: DEMO_EMAIL, criadoEm: ts(m.data, m.hora), estornado: false, ...m });
+  const slots = slotsDe({ inicio: "09:00", fim: "19:30", intervalo: 30 });
+  let esperando = 0;
+  for (let k = -35; k <= 6; k++) {
+    const dia = somaDias(hoje, k);
+    if (diaSemana(dia) === 0) continue;
+    const cheio = diaSemana(dia) >= 5 ? 0.2 : 0;
+    const prob = k < 0 ? 0.42 + cheio : k === 0 ? 0.55 : Math.max(0.12, 0.42 - k * 0.06) + cheio / 2;
+    PROFS.forEach((prof, pi) => {
+      slots.forEach(h => {
+        if (rnd() > prob) return;
+        const sv = SERV[pega(PESO)], ci = Math.floor(rnd() * NOMES.length), passou = k < 0 || (k === 0 && mm(h) + 30 <= agora);
+        let status = "Agendado";
+        if (rnd() < 0.06) status = "Cancelado";
+        else if (passou) status = k === 0 && mm(h) + 90 > agora && esperando < 1 ? (esperando++, "Agendado") : "Concluído";
+        const chave = `${slug(prof)}_${dia}_${h.replace(":", "")}`, protocolo = "TDB-" + pad(++prot, 5), agId = `${chave}_${protocolo}`;
+        const ag = { chave, nome: NOMES[ci], telefone: fone(ci), profissional: prof, servico: sv.nome, preco: sv.preco, data: dia, horario: h, protocolo, token: "demo" + prot, status, criadoEm: ts(somaDias(dia, -2), "10:00") };
+        if (status === "Cancelado") Object.assign(ag, { canceladoEm: ts(somaDias(dia, -1)), canceladoPor: rnd() < 0.7 ? "cliente" : "barbearia" });
+        if (status === "Concluído") {
+          const pid = slug(prof), forma = pega(FORMA), pct = COM[pid], v = sv.preco * 100;
+          ag.atendimentoId = atendimento({ data: dia, hora: h, profId: pid, profNome: prof, servico: sv.nome, valorCent: v, forma, origem: "agenda", comissaoPct: pct, repasseCent: Math.round(v * pct / 100),
+            clienteNome: NOMES[ci], clienteTelefone: fone(ci), agendamentoId: agId });
+          ag.concluidoEm = ts(dia, hh(mm(h) + 30));
+        }
+        put(P("agendamentos", agId), ag);
+        if (status !== "Cancelado" && dia >= hoje) put(P("ocupados", chave), { data: dia, horario: h, profissional: prof, protocolo, criadoEm: ag.criadoEm });
+      });
+    });
+    if (k > 0) continue;
+    /* cliente que chegou sem marcar (balcão) */
+    const nb = k === 0 ? (agora > mm("11:00") ? 1 : 0) : Math.floor(rnd() * 3);
+    for (let i = 0; i < nb; i++) {
+      const sv = SERV[pega([0, 0, 1, 3, 4])], prof = pega(PROFS), pid = slug(prof), forma = pega(FORMA), v = sv.preco * 100, hora = k === 0 ? hh(Math.min(agora - 20, mm("10:40") + i * 50)) : pega(slots);
+      atendimento({ data: dia, hora, profId: pid, profNome: prof, servico: sv.nome, valorCent: v, forma, origem: "balcao", comissaoPct: COM[pid], repasseCent: Math.round(v * COM[pid] / 100), clienteNome: rnd() < 0.5 ? pega(NOMES) : "", clienteTelefone: "" });
+    }
+    /* entradas e saídas do caixa */
+    if (rnd() < 0.35) movimento({ data: dia, hora: "16:" + pad(Math.floor(rnd() * 60)), tipo: "entrada", categoria: "produto", valorCent: pega([3500, 4500, 2500]), forma: pega(FORMA), descricao: pega(["Pomada modeladora", "Óleo para barba", "Shampoo"]) });
+    if (diaSemana(dia) === 1) movimento({ data: dia, hora: "09:10", tipo: "saida", categoria: "despesa", valorCent: 18000, descricao: "Lâminas, toalhas e produtos" });
+    if (diaSemana(dia) === 6) movimento({ data: dia, hora: "19:40", tipo: "saida", categoria: "vale", valorCent: 5000, forma: "dinheiro", descricao: "", profId: "bruno", profNome: "Bruno" });
+    if (+dia.slice(8) === 10) movimento({ data: dia, hora: "11:00", tipo: "saida", categoria: "despesa", valorCent: 32000, descricao: "Conta de luz" });
+    if (+dia.slice(8) === 5) movimento({ data: dia, hora: "10:00", tipo: "saida", categoria: "despesa", valorCent: 150000, descricao: "Aluguel" });
+  }
+  put(P("contador", "protocolo"), { n: prot });
+  /* clube de assinantes: dois planos e clientes em situações diferentes */
+  const PL = [
+    { id: "clubecorte", nome: "Clube Corte", valorCent: 12000, periodo: "mensal", tipo: "mes", atendimentosPorCiclo: 4, percBarbearia: 60, validadeDias: null, carenciaDias: 5, sobra: "casa", diasSemana: [], servicos: ["Corte"], ativo: true },
+    { id: "clubecompleto", nome: "Clube Corte + Barba", valorCent: 19000, periodo: "mensal", tipo: "mes", atendimentosPorCiclo: 4, percBarbearia: 60, validadeDias: null, carenciaDias: 5, sobra: "casa", diasSemana: [], servicos: ["Corte", "Barba", "Corte + Barba"], ativo: true }
+  ];
+  PL.forEach(p => { const { id, ...d } = p; put(P("planos", id), { ...d, atualizadoEm: ts(somaDias(hoje, -90)) }); });
+  /* [nome, plano, há quantos dias pagou (null = ainda não pagou), quantos já usou] */
+  const AS = [["Carlos Eduardo", 0, 3, 1], ["Marcos Paulo", 1, 12, 2], ["Júlio César", 0, 18, 3], ["Roberto Silva", 1, 26, 3], ["Fernando Reis", 0, 25, 4], ["Antônio Neto", 0, 32, 4], ["Luiz Fernando", 1, 8, 1], ["Vitor Hugo", 0, null, 0]];
+  AS.forEach(([nome, pi, ha, usados], i) => {
+    const p = PL[pi], id = "as" + (i + 1), tel = "5511977" + pad(100000 + i * 3917, 6);
+    const base = { nome, telefone: tel, planoId: p.id, planoNome: p.nome, valorProprioCent: null, ativo: true, criadoPor: DEMO_EMAIL, criadoEm: ts(somaDias(hoje, -120)), atualizadoEm: ts(hoje) };
+    if (ha == null) { put(P("assinantes", id), { ...base, usados: 0, n: 0, cicloAtualId: null, vencimento: null }); return; }
+    const inicio = somaDias(hoje, -ha), dia = +inicio.slice(8, 10), venc = somaMes(inicio, 1, dia), n = p.atendimentosPorCiclo, k = contaPlano(p.valorCent, p.percBarbearia, 1), porAt = Math.round(k.parte / n), forma = pega(["pix", "pix", "dinheiro", "cartao"]);
+    const cid = "c" + (i + 1);
+    put(P("assinantes", id, "ciclos", cid), { pagoEm: inicio, valorPagoCent: p.valorCent, forma, percBarbearia: p.percBarbearia, parteBarbeariaCent: k.casa, parteAtendimentosCent: k.parte, n, nMax: n, porAtendimentoCent: porAt, usados,
+      vencimento: venc, meses: 1, periodo: "mensal", destinoSobra: "casa", planoId: p.id, planoNome: p.nome, tipo: "mes", inicio, criadoPor: DEMO_EMAIL, criadoEm: ts(inicio, "10:00") });
+    movimento({ data: inicio, hora: "10:" + pad(10 + i), tipo: "entrada", categoria: "assinatura", valorCent: p.valorCent, forma, descricao: `${nome} · ${p.nome}`, assinanteId: id, cicloId: cid });
+    let ult = null;
+    for (let u = 1; u <= usados; u++) {
+      let d = somaDias(inicio, Math.round((ha * u) / (usados + 0.5))); if (d > hoje) d = hoje; if (diaSemana(d) === 0) d = somaDias(d, d < hoje ? 1 : -1);
+      const prof = PROFS[(i + u) % 3], pid = slug(prof), sv = p.servicos[u % p.servicos.length];
+      atendimento({ data: d, hora: pad(10 + ((i + u) % 8)) + ":00", profId: pid, profNome: prof, servico: sv, valorCent: 0, forma: "assinatura", origem: "balcao", comissaoPct: 0, repasseCent: u < n ? porAt : k.parte - porAt * (n - 1),
+        clienteNome: nome, clienteTelefone: tel, assinanteId: id, cicloId: cid, mesInicio: inicio, usoN: u, usoDe: n });
+      ult = d;
+    }
+    put(P("assinantes", id), { ...base, cicloAtualId: cid, usados, mesUso: inicio, n, nMes: n, nMax: n, vencimento: venc, pagoAte: venc, meses: 1, mesBase: 0, cicloInicio: inicio, diaAdesao: dia,
+      tipoLimite: "mes", tipoPlano: "mensal", destinoSobra: "casa", ultimoUso: ult, usosCarencia: 0, sobraAte: null, porAtendimentoCent: porAt, parteAtendimentosCent: k.parte, pausadoEm: null });
+  });
+  B.salvar();
+}
+function iniciarDemo() {
+  const B = bancoDemo();
+  if (!B.carregar()) { B.docs.clear(); B.criado = Date.now(); montarDemo(B); }
+  F = B; A = AUTH_DEMO; fire = B.getFirestore(); AU = {};
+  document.body.classList.add("demo");
+  $("#statusConexao").textContent = "Demonstração: nada é salvo de verdade.";
+  if (SALAO_ID) { document.querySelectorAll('a[href="./"]').forEach(x => x.href = "?demo"); $("#faixaHomolog").textContent = "DEMONSTRAÇÃO · é assim que o seu cliente vê"; $("#faixaHomolog").classList.remove("hidden"); abrirSalao(); return; }
+  history.replaceState(null, "", "?demo");
+  user = { email: DEMO_EMAIL, emailVerified: true };
+  papel = "dono"; abrirEspaco(DEMO_ID);
+}
+/* na demonstração, os botões de WhatsApp e Instagram não abrem o número ou o perfil de ninguém */
+document.addEventListener("click", e => {
+  if (!DEMO) return;
+  const a = e.target.closest("a[href]"); if (!a) return;
+  const h = a.getAttribute("href") || "";
+  if ((/wa\.me\//.test(h) && !h.includes(ZAP_TDB)) || /instagram\.com/.test(h)) {
+    e.preventDefault(); e.stopPropagation();
+    aviso(/instagram/.test(h) ? "Na sua barbearia de verdade, este botão abre o seu Instagram." : "Na sua barbearia de verdade, este botão abre o WhatsApp com a mensagem pronta. Na demonstração ele não envia nada.");
+  }
+}, true);
+function recomecarDemo() { try { localStorage.removeItem(DEMO_CHAVE); } catch {} location.reload(); }
+
 async function iniciar() {
   document.querySelectorAll(".ver").forEach(el => el.textContent = VERSAO + (HOMOLOG ? " · homologação" : ""));
   if (HOMOLOG) $("#faixaHomolog").classList.remove("hidden");
   $("#btnZapTdb").href = `https://wa.me/${ZAP_TDB}?text=${encodeURIComponent("Olá! Tenho uma dúvida sobre a agenda on-line da Técnicos de Bolso.")}`;
   montarTutoriais();
+  if (DEMO) return iniciarDemo();   // v2.6.1: barbearia de exemplo, sem Firebase
   try {
     const base = "https://www.gstatic.com/firebasejs/10.12.2/";
     [AppMod, F, A] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-firestore.js"), import(base + "firebase-auth.js")]);
@@ -883,6 +1076,12 @@ async function criarTeste() {
 function zapContinuar() { return `https://wa.me/${ZAP_TDB}?text=${encodeURIComponent(`Olá! Quero continuar usando a agenda da ${meuSalao?.nome || "minha barbearia"} (link ${meuSalao?.id || ""}) depois do teste grátis.`)}`; }
 function desenharTeste() {
   const b = $("#bTeste"), s = meuSalao;
+  if (DEMO) {   // v2.6.1: faixa da demonstração
+    b.classList.remove("hidden");
+    b.innerHTML = `<div class="tfaixa demo"><div class="grow"><b>Esta é uma barbearia de exemplo</b><span>Mexa à vontade: nada aqui é salvo de verdade.</span></div><a class="btn" href="${linkInicio()}?teste">Testar grátis</a></div>
+      <p class="xs muted" style="margin-top:6px;text-align:center"><button class="link xs" data-act="demoRecomecar">Recomeçar o exemplo</button> · <a class="link xs" href="${linkInicio()}">Sair da demonstração</a></p>`;
+    return;
+  }
   if (papel !== "dono" || !emTeste(s)) { b.classList.add("hidden"); return; }
   b.classList.remove("hidden");
   b.innerHTML = testeAcabou(s)
@@ -2106,6 +2305,7 @@ async function salvarAcesso(btn) {
   fecharFolha(); aviso(msg);
 }
 async function criarAcessoBarbeiro(email) {
+  if (DEMO) return `Na demonstração nenhum e-mail é enviado.\n\nNa sua barbearia de verdade, ${email} recebe um e-mail para criar a senha e entra com o próprio celular.`;
   const app2 = AppMod.getApps().find(a => a.name === "cadastro") || AppMod.initializeApp(firebaseConfig, "cadastro");
   const au2 = A.getAuth(app2);
   try {
@@ -2627,6 +2827,7 @@ document.addEventListener("click", async e => {
       break;
     }
     case "esqueci": esqueci(); break;
+    case "demoRecomecar": recomecarDemo(); break;
     case "sair": if (A) { await A.signOut(AU); } break;
     case "agendar": if (!indisponivel()) { remarcando = null; resumo(); $("#agTitulo").textContent = "Agendar horário"; $("#agSub").textContent = salao.nome; mostrarTela("agendar"); } break;
     case "inicio": remarcando = null; mostrarTela("home"); break;
