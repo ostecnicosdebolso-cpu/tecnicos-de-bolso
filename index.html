@@ -89,7 +89,7 @@
   .diaSel{position:relative;flex:1;min-width:0;min-height:48px;border:1px solid var(--line2);border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:16px;color:var(--ink)}
   .diaSel input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;cursor:pointer;font-size:16px}
   .diaSel svg{color:var(--pri);flex-shrink:0}
-  .per{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#fff;border:1px solid var(--line2);border-radius:14px;padding:4px;gap:4px}
+  .per{display:grid;grid-auto-columns:minmax(0,1fr);grid-auto-flow:column;background:#fff;border:1px solid var(--line2);border-radius:14px;padding:4px;gap:4px}
   .per button{min-height:42px;border:0;border-radius:10px;background:none;font:inherit;font-weight:700;font-size:15px;color:var(--muted);cursor:pointer}
   .per button[aria-pressed=true]{background:var(--pri);color:#fff}
   .per button:focus-visible{outline:3px solid var(--pri-l);outline-offset:1px}
@@ -260,10 +260,11 @@
   <div id="bAssin" class="wrap pad stack hidden">
     <div class="stack" style="gap:4px"><p class="tt" style="font-size:20px;font-weight:800">Assinantes</p><p id="asResumo" class="sm muted"></p></div>
     <button data-act="novoAssin" class="btn">+ Novo assinante</button>
-    <div class="per" role="group" aria-label="Mostrar"><button data-asf="renovar" aria-pressed="true">A renovar</button><button data-asf="emdia" aria-pressed="false">Em dia</button><button data-asf="todos" aria-pressed="false">Todos</button></div>
+    <div class="per" role="group" aria-label="Mostrar"><button data-asf="renovar" aria-pressed="true">A renovar</button><button data-asf="emdia" aria-pressed="false">Em dia</button><button data-asf="todos" aria-pressed="false">Todos</button><button data-asf="avulsos" aria-pressed="false">Avulsos</button></div>
     <input id="asBusca" class="field" placeholder="Buscar pelo nome" aria-label="Buscar assinante pelo nome" autocomplete="off">
     <div id="asLista" class="stack" style="gap:10px"></div>
     <details id="asPlanosBox" class="mais"><summary>Planos do clube</summary><div class="corpo stack" style="gap:10px;padding-bottom:14px"><div id="asPlanos" class="stack" style="gap:0"></div><button data-act="novoPlanoClube" class="btn2">+ Novo plano</button></div></details>
+    <button data-act="planilhaAssin" class="btn3" style="width:100%">Baixar planilha de assinantes (modelo mensal)</button>
   </div>
 
   <!-- Agenda -->
@@ -317,6 +318,7 @@
     <div class="resumo">
       <div class="lin" style="font-size:14px;opacity:.9"><span id="cxTitulo">Hoje a barbearia faturou</span></div>
       <b id="cxEntrou" style="font-family:Montserrat,sans-serif;font-size:34px;line-height:1;margin-top:-6px">R$ 0</b>
+      <div id="cxSep" class="stack hidden" style="gap:6px;font-size:14px;opacity:.92;border-top:1px solid rgba(255,255,255,.25);padding-top:8px"></div>
       <div class="lin"><span>Comissão dos barbeiros</span><b id="cxCom">− R$ 0</b></div>
       <div class="lin"><span id="cxDespLbl">Despesas do dia</span><b id="cxSaiu">− R$ 0</b></div>
       <div class="casa"><span style="font-weight:700">Fica para a casa</span><b id="cxSaldo">R$ 0</b></div>
@@ -329,7 +331,7 @@
     <p id="cxDica" class="xs muted" style="text-align:center;margin-top:-6px">Os cortes entram sozinhos quando você toca em “Concluir atendimento”. Aqui é só para o que vem de fora, como venda de pomada ou conta de luz.</p>
     <button data-act="planilhaCaixa" class="btn3" style="width:100%">Baixar planilha (Excel ou Google Planilhas)</button>
     </div><div class="colB stack">
-    <details class="mais"><summary>Quanto pagar a cada barbeiro</summary><div id="cxProfs" class="corpo"></div></details>
+    <details class="mais"><summary>Quanto pagar a cada barbeiro</summary><div id="cxProfs" class="corpo"></div><div class="corpo" style="padding-top:0;padding-bottom:12px"><button data-act="planilhaFech" class="btn3" style="width:100%">Baixar fechamento por barbeiro</button></div></details>
     <details class="mais"><summary>Pix, dinheiro e cartão</summary><div id="cxFormas" class="corpo"></div></details>
     <details id="cxListaBox" class="mais"><summary id="cxListaTit">Tudo o que entrou e saiu</summary><div id="cxLista" class="corpo" style="padding:0"></div></details>
     <details id="cxFechBox" class="mais"><summary id="cxFechTit">Conferir a gaveta no fim do dia</summary><div id="cxFech" class="corpo stack" style="gap:10px;padding-top:12px;padding-bottom:16px"></div></details>
@@ -359,6 +361,7 @@
     <div class="card cardp stack" style="gap:10px"><p id="nMesTit" class="cap">Este mês</p>
       <div class="grid3"><div class="stat"><span class="xs muted">Atendimentos</span><b id="nMesQtd">0</b></div><div class="stat"><span class="xs muted">Total</span><b id="nMesTot">R$ 0</b></div><div class="stat"><span class="xs muted">Minha parte</span><b id="nMesCom" class="ent">R$ 0</b></div></div>
     </div>
+    <div id="nAssin" class="card cardp stack hidden" style="gap:10px"></div>
     <div class="stack" style="gap:8px"><p class="cap" style="margin-left:2px">Atendimentos de hoje</p><div id="nLista" class="card" style="overflow:hidden"></div></div>
     <p class="xs muted" style="text-align:center">Prévia calculada pelo sistema. O valor oficial é o do fechamento feito pelo dono.</p>
   </div>
@@ -545,7 +548,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.5.6";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.5.8";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -642,7 +645,7 @@ let verCanc = false, agendaDono = [], agBalcao = [];
 /* v2.4.1: espaço do dono e da equipe */
 let papel = null, eu = null, espacoId = null, config = {}, equipeDocs = [];
 let cxAt = [], cxMov = [], cxFech = null, numAt = [], folhaCtx = null, verifEnviado = false;
-let asList = [], plClube = [], asFiltro = "renovar";
+let asList = [], plClube = [], asFiltro = "renovar", cxGrupos = {}, avulsosCache = null;
 let planoAtual = null, cxPer = "dia", pnPer = "dia", pnAt = [], pnMov = [], pnAg = [];   // v2.5.1: período do caixa (dia, semana ou mês)   // v2.5.0: plano que o menu está mostrando
 const SALAO_ID = slug(new URLSearchParams(location.search).get("b"));
 const unsubs = {};
@@ -1152,10 +1155,12 @@ async function salvarAtend(btn) {
   if (!c.prof) return aviso("Escolha quem atendeu.");
   if (!c.forma) return aviso("Escolha a forma de pagamento.");
   /* v2.5.3: atendimento pela assinatura não entra dinheiro (o dinheiro entrou no pagamento do clube); só gera o repasse */
+  if (c.forma === "assinatura") refazAs();
   const assin = c.forma === "assinatura" ? asList.find(a => a.id === c.assin) : null;
+  const naCarencia = assin && situacaoAs(assin).k === "carencia";
   if (c.forma === "assinatura") {
     if (!assin) return aviso("Escolha o assinante.");
-    const pode = podeUsar(assin); if (pode !== true) return aviso(pode);
+    const pode = podeUsar(assin, c.ag ? c.ag.data : hojeISO()); if (pode !== true) return aviso(pode);
     if (!servicoNoPlano(assin, servico)) return aviso(`${servico} não está incluído no plano ${assin.planoNome}. Cobre como avulso (Pix, dinheiro ou cartão).`);
   }
   const valorCent = assin ? 0 : txtParaCent(c.valor);
@@ -1163,32 +1168,33 @@ async function salvarAtend(btn) {
   const profId = papel === "barbeiro" ? eu.profId : slug(c.prof), pct = assin ? 0 : pctComissao(profId);
   const data = c.ag ? c.ag.data : hojeISO();
   const at = { data, mes: data.slice(0, 7), hora: c.ag ? c.ag.horario : agoraHH(), profId, profNome: c.prof, servico, valorCent, forma: c.forma,
-    origem: c.ag ? "agenda" : "balcao", comissaoPct: pct, repasseCent: assin ? repasseDoUso(assin) : Math.round(valorCent * pct / 100),
+    origem: c.ag ? "agenda" : "balcao", comissaoPct: pct, repasseCent: assin ? (naCarencia ? 0 : repasseDoUso(assin)) : Math.round(valorCent * pct / 100),
     clienteNome: c.ag ? c.ag.nome : assin ? assin.nome : (c.cliNome || "").trim(), clienteTelefone: c.ag ? c.ag.telefone : assin ? assin.telefone || "" : (c.cliFone || "").trim(),
     criadoPor: emailUser(), criadoEm: F.serverTimestamp(), estornado: false };
   if (c.ag) at.agendamentoId = c.ag.id;
-  if (assin) Object.assign(at, { assinanteId: assin.id, cicloId: assin.cicloAtualId, usoN: (assin.usados || 0) + 1, usoDe: assin.n });
+  /* v2.5.8: uso na carência fica sem mês (cicloId vazio) até o pagamento; o abatido é lançado quando ele pagar */
+  if (assin) Object.assign(at, naCarencia ? { assinanteId: assin.id, cicloId: null, carencia: true, usoN: null, usoDe: null }
+    : { assinanteId: assin.id, cicloId: assin.cicloAtualId, mesInicio: assin.cicloInicio, usoN: (assin.usados || 0) + 1, usoDe: assin.n });
   btn.disabled = true;
   try {
     const ref = F.doc(cAt(s.id)), b = F.writeBatch(fire);
     b.set(ref, at);
     if (c.ag) b.update(F.doc(fire, "saloes", s.id, "agendamentos", c.ag.id), { status: "Concluído", atendimentoId: ref.id, concluidoEm: F.serverTimestamp() });
-    if (assin) {   // as regras só deixam o barbeiro somar 1 em "usados" (e nunca passar de n)
-      b.update(dAssin(s.id, assin.id), { usados: at.usoN, atualizadoEm: F.serverTimestamp() });
-      b.update(dCiclo(s.id, assin.id, assin.cicloAtualId), { usados: at.usoN });
-    }
+    if (assin && naCarencia) b.update(dAssin(s.id, assin.id), { usosCarencia: (assin.usosCarencia || 0) + 1, ultimoUso: at.data, atualizadoEm: F.serverTimestamp() });
+    else if (assin)   // as regras só deixam o barbeiro somar 1 em "usados" no mês (ou começar o mês novo com 1)
+      b.update(dAssin(s.id, assin.id), { usados: at.usoN, mesUso: assin.cicloInicio, ultimoUso: at.data, atualizadoEm: F.serverTimestamp() });
     await b.commit();
   } catch (err) { console.error(err); btn.disabled = false; return aviso("Não foi possível registrar. Verifique a internet e tente novamente."); }
   const tel = zapNum(at.clienteTelefone);
   abrirFolha({ tipo: "feito", html: `<div class="stack" style="align-items:center;text-align:center;gap:6px"><p class="tt" style="font-size:20px;font-weight:800;color:var(--ok)">Atendimento registrado</p>
-      <p style="font-size:16px">${esc(servico)} · ${assin ? `<b>Assinatura</b> · usou ${at.usoN} de ${at.usoDe}` : `<b>${brlC(valorCent)}</b> em ${esc(nomeForma(at.forma))}`}</p>
-      <p class="sm muted">${esc(at.profNome)}${assin ? ` · repasse da assinatura: ${brlC(at.repasseCent)}` : pct ? ` · comissão de ${String(pct).replace(".", ",")}%: ${brlC(at.repasseCent)}` : ""}</p></div>
+      <p style="font-size:16px">${esc(servico)} · ${assin ? (naCarencia ? `<b>Assinatura</b> · na carência` : `<b>Assinatura</b> · usou ${at.usoN} de ${at.usoDe}`) : `<b>${brlC(valorCent)}</b> em ${esc(nomeForma(at.forma))}`}</p>
+      <p class="sm muted">${esc(at.profNome)}${assin ? (naCarencia ? " · o valor de quem atendeu entra quando ele pagar" : ` · abatido do saldo: ${brlC(at.repasseCent)} (resta ${brlC(saldoDe(assin).resta - at.repasseCent)})`) : pct ? ` · comissão de ${String(pct).replace(".", ",")}%: ${brlC(at.repasseCent)}` : ""}</p></div>
     ${tel.length >= 12 ? `<a class="btn ok" href="https://wa.me/${tel}?text=${encodeURIComponent(msgComprovante(at))}" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>` : ""}
     <button type="button" class="btn2" data-act="fecharFolha">Fechar</button>` });
 }
 function msgComprovante(at) {
   return [`Comprovante · ${meuSalao.nome}`, `${dBR(at.data)} às ${at.hora}`, at.clienteNome ? `Cliente: ${at.clienteNome}` : null, `Serviço: ${at.servico}`,
-    `Profissional: ${at.profNome}`, at.forma === "assinatura" ? `Assinatura: usou ${at.usoN} de ${at.usoDe} deste mês` : `Valor: ${brlC(at.valorCent)} (${nomeForma(at.forma)})`, "", "Obrigado pela preferência!"].filter(x => x !== null).join("\n");
+    `Profissional: ${at.profNome}`, at.forma === "assinatura" ? (at.carencia ? "Assinatura: uso na carência (entra no próximo mês)" : `Assinatura: usou ${at.usoN} de ${at.usoDe} deste mês`) : `Valor: ${brlC(at.valorCent)} (${nomeForma(at.forma)})`, "", "Obrigado pela preferência!"].filter(x => x !== null).join("\n");
 }
 
 /* ----- caixa do dia (só o dono) ----- */
@@ -1239,7 +1245,11 @@ function contasCaixa() {
   const porForma = {};
   FORMAS.forEach(([f]) => { porForma[f] = soma(ent.filter(x => x.forma === f)) - soma(sai.filter(x => x.forma === f)); });
   const vales = sai.filter(x => x.categoria === "vale"), despesas = sai.filter(x => x.categoria !== "vale" && x.categoria !== "retirada");
-  return { at, entrou: soma(ent), saiu: soma(sai), porForma, com: soma(at.map(x => ({ valorCent: x.repasseCent }))), desp: soma(despesas), vales };
+  /* v2.5.7: avulso e assinatura separados (o dono pediu para não ficar "misturado") */
+  const atAv = at.filter(x => x.forma !== "assinatura"), atAs = at.filter(x => x.forma === "assinatura"), entMv = mv.filter(x => x.tipo === "entrada");
+  const sep = { avulsos: soma(atAv), assinaturas: soma(entMv.filter(x => x.categoria === "assinatura")), outras: soma(entMv.filter(x => x.categoria !== "assinatura")),
+    comAv: atAv.reduce((t, x) => t + (x.repasseCent || 0), 0), repAs: atAs.reduce((t, x) => t + (x.repasseCent || 0), 0), usos: atAs.filter(x => x.origem !== "rateio").length };
+  return { at, entrou: soma(ent), saiu: soma(sai), porForma, com: soma(at.map(x => ({ valorCent: x.repasseCent }))), desp: soma(despesas), vales, sep };
 }
 function desenharCaixa() {
   if (papel !== "dono") return;
@@ -1253,13 +1263,19 @@ function desenharCaixa() {
   $("#cxAvulso").classList.toggle("hidden", !umDia || temAgenda(meuSalao));
   $("#cxEntrou").textContent = brlC(k.entrou); $("#cxCom").textContent = "− " + brlC(k.com); $("#cxSaiu").textContent = "− " + brlC(k.desp);
   $("#cxSaldo").textContent = brlC(k.entrou - k.com - k.desp);
+  $("#cxSep").classList.toggle("hidden", !temAssin(meuSalao));
+  if (temAssin(meuSalao)) $("#cxSep").innerHTML = [["Avulsos", k.sep.avulsos], ["Pagamentos de assinatura", k.sep.assinaturas], ["Outras entradas", k.sep.outras]]
+    .filter(x => x[1] || x[0] !== "Outras entradas").map(([t, v]) => `<div class="lin" style="font-size:14px"><span>${t}</span><b style="font-size:15px">${brlC(v)}</b></div>`).join("")
+    + (k.sep.usos ? `<div class="lin" style="font-size:13px;opacity:.85"><span>${k.sep.usos} uso${k.sep.usos === 1 ? "" : "s"} de assinatura (já pagos antes)</span><span>abatido do saldo ${brlC(k.sep.repAs)}</span></div>` : "");
   $("#cxFormas").innerHTML = FORMAS.map(([f, t]) => `<div class="listrow"><span>${t}</span><b>${brlC(k.porForma[f])}</b></div>`).join("") + `<p class="xs muted" style="padding:4px 0 8px">Já descontado o que saiu em cada forma.</p>`;
   const grupos = {};
-  k.at.forEach(x => { const g = grupos[x.profNome] ||= { qtd: 0, total: 0, com: 0, vale: 0 }; g.qtd++; g.total += x.valorCent || 0; g.com += x.repasseCent || 0; });
-  k.vales.forEach(x => { const g = grupos[x.profNome || "?"] ||= { qtd: 0, total: 0, com: 0, vale: 0 }; g.vale += x.valorCent || 0; });
+  const G = n => grupos[n] ||= { qtd: 0, total: 0, com: 0, vale: 0, usos: 0, rep: 0, sob: 0 };
+  k.at.forEach(x => { const g = G(x.profNome); if (x.forma === "assinatura") { if (x.origem === "rateio") g.sob += x.repasseCent || 0; else g.usos++; g.rep += x.repasseCent || 0; } else { g.qtd++; g.total += x.valorCent || 0; } g.com += x.repasseCent || 0; });
+  k.vales.forEach(x => { G(x.profNome || "?").vale += x.valorCent || 0; });
+  cxGrupos = grupos;
   const nomes = Object.keys(grupos).sort();
   $("#cxProfs").innerHTML = nomes.length ? nomes.map(n => { const g = grupos[n], pagar = g.com - g.vale;
-      return `<div class="listrow"><div><p style="font-weight:700">${esc(n)}</p><p class="xs muted">${g.qtd} corte${g.qtd === 1 ? "" : "s"} · ganhou ${brlC(g.com)}${g.vale ? ` · já pegou ${brlC(g.vale)} de vale` : ""}</p></div>
+      return `<div class="listrow"><div><p style="font-weight:700">${esc(n)}</p><p class="xs muted">${g.qtd} avulso${g.qtd === 1 ? "" : "s"} · comissão ${brlC(g.com - g.rep)}${g.usos ? ` · ${g.usos} de assinatura · abatido do saldo ${brlC(g.rep - g.sob)}` : ""}${g.sob ? ` · sobra dividida ${brlC(g.sob)}` : ""}${g.vale ? ` · já pegou ${brlC(g.vale)} de vale` : ""}</p></div>
         ${!g.com && !g.vale ? `<span class="sm muted">sem comissão</span>` : `<div style="text-align:right;flex-shrink:0"><p class="xs muted">${pagar >= 0 ? "Pagar" : "Ficou devendo"}</p><b style="font-size:17px;white-space:nowrap;color:${pagar >= 0 ? "var(--ok)" : "var(--bad)"}">${brlC(Math.abs(pagar))}</b></div>`}</div>`; }).join("")
     : `<p class="sm muted" style="padding:12px 0">Nenhum atendimento ${umDia ? "neste dia" : "no período"}.</p>`;
   if (!umDia) return desenharDiaADia(k);
@@ -1291,32 +1307,105 @@ const cPlanos = id => F.collection(fire, "saloes", id, "planos");
 const cAssin = id => F.collection(fire, "saloes", id, "assinantes");
 const dAssin = (id, a) => F.doc(fire, "saloes", id, "assinantes", a);
 const dCiclo = (id, a, c) => F.doc(fire, "saloes", id, "assinantes", a, "ciclos", c);
+/* v2.5.8: guardamos o que vem do Firebase (asRaw) e montamos a "vista" do mês de hoje (asList).
+   Planos trimestral, semestral e anual são pagos de uma vez, mas o uso continua contado mês a mês. */
+let asRaw = [];
 function ouvirAssin() {
-  off("asP"); off("asS"); asList = []; plClube = [];
+  off("asP"); off("asS"); asList = []; asRaw = []; plClube = [];
   if (!espacoId || !temAssin(meuSalao)) return;
   const erro = err => { console.error(err); $("#asLista").innerHTML = `<p class="pad muted">Sem permissão para ver os assinantes. Confira as regras do Firestore.</p>`; };
-  unsubs.asP = F.onSnapshot(cPlanos(espacoId), s => { plClube = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => p.ativo !== false).sort((a, b) => a.valorCent - b.valorCent); desenharAssin(); }, erro);
-  unsubs.asS = F.onSnapshot(cAssin(espacoId), s => { asList = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR")); desenharAssin(); desenharPainel(); }, erro);
+  unsubs.asP = F.onSnapshot(cPlanos(espacoId), s => { plClube = s.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => p.ativo !== false).sort((a, b) => a.valorCent - b.valorCent); refazAs(); desenharAssin(); }, erro);
+  unsubs.asS = F.onSnapshot(cAssin(espacoId), s => { asRaw = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR")); refazAs(); desenharAssin(); desenharPainel(); fecharSobras(); }, erro);
+}
+function refazAs() { asList = asRaw.map(vista); }
+/* v2.5.7: o ciclo vence sempre no dia da adesão (ex.: aderiu dia 20 → vence todo dia 20; dia 31 vira o último dia do mês) */
+const diasEntre = (a, b) => Math.round((new Date(b + "T12:00:00") - new Date(a + "T12:00:00")) / 864e5);
+function somaMes(d, n, dia) {
+  const [y, m] = d.split("-").map(Number), x = new Date(y, m - 1 + n, 1, 12), ult = new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate();
+  x.setDate(Math.min(dia, ult)); return iso(x);
+}
+function ancoraAte(hoje, dia) { const x = somaMes(hoje, 0, dia); return x <= hoje ? x : somaMes(hoje, -1, dia); }
+/* plano "1 por semana": o mês do assinante é dividido em semanas a partir do dia da adesão (4 ou 5, conforme o mês) */
+const semanaDo = (a, d) => Math.max(0, Math.floor(diasEntre(a.cicloInicio, d) / 7));
+const nSemanas = (ini, venc) => Math.max(1, Math.ceil(diasEntre(ini, venc) / 7));
+const faixaSemana = (a, w) => [somaDias(a.cicloInicio, 7 * w), somaDias(a.cicloInicio, Math.min(7 * w + 6, diasEntre(a.cicloInicio, a.vencimento) - 1))];
+/* ----- v2.5.8: período do plano, dias da semana, carência e sobra ----- */
+const PERIODOS = [["mensal", "Mensal"], ["trimestral", "Trimestral"], ["semestral", "Semestral"], ["anual", "Anual"], ["pacote", "Pacote"]];
+const MESES_PER = { mensal: 1, trimestral: 3, semestral: 6, anual: 12 };
+const mesesDe = p => MESES_PER[p?.periodo] || 1;
+const ehPacote = p => p?.periodo === "pacote";
+const DIAS_LONGO = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
+const diaSem = d => new Date(d + "T12:00:00").getDay();
+const txtDiasSem = l => { const s = [...l].sort((a, b) => a - b); return s.length === 1 ? DIAS_LONGO[s[0]] : s.slice(0, -1).map(x => DIAS_LONGO[x]).join(", ") + " e " + DIAS_LONGO[s.at(-1)]; };
+const carenciaDe = p => ehPacote(p) ? 0 : (p?.carenciaDias ?? 5);
+const txtSobra = d => d === "rateio" ? "é dividido entre quem atendeu" : "fica com a casa";
+function txtLimite(p) {
+  if (!p) return "";
+  if (ehPacote(p)) return `pacote de ${p.atendimentosPorCiclo || "?"} atendimentos, vale ${p.validadeDias || 90} dias`;
+  const uso = p.tipo === "semana" ? "1 por semana (4 ou 5 no mês)" : `${p.atendimentosPorCiclo || "?"} por mês`;
+  return (mesesDe(p) > 1 ? `${cap1(p.periodo)}, pago de uma vez · ` : "") + uso + (p.diasSemana?.length ? ` · só ${txtDiasSem(p.diasSemana)}` : "");
+}
+/* parte do saldo que cabe ao mês k (de M): as primeiras arredondadas, a última fica com o resto */
+function parteDoMes(parteT, M, k) { const base = Math.round(parteT / M); return k < M - 1 ? base : parteT - base * (M - 1); }
+/* a "vista" de hoje: em qual mês do período pago o assinante está, quantos usos tem e quantos já fez */
+function vista(a) {
+  if (!a.cicloAtualId || !a.cicloInicio || !a.vencimento) return { ...a, pagoAte: a.vencimento, meses: 1, mesIdx: 0 };
+  const hoje = a.ativo === false && a.pausadoEm ? a.pausadoEm : hojeISO();
+  const pagoAte = a.pagoAte || a.vencimento, M = a.meses || 1, dia = a.diaAdesao || +a.cicloInicio.slice(8, 10);
+  let s = a.cicloInicio, e = a.vencimento, k = a.mesBase || 0;
+  while (e <= hoje && e < pagoAte) { s = e; const nx = somaMes(s, 1, dia); e = nx < pagoAte ? nx : pagoAte; k++; }
+  const n = s === a.cicloInicio ? (a.n || 0) : a.tipoLimite === "semana" ? nSemanas(s, e) : (a.nMes || a.n || 0);
+  const usados = (a.mesUso || a.cicloInicio) === s ? (a.usados || 0) : 0;
+  return { ...a, cicloInicio: s, vencimento: e, n, usados, parteAtendimentosCent: parteDoMes(a.parteAtendimentosCent || 0, M, k), mesIdx: k, meses: M, pagoAte };
+}
+/* saldo dos barbeiros no mês: quanto tem, quanto já foi abatido pelos usos e quanto resta */
+function saldoDe(a) {
+  const saldo = a.parteAtendimentosCent || 0, n = a.n || 1, u = Math.min(a.usados || 0, n), base = Math.round(saldo / n);
+  const abatido = u >= n ? saldo : base * u;
+  return { saldo, abatido, resta: saldo - abatido };
 }
 function situacaoAs(a) {
-  const hoje = hojeISO();
-  if (a.ativo === false) return { k: "pausado", t: "Pausado", c: "var(--muted)", renovar: false };
+  const hoje = hojeISO(), fim = a.pagoAte || a.vencimento, p = planoDoAs(a), pac = a.tipoPlano === "pacote";
+  if (a.ativo === false) return { k: "pausado", t: "Pausado" + (a.pausadoEm ? " desde " + dBR(a.pausadoEm).slice(0, 5) : ""), c: "var(--muted)", renovar: false };
   if (!a.cicloAtualId) return { k: "pagar", t: "Aguardando pagamento", c: "var(--bad)", renovar: true };
-  if (a.vencimento < hoje) return { k: "vencido", t: "Venceu em " + dBR(a.vencimento).slice(0, 5), c: "var(--bad)", renovar: true };
-  if ((a.usados || 0) >= (a.n || 0)) return { k: "usou", t: "Usou tudo deste mês", c: "var(--warn)", renovar: true };
-  if (a.vencimento <= somaDias(hoje, 7)) return { k: "vence", t: "Vence em " + dBR(a.vencimento).slice(0, 5), c: "var(--warn)", renovar: true };
-  return { k: "ok", t: "Em dia até " + dBR(a.vencimento).slice(0, 5), c: "var(--ok)", renovar: false };
+  if (a.cicloInicio && hoje < a.cicloInicio) return { k: "aguarda", t: "Começa em " + dBR(a.cicloInicio).slice(0, 5), c: "var(--ok)", renovar: false };
+  if (pac) {
+    if (fim <= hoje) return { k: "fim", t: "Pacote venceu em " + dBR(fim).slice(0, 5), c: "var(--bad)", renovar: true };
+    if ((a.usados || 0) >= (a.n || 0)) return { k: "fim", t: "Pacote todo usado", c: "var(--warn)", renovar: true };
+    const dd = diasEntre(hoje, fim);
+    return { k: "ok", t: `Pacote · ${a.n - (a.usados || 0)} restante${a.n - (a.usados || 0) === 1 ? "" : "s"} até ${dBR(fim).slice(0, 5)}`, c: dd <= 7 ? "var(--warn)" : "var(--ok)", renovar: false, lembrar: dd <= 3 };
+  }
+  if (fim <= hoje) {
+    const car = carenciaDe(p), ult = somaDias(fim, car - 1);
+    if (car > 0 && hoje <= ult) return { k: "carencia", t: "Venceu · carência até " + dBR(ult).slice(0, 5), c: "var(--warn)", renovar: true, lembrar: true };
+    return { k: "vencido", t: (fim === hoje ? "Vence hoje" : "Venceu em " + dBR(fim).slice(0, 5)), c: "var(--bad)", renovar: true, lembrar: true };
+  }
+  const dd = diasEntre(hoje, fim);
+  if ((a.usados || 0) >= (a.n || 0)) return { k: "usou", t: "Usou tudo deste mês", c: "var(--warn)", renovar: dd <= 7, lembrar: dd <= 3 };
+  if (dd <= 7) return { k: "vence", t: "Vence em " + dBR(fim).slice(0, 5), c: "var(--warn)", renovar: true, lembrar: dd <= 3 };
+  return { k: "ok", t: (a.meses > 1 ? "Pago até " + dBR(fim) : "Em dia até " + dBR(fim).slice(0, 5)), c: "var(--ok)", renovar: false };
 }
-function podeUsar(a) {
-  const st = situacaoAs(a);
-  if (st.k === "ok" || st.k === "vence") return true;
-  if (st.k === "usou") return `${a.nome} já usou os ${a.n} atendimentos deste mês. Registre a renovação em Assinantes ou cobre como avulso.`;
-  if (st.k === "pausado") return `A assinatura de ${a.nome} está pausada.`;
+function podeUsar(a, data) {
+  const st = situacaoAs(a), p = planoDoAs(a), d = data || hojeISO();
+  if (st.k === "pausado") return `A assinatura de ${a.nome} está pausada. Para usar, retome em Assinantes › Editar.`;
+  if (p?.diasSemana?.length && !p.diasSemana.includes(diaSem(d)) && ["ok", "vence", "carencia"].includes(st.k))
+    return `O plano ${p.nome} vale só ${txtDiasSem(p.diasSemana)}. ${d === hojeISO() ? "Hoje" : dBR(d).slice(0, 5)} é ${DIAS_LONGO[diaSem(d)]}. Cobre como avulso.`;
+  if (st.k === "carencia") return (a.usosCarencia || 0) >= 1 ? `${a.nome} já usou 1 atendimento na carência. Registre a renovação em Assinantes ou cobre como avulso.` : true;
+  if (st.k === "ok" || st.k === "vence") {
+    if (a.tipoLimite === "semana" && a.ultimoUso && a.cicloInicio && a.ultimoUso >= a.cicloInicio && semanaDo(a, a.ultimoUso) === semanaDo(a, d)) {
+      const [i, f] = faixaSemana(a, semanaDo(a, d));
+      return `${a.nome} já usou o desta semana (${dBR(i).slice(0, 5)} a ${dBR(f).slice(0, 5)}). O próximo pode ser a partir de ${dBR(somaDias(f, 1)).slice(0, 5)}. Se quiser atender hoje, cobre como avulso.`;
+    }
+    return true;
+  }
+  if (st.k === "usou") return `${a.nome} já usou os ${a.n} atendimentos deste mês. ${a.meses > 1 ? "O próximo mês começa em " + dBR(a.vencimento).slice(0, 5) + "." : "Registre a renovação em Assinantes."} Ou cobre como avulso.`;
+  if (st.k === "fim") return `O pacote de ${a.nome} acabou (${st.t.toLowerCase()}). Venda um novo pacote em Assinantes ou cobre como avulso.`;
+  if (st.k === "aguarda") return `O mês de ${a.nome} só começa em ${dBR(a.cicloInicio).slice(0, 5)} (pagou adiantado). Até lá vale o mês anterior, que já foi fechado.`;
   return `A assinatura de ${a.nome} não está paga (${st.t.toLowerCase()}). Registre o pagamento em Assinantes ou cobre como avulso.`;
 }
-const planoDoAs = a => plClube.find(p => p.id === a.planoId);
+const planoDoAs = a => plClube.find(p => p.id === a?.planoId);
 function servicoNoPlano(a, servico) { const p = planoDoAs(a), l = p?.servicos || []; return !l.length || l.includes(servico); }
-/* uso k de n: as primeiras partes repassam o valor arredondado e a última fica com o que sobra (a soma dá exato) */
+/* uso k de n: as primeiras partes abatem o valor arredondado e a última fica com o que sobra (a soma dá exato) */
 function repasseDoUso(a) {
   const k = (a.usados || 0) + 1, n = a.n || 1, parte = a.parteAtendimentosCent || 0, base = Math.round(parte / n);
   return k < n ? base : parte - base * (n - 1);
@@ -1326,7 +1415,8 @@ function contaPlano(valorCent, perc, n) {
   return { casa, parte, por: n > 0 ? Math.round(parte / n) : 0 };
 }
 function blocoUsoAssin(c) {
-  const servico = c.ag ? c.ag.servico : (meuSalao.servicos || [])[c.serv]?.nome;
+  refazAs();
+  const servico = c.ag ? c.ag.servico : (meuSalao.servicos || [])[c.serv]?.nome, data = c.ag ? c.ag.data : hojeISO();
   let lista = asList.filter(a => a.ativo !== false);
   const busca = (c.asBusca || "").trim().toLowerCase();
   if (busca) lista = lista.filter(a => String(a.nome).toLowerCase().includes(busca));
@@ -1334,67 +1424,259 @@ function blocoUsoAssin(c) {
     const achou = asList.find(a => a.ativo !== false && ((t && zapNum(a.telefone || "") === t) || String(a.nome).toLowerCase() === nm)); if (achou) c.assin = achou.id; }
   const a = asList.find(x => x.id === c.assin);
   let info = "";
-  if (a) { const pode = podeUsar(a);
+  if (a) { const pode = podeUsar(a, data), car = situacaoAs(a).k === "carencia";
     info = pode !== true ? `<p class="sm" style="color:var(--bad);font-weight:600">${esc(pode)}</p>`
       : servico && !servicoNoPlano(a, servico) ? `<p class="sm" style="color:var(--bad);font-weight:600">${esc(servico)} não está no plano ${esc(a.planoNome)}. Cobre como avulso.</p>`
-      : `<p class="sm" style="color:var(--ok);font-weight:600">${esc(a.nome)} · ${esc(a.planoNome)} · vai usar ${(a.usados || 0) + 1} de ${a.n}. Quem atender recebe ${brlC(repasseDoUso(a))}.</p>`; }
+      : car ? `<p class="sm" style="color:var(--warn);font-weight:600">${esc(a.nome)} está na carência (venceu em ${dBR(a.pagoAte).slice(0, 5)}). Pode usar 1 vez: o uso entra no próximo mês quando ele pagar, e o valor de quem atendeu é lançado nessa hora.</p>`
+      : `<p class="sm" style="color:var(--ok);font-weight:600">${esc(a.nome)} · ${esc(a.planoNome)} · vai usar ${(a.usados || 0) + 1} de ${a.n}${a.tipoLimite === "semana" ? ` (semana ${semanaDo(a, data) + 1})` : ""}. Abate ${brlC(repasseDoUso(a))} do saldo para quem atender (resta ${brlC(saldoDe(a).resta - repasseDoUso(a))}).</p>`; }
   return `<div class="stack" style="gap:8px"><p class="lbl">Qual assinante</p>
     ${asList.length > 6 ? `<input class="field" data-campo="asBusca" placeholder="Buscar nome e tocar fora" value="${esc(c.asBusca || "")}">` : ""}
     <div class="row" style="flex-wrap:wrap;gap:8px">${lista.length ? lista.slice(0, 20).map(x => `<button type="button" class="chip ${x.id === c.assin ? "on" : ""}" data-fassin="${esc(x.id)}">${esc(x.nome)}</button>`).join("") : `<p class="sm muted">Nenhum assinante encontrado.</p>`}</div>${info}</div>`;
 }
 function desenharAssin() {
   if (papel !== "dono" || !meuSalao) return;
+  refazAs();
   document.querySelectorAll("[data-asf]").forEach(b => b.setAttribute("aria-pressed", b.dataset.asf === asFiltro));
   const ativos = asList.filter(a => a.ativo !== false), ren = ativos.filter(a => situacaoAs(a).renovar);
-  const mesAtual = hojeISO().slice(0, 7);
+  const lembrar = ativos.filter(a => { const st = situacaoAs(a); return st.lembrar && !(a.lembradoEm && a.lembradoEm >= somaDias(a.pagoAte || a.vencimento || hojeISO(), -7)); });
   $("#asResumo").textContent = `${ativos.length} assinante${ativos.length === 1 ? "" : "s"} · ${ativos.length - ren.length} em dia · ${ren.length} a renovar`;
   const busca = ($("#asBusca").value || "").trim().toLowerCase();
   let l = asFiltro === "renovar" ? ren : asFiltro === "emdia" ? ativos.filter(a => !situacaoAs(a).renovar) : asList;
   if (busca) l = l.filter(a => String(a.nome).toLowerCase().includes(busca));
+  if (asFiltro === "avulsos") return desenharAvulsos(busca);
+  /* v2.5.8: aviso de 3 dias. Quem vence em até 3 dias (ou já venceu) e ainda não recebeu lembrete aparece primeiro */
+  if (asFiltro === "renovar") l = [...l].sort((x, y) => (lembrar.includes(y) ? 1 : 0) - (lembrar.includes(x) ? 1 : 0));
+  const faixa = asFiltro === "renovar" && lembrar.length ? `<div class="card cardp" style="background:var(--warn-l, #FEF3C7);border-color:#FDE68A"><p style="font-weight:700">${lembrar.length} ${lembrar.length === 1 ? "assinante vence" : "assinantes vencem"} em até 3 dias</p><p class="sm">Toque em "Lembrar" para mandar a mensagem no WhatsApp. ${lembrar.length === 1 ? "Ele sai" : "Eles saem"} deste aviso depois do lembrete.</p></div>` : "";
   $("#asLista").innerHTML = !plClube.length ? `<div class="card cardp stack" style="gap:8px"><p style="font-weight:700">Comece criando um plano do clube</p><p class="sm muted">Exemplo: "Corte mensal", R$ 120, 4 cortes por mês. Abra "Planos do clube" logo abaixo.</p></div>`
-    : l.length ? l.map(cardAssin).join("") : `<p class="muted" style="text-align:center;padding:12px">${asFiltro === "renovar" ? "Ninguém para renovar agora." : "Nenhum assinante aqui."}</p>`;
+    : l.length ? faixa + l.map(a => cardAssin(a, lembrar.includes(a))).join("") : `<p class="muted" style="text-align:center;padding:12px">${asFiltro === "renovar" ? "Ninguém para renovar agora." : "Nenhum assinante aqui."}</p>`;
   if (!plClube.length) $("#asPlanosBox").open = true;
-  $("#asPlanos").innerHTML = plClube.map(p => { const k = contaPlano(p.valorCent, p.percBarbearia, p.atendimentosPorCiclo);
-    return `<div class="listrow"><div><p style="font-weight:700">${esc(p.nome)} · ${brlC(p.valorCent)}</p><p class="xs muted">${p.atendimentosPorCiclo} por mês · casa ${p.percBarbearia}% · ${brlC(k.por)} por atendimento para quem atender${(p.servicos || []).length ? " · " + esc(p.servicos.join(", ")) : ""}</p></div><button class="btn3" data-act="editPlano" data-id="${esc(p.id)}">Editar</button></div>`; }).join("")
+  $("#asPlanos").innerHTML = plClube.map(p => {
+    const M = mesesDe(p), k = contaPlano(p.valorCent, p.percBarbearia, 1), porMes = Math.round(k.parte / M);
+    const nn = ehPacote(p) ? p.atendimentosPorCiclo : p.tipo === "semana" ? null : p.atendimentosPorCiclo;
+    const por = nn ? brlC(Math.round((ehPacote(p) ? k.parte : porMes) / nn)) : `${brlC(Math.round(porMes / 4))} ou ${brlC(Math.round(porMes / 5))}`;
+    return `<div class="listrow"><div><p style="font-weight:700">${esc(p.nome)} · ${brlC(p.valorCent)}${M > 1 ? ` <span class="xs muted">(${M} meses)</span>` : ""}</p><p class="xs muted">${esc(txtLimite(p))} · casa ${p.percBarbearia}% · abate ${por} do saldo por atendimento · sobra ${p.sobra === "rateio" ? "dividida entre quem atendeu" : "fica com a casa"}${carenciaDe(p) ? ` · carência ${carenciaDe(p)} dias` : ""}${(p.servicos || []).length ? " · " + esc(p.servicos.join(", ")) : ""}</p></div><button class="btn3" data-act="editPlano" data-id="${esc(p.id)}">Editar</button></div>`; }).join("")
     || `<p class="sm muted" style="padding:8px 0">Nenhum plano ainda.</p>`;
 }
-function cardAssin(a) {
-  const st = situacaoAs(a), n = a.n || 0, u = a.usados || 0;
-  const tel = zapNum(a.telefone || "");
-  const lembrete = `Olá, ${a.nome}! Sua assinatura ${a.planoNome} na ${meuSalao.nome} ${st.k === "vencido" ? "venceu em " + dBR(a.vencimento).slice(0, 5) : st.k === "usou" ? "já usou os " + n + " atendimentos deste mês" : st.k === "pagar" ? "está aguardando o pagamento" : "vence em " + dBR(a.vencimento || hojeISO()).slice(0, 5)}. Para renovar é só responder aqui. Obrigado!`;
-  return `<div class="card cardp stack" style="gap:10px">
-    <div class="row" style="align-items:flex-start"><div class="grow"><p style="font-weight:700;font-size:16px">${esc(a.nome)}</p><p class="sm muted">${esc(a.planoNome || "")} · ${brlC(a.valorProprioCent ?? planoDoAs(a)?.valorCent ?? 0)}</p></div>
+function msgLembrete(a, st) {
+  const fim = a.pagoAte || a.vencimento || hojeISO(), n = a.n || 0;
+  const quando = st.k === "carencia" ? `venceu em ${dBR(fim).slice(0, 5)} (você ainda pode usar até ${st.t.split("até ")[1]})`
+    : st.k === "vencido" ? "venceu em " + dBR(fim).slice(0, 5) : st.k === "pagar" ? "está aguardando o pagamento"
+    : st.k === "fim" ? "acabou" : st.k === "usou" && a.meses > 1 ? "já usou os " + n + " atendimentos deste mês" : "vence em " + dBR(fim).slice(0, 5);
+  return `Olá, ${a.nome}! Sua ${a.tipoPlano === "pacote" ? "pacote" : "assinatura"} ${a.planoNome} na ${meuSalao.nome} ${quando}. Para renovar é só responder aqui. Obrigado!`.replace("Sua pacote", "Seu pacote");
+}
+function cardAssin(a, destacar) {
+  const st = situacaoAs(a), n = a.n || 0, u = a.usados || 0, sd = saldoDe(a);
+  const tel = zapNum(a.telefone || ""), pac = a.tipoPlano === "pacote";
+  const lembrado = a.lembradoEm && a.lembradoEm >= somaDias(a.pagoAte || a.vencimento || hojeISO(), -7);
+  return `<div class="card cardp stack" style="gap:10px;${destacar ? "border-color:#F59E0B;border-width:2px" : ""}">
+    <div class="row" style="align-items:flex-start"><button class="grow" data-act="fichaAssin" data-id="${esc(a.id)}" style="all:unset;cursor:pointer;flex:1"><p style="font-weight:700;font-size:16px;text-decoration:underline;text-decoration-color:var(--line2)">${esc(a.nome)}</p><p class="sm muted">${esc(a.planoNome || "")} · ${brlC(a.valorProprioCent ?? planoDoAs(a)?.valorCent ?? 0)}${a.meses > 1 ? ` · mês ${a.mesIdx + 1} de ${a.meses}` : ""}${a.diaAdesao && !pac ? " · vence todo dia " + a.diaAdesao : ""}</p></button>
       <span class="xs" style="font-weight:700;color:${st.c};text-align:right">${esc(st.t)}</span></div>
-    ${a.cicloAtualId ? `<div><div style="display:flex;gap:4px">${Array.from({ length: n }, (_, i) => `<i style="flex:1;height:8px;border-radius:4px;background:${i < u ? "var(--pri)" : "var(--line)"}"></i>`).join("")}</div><p class="xs muted" style="margin-top:4px">Usou ${u} de ${n}</p></div>` : ""}
+    ${a.cicloAtualId && st.k !== "aguarda" ? `<div><div style="display:flex;gap:4px">${Array.from({ length: n }, (_, i) => `<i style="flex:1;height:8px;border-radius:4px;background:${i < u ? "var(--pri)" : "var(--line)"}"></i>`).join("")}</div><p class="xs muted" style="margin-top:4px">Usou ${u} de ${n}${a.tipoLimite === "semana" && a.cicloInicio && hojeISO() >= a.cicloInicio && hojeISO() < a.vencimento ? ` · semana ${Math.min(n, semanaDo(a, hojeISO()) + 1)} de ${n}` : ""}${a.ultimoUso ? " · último em " + dBR(a.ultimoUso).slice(0, 5) : ""}${a.usosCarencia ? ` · <b style="color:var(--warn)">usou ${a.usosCarencia} na carência</b>` : ""}</p>
+      <p class="xs" style="margin-top:2px">Saldo dos barbeiros ${pac ? "no pacote" : "no mês"}: <b>${brlC(sd.saldo)}</b> · abatido ${brlC(sd.abatido)} · resta <b>${brlC(sd.resta)}</b></p></div>` : ""}
+    ${lembrado && st.lembrar ? `<p class="xs" style="color:var(--ok)">Lembrete enviado em ${dBR(a.lembradoEm).slice(0, 5)}</p>` : ""}
     <div class="grid3">
-      <button class="btn3" data-act="pagarAssin" data-id="${esc(a.id)}" style="${st.renovar ? "background:var(--ok-l);color:#166534;border-color:#BBF7D0" : ""}">${a.cicloAtualId ? "Renovar" : "Marcar pago"}</button>
-      ${tel.length >= 12 ? `<a class="btn3" href="https://wa.me/${tel}?text=${encodeURIComponent(lembrete)}" target="_blank" rel="noopener">Lembrar</a>` : `<span class="btn3" style="opacity:.5">Sem WhatsApp</span>`}
+      <button class="btn3" data-act="pagarAssin" data-id="${esc(a.id)}" style="${st.renovar ? "background:var(--ok-l);color:#166534;border-color:#BBF7D0" : ""}">${!a.cicloAtualId ? "Marcar pago" : pac ? "Vender outro" : "Renovar"}</button>
+      ${tel.length >= 12 ? `<a class="btn3" data-act="lembrei" data-id="${esc(a.id)}" href="https://wa.me/${tel}?text=${encodeURIComponent(msgLembrete(a, st))}" target="_blank" rel="noopener" style="${destacar ? "background:#F59E0B;color:#fff;border-color:#F59E0B" : ""}">Lembrar</a>` : `<span class="btn3" style="opacity:.5">Sem WhatsApp</span>`}
       <button class="btn3" data-act="editAssin" data-id="${esc(a.id)}">Editar</button>
     </div></div>`;
 }
+/* ----- v2.5.7: ficha do assinante (usos com data e barbeiro, pagamentos) ----- */
+async function abrirFicha(id) {
+  refazAs();
+  const a = asList.find(x => x.id === id); if (!a) return;
+  abrirFolha({ tipo: "feito", html: `<p class="tt" style="font-size:19px;font-weight:800">${esc(a.nome)}</p><p class="sm muted">Carregando...</p>` });
+  let todos = [], pags = [];
+  try {
+    const [u, m] = await Promise.all([F.getDocs(F.query(cAt(espacoId), F.where("assinanteId", "==", id))), F.getDocs(F.query(cMov(espacoId), F.where("assinanteId", "==", id)))]);
+    todos = u.docs.map(d => d.data()).filter(x => !x.estornado).sort((x, y) => (y.data + y.hora).localeCompare(x.data + x.hora));
+    pags = m.docs.map(d => d.data()).filter(x => !x.estornado).sort((x, y) => y.data.localeCompare(x.data));
+  } catch (err) { console.error(err); }
+  if (folhaCtx?.tipo !== "feito") return;
+  const usos = todos.filter(x => x.origem !== "rateio"), sobras = todos.filter(x => x.origem === "rateio");
+  const doMes = x => x.cicloId === a.cicloAtualId && (x.mesInicio ? x.mesInicio === a.cicloInicio : x.data >= a.cicloInicio && x.data < a.vencimento);
+  const doCiclo = usos.filter(doMes).reverse();
+  const linha = x => `<div class="listrow"><div><p style="font-weight:600">${esc(dBR(x.data).slice(0, 5))} · ${esc(x.servico)}</p><p class="xs muted">${esc(x.profNome || "")}${x.carencia && !x.cicloId ? " · na carência, aguardando pagamento" : ""}</p></div><span class="sm" style="white-space:nowrap">abatido ${brlC(x.repasseCent)}</span></div>`;
+  let semanas = "";
+  if (a.cicloAtualId && a.cicloInicio) {
+    semanas = a.tipoLimite === "semana"
+      ? Array.from({ length: a.n || 0 }, (_, w) => { const [i, f] = faixaSemana(a, w), x = doCiclo.find(u => semanaDo(a, u.data) === w);
+          return `<div class="listrow"><div><p style="font-weight:600">Semana ${w + 1}</p><p class="xs muted">${dBR(i).slice(0, 5)} a ${dBR(f).slice(0, 5)}</p></div><span class="sm" style="text-align:right">${x ? `<b>${dBR(x.data).slice(0, 5)}</b> · ${esc(x.profNome || "")} · ${brlC(x.repasseCent)}` : f < hojeISO() ? `<span style="color:var(--muted)">não usou</span>` : "—"}</span></div>`; }).join("")
+      : doCiclo.map(linha).join("") || `<p class="sm muted">Nenhum uso neste mês ainda.</p>`;
+  }
+  const sd = saldoDe(a), pac = a.tipoPlano === "pacote";
+  const antigos = usos.filter(x => !doMes(x)).slice(0, 30);
+  $("#folha .in").innerHTML = `<p class="tt" style="font-size:19px;font-weight:800">${esc(a.nome)}</p>
+    <p class="sm muted">${esc(a.planoNome || "")} · ${esc(txtLimite(planoDoAs(a)))}${a.diaAdesao && !pac ? " · vence todo dia " + a.diaAdesao : ""}${a.telefone ? " · " + esc(a.telefone) : ""}</p>
+    ${a.cicloAtualId ? `<div class="card cardp" style="background:var(--bg);border:none"><p class="cap" style="margin-bottom:4px">${pac ? "Pacote" : a.meses > 1 ? `Mês ${a.mesIdx + 1} de ${a.meses}` : "Mês atual"} · ${dBR(a.cicloInicio || a.vencimento).slice(0, 5)} a ${dBR(a.vencimento).slice(0, 5)} · usou ${a.usados || 0} de ${a.n}</p>
+      <div class="grid3" style="margin:6px 0 8px"><div class="stat"><span class="xs muted">Saldo dos barbeiros</span><b>${brlC(sd.saldo)}</b></div><div class="stat"><span class="xs muted">Abatido</span><b>${brlC(sd.abatido)}</b></div><div class="stat"><span class="xs muted">Resta</span><b>${brlC(sd.resta)}</b></div></div>
+      ${a.meses > 1 ? `<p class="xs muted" style="margin-bottom:6px">Pago até ${dBR(a.pagoAte)}. Cada mês tem o próprio saldo.</p>` : ""}
+      <p class="xs muted" style="margin-bottom:6px">Se sobrar saldo no fim ${pac ? "do pacote" : "do mês"}, ${txtSobra(a.destinoSobra)}.</p>${semanas}</div>` : `<p class="sm" style="color:var(--bad)">Aguardando pagamento.</p>`}
+    ${usos.some(x => x.carencia && !x.cicloId) ? `<p class="sm" style="color:var(--warn)">Usou na carência e ainda não pagou: ${usos.filter(x => x.carencia && !x.cicloId).map(x => dBR(x.data).slice(0, 5) + " com " + esc(x.profNome || "")).join(", ")}.</p>` : ""}
+    ${antigos.length ? `<details class="mais"><summary>Usos de meses anteriores (${antigos.length})</summary><div class="corpo">${antigos.map(linha).join("")}</div></details>` : ""}
+    ${sobras.length ? `<details class="mais"><summary>Sobras divididas (${sobras.length})</summary><div class="corpo">${sobras.map(x => `<div class="listrow"><span>${dBR(x.data).slice(0, 5)} · ${esc(x.profNome || "")}</span><b>${brlC(x.repasseCent)}</b></div>`).join("")}</div></details>` : ""}
+    <details class="mais"><summary>Pagamentos (${pags.length})</summary><div class="corpo">${pags.map(x => `<div class="listrow"><span>${dBR(x.data)} · ${esc(nomeForma(x.forma))}</span><b>${brlC(x.valorCent)}</b></div>`).join("") || `<p class="sm muted" style="padding:10px 0">Nenhum pagamento ainda.</p>`}</div></details>
+    <button type="button" class="btn2" data-act="fecharFolha">Fechar</button>`;
+}
+/* ----- v2.5.8: sobra do saldo. Quando um mês acaba, o que não foi abatido fica com a casa ou é dividido entre quem
+   atendeu (proporcional aos usos), conforme o plano. A divisão vira um lançamento de R$ 0 com a parte do barbeiro,
+   então aparece sozinha no Caixa, no fechamento e em "Meus números". ----- */
+function mesesPendentes(r, ate, incluirAtual) {
+  /* r = dados do Firebase (sem a vista). Devolve os meses já acabados (fim <= ate) ainda não fechados. */
+  if (!r.cicloAtualId || !r.cicloInicio || !r.vencimento) return [];
+  const pagoAte = r.pagoAte || r.vencimento, M = r.meses || 1, dia = r.diaAdesao || +r.cicloInicio.slice(8, 10), feito = r.sobraAte || "";
+  const out = []; let s = r.cicloInicio, e = r.vencimento, k = r.mesBase || 0;
+  for (let i = 0; i < 40; i++) {
+    if (e > ate && !(incluirAtual && s <= ate)) break;
+    if (e > feito) out.push({ s, e, k, n: s === r.cicloInicio ? (r.n || 0) : r.tipoLimite === "semana" ? nSemanas(s, e) : (r.nMes || r.n || 0), parte: parteDoMes(r.parteAtendimentosCent || 0, M, k) });
+    if (e >= pagoAte || e > ate) break;
+    s = e; const nx = somaMes(s, 1, dia); e = nx < pagoAte ? nx : pagoAte; k++;
+  }
+  return out;
+}
+async function sobrasDoAssinante(r, b, ate, incluirAtual) {
+  /* escreve no batch b os lançamentos de divisão; devolve a data do último mês fechado (ou null) */
+  const meses = mesesPendentes(r, ate, incluirAtual); if (!meses.length) return null;
+  if ((r.destinoSobra || "casa") === "rateio") {
+    const usos = (await F.getDocs(F.query(cAt(espacoId), F.where("assinanteId", "==", r.id)))).docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(x => !x.estornado && x.origem !== "rateio" && x.cicloId === r.cicloAtualId);
+    const hoje = hojeISO();
+    meses.forEach(m => {
+      const doMes = usos.filter(x => x.mesInicio ? x.mesInicio === m.s : x.data >= m.s && x.data < m.e);
+      const sobra = m.parte - doMes.reduce((t, x) => t + (x.repasseCent || 0), 0);
+      if (sobra <= 0 || !doMes.length) return;
+      const cont = {}; doMes.forEach(x => { (cont[x.profId] ||= { nome: x.profNome, q: 0 }).q++; });
+      const ids = Object.keys(cont).sort((x, y) => cont[y].q - cont[x].q); let dado = 0;
+      ids.forEach((pid, i) => {
+        const v = i < ids.length - 1 ? Math.floor(sobra * cont[pid].q / doMes.length) : sobra - dado; dado += v; if (!v) return;
+        b.set(F.doc(fire, "saloes", espacoId, "atendimentos", `sobra_${r.id}_${m.s}_${pid}`.replace(/[^\w-]/g, "")), {
+          data: hoje, mes: hoje.slice(0, 7), hora: "23:59", profId: pid, profNome: cont[pid].nome, servico: `Sobra da assinatura · ${r.nome}`, valorCent: 0, forma: "assinatura",
+          origem: "rateio", comissaoPct: 0, repasseCent: v, clienteNome: r.nome, clienteTelefone: r.telefone || "", assinanteId: r.id, cicloId: r.cicloAtualId, mesInicio: m.s,
+          criadoPor: emailUser(), criadoEm: F.serverTimestamp(), estornado: false });
+      });
+    });
+  }
+  return meses.at(-1).e;
+}
+const sobraRodando = new Set();
+async function fecharSobras() {
+  if (papel !== "dono" || !espacoId) return;
+  const hoje = hojeISO();
+  for (const r of asRaw) {
+    if (r.ativo === false || sobraRodando.has(r.id) || !mesesPendentes(r, hoje, false).length) continue;
+    sobraRodando.add(r.id);
+    try { const b = F.writeBatch(fire), ate = await sobrasDoAssinante(r, b, hoje, false);
+      if (ate) { b.update(dAssin(espacoId, r.id), { sobraAte: ate }); await b.commit(); } }
+    catch (err) { console.error("sobra", err); }
+    setTimeout(() => sobraRodando.delete(r.id), 60000);
+  }
+}
+/* ----- v2.5.7: clientes avulsos (dos últimos 60 dias), na mesma lista, com "Tornar assinante" ----- */
+async function desenharAvulsos(busca) {
+  if (!avulsosCache) {
+    $("#asLista").innerHTML = `<p class="muted" style="text-align:center;padding:12px">Carregando clientes...</p>`;
+    const desde = somaDias(hojeISO(), -60), mapa = {};
+    const add = (nome, tel, data) => { nome = String(nome || "").trim(); if (!nome || nome === "Cliente") return; const t = zapNum(tel || ""), k = t.length >= 12 ? t : nome.toLowerCase();
+      const c = mapa[k] ||= { nome, telefone: t, visitas: 0, ultima: "" }; c.visitas++; if (data > c.ultima) c.ultima = data; };
+    try {
+      const [at, ag] = await Promise.all([F.getDocs(F.query(cAt(espacoId), F.where("data", ">=", desde))), temAgenda(meuSalao) ? F.getDocs(F.query(cAg(espacoId), F.where("data", ">=", desde))) : { docs: [] }]);
+      at.docs.map(d => d.data()).filter(x => !x.estornado && x.forma !== "assinatura").forEach(x => add(x.clienteNome, x.clienteTelefone, x.data));
+      ag.docs.map(d => d.data()).filter(x => !cancelado(x) && x.status !== "Concluído" && x.data <= hojeISO()).forEach(x => add(x.nome, x.telefone, x.data));
+    } catch (err) { console.error(err); }
+    avulsosCache = Object.values(mapa);
+    setTimeout(() => { avulsosCache = null; }, 120000);
+  }
+  if (asFiltro !== "avulsos") return;
+  const ehAssin = c => asList.some(a => (c.telefone && zapNum(a.telefone || "") === c.telefone) || String(a.nome).toLowerCase() === c.nome.toLowerCase());
+  let l = avulsosCache.filter(c => !ehAssin(c)).sort((x, y) => y.visitas - x.visitas || y.ultima.localeCompare(x.ultima));
+  if (busca) l = l.filter(c => c.nome.toLowerCase().includes(busca));
+  $("#asLista").innerHTML = l.length ? `<p class="xs muted">Clientes que vieram nos últimos 60 dias e não são assinantes.</p>` + l.slice(0, 60).map((c, i) => `<div class="card cardp row" style="gap:10px"><div class="grow"><p style="font-weight:700">${esc(c.nome)}</p><p class="xs muted">Avulso · ${c.visitas} visita${c.visitas === 1 ? "" : "s"} · última em ${dBR(c.ultima).slice(0, 5)}</p></div><button class="btn3" data-act="tornarAssin" data-nome="${esc(c.nome)}" data-fone="${esc(c.telefone)}">Tornar assinante</button></div>`).join("")
+    : `<p class="muted" style="text-align:center;padding:12px">Nenhum cliente avulso nos últimos 60 dias.</p>`;
+}
+/* ----- v2.5.7: planilhas no modelo do dono (assinantes do mês) e fechamento por barbeiro ----- */
+function baixarCSV(nomeArq, cab, linhas, msg) {
+  const cel = (v, num) => { let t = String(v ?? ""); if (!num && /^[=+\-@]/.test(t)) t = "'" + t; return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+  const csv = [cab.map(c => cel(c)), ...linhas.map(l => l.map(c => cel(c?.n ?? c, c?.n != null)))].map(l => l.join(";")).join("\r\n");
+  try {
+    const url = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a"); a.href = url; a.download = nomeArq; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    aviso(`Planilha baixada: ${nomeArq}\n\n${msg || "Abra no Excel com dois cliques. No Google Planilhas: Arquivo › Importar › Fazer upload."}`);
+  } catch (err) { console.error(err); aviso("Não foi possível baixar a planilha neste aparelho."); }
+}
+const reais = c => ({ n: ((Number(c) || 0) / 100).toFixed(2).replace(".", ",") });
+async function planilhaAssinantes() {
+  refazAs();
+  const desde = somaDias(hojeISO(), -70);
+  let usos = [];
+  try { usos = (await F.getDocs(F.query(cAt(espacoId), F.where("data", ">=", desde)))).docs.map(d => d.data()).filter(x => x.forma === "assinatura" && !x.estornado && x.origem !== "rateio"); }
+  catch (err) { console.error(err); return aviso("Não foi possível ler os atendimentos. Verifique a internet."); }
+  const lista = asList.filter(a => a.ativo !== false || a.cicloAtualId);
+  const maxN = Math.max(5, ...lista.map(a => a.n || 0));
+  const cab = ["Nome", "Plano", "Valor (R$)", "Início do mês", "Profissional", ...Array.from({ length: maxN }, (_, i) => (lista.some(a => a.tipoLimite !== "semana") ? "Uso " : "Semana ") + (i + 1)), "Usos", "Data de renovação", "Saldo dos barbeiros (R$)", "Abatido do saldo (R$)", "Resta (R$)", "Sobra vai para", "Situação", "WhatsApp"];
+  const linhas = lista.map(a => {
+    const u = usos.filter(x => x.assinanteId === a.id && x.cicloId === a.cicloAtualId && (x.mesInicio ? x.mesInicio === a.cicloInicio : x.data >= a.cicloInicio)).sort((x, y) => x.data.localeCompare(y.data));
+    const cont = {}; u.forEach(x => cont[x.profNome] = (cont[x.profNome] || 0) + 1);
+    const prof = Object.keys(cont).sort((x, y) => cont[y] - cont[x]).join(", ");
+    const cols = Array(maxN).fill("");
+    if (a.tipoLimite === "semana" && a.cicloInicio) u.forEach(x => { const w = semanaDo(a, x.data); if (w < maxN) cols[w] = dBR(x.data).slice(0, 5) + (cols[w] ? " +" : ""); });
+    else u.forEach((x, i) => { if (i < maxN) cols[i] = dBR(x.data).slice(0, 5); });
+    const ab = u.reduce((t, x) => t + (x.repasseCent || 0), 0), saldo = a.cicloAtualId ? a.parteAtendimentosCent || 0 : 0;
+    return [a.nome, a.planoNome || "", reais(a.valorProprioCent ?? planoDoAs(a)?.valorCent ?? 0), a.cicloInicio ? dBR(a.cicloInicio).slice(0, 5) : "", prof, ...cols, `${u.length} de ${a.n || 0}`,
+      a.pagoAte ? dBR(a.pagoAte) : "", reais(saldo), reais(ab), reais(Math.max(0, saldo - ab)), a.cicloAtualId ? (a.destinoSobra === "rateio" ? "Dividida" : "Casa") : "", situacaoAs(a).t, a.telefone || ""];
+  }).sort((x, y) => String(x[0]).localeCompare(String(y[0]), "pt-BR"));
+  if (!linhas.length) return aviso("Ainda não há assinantes para baixar.");
+  baixarCSV(`assinantes_${slug(meuSalao.nome) || meuSalao.id}_${hojeISO()}.csv`, cab, linhas, "Uma linha por assinante, com a data de cada uso no mês dele, como na planilha mensal. Abra no Excel com dois cliques.");
+}
+function planilhaFechamento() {
+  const [ini, fim] = periodoCx($("#cxData").value || hojeISO()), g = cxGrupos, nomes = Object.keys(g).sort();
+  if (!nomes.length) return aviso("Nenhum atendimento no período.");
+  const cab = ["Profissional", "Atendimentos avulsos", "Valor dos avulsos (R$)", "Comissão dos avulsos (R$)", "Usos de assinatura", "Abatido do saldo das assinaturas (R$)", "Sobra dividida (R$)", "Vales (R$)", "Total a pagar (R$)"];
+  const linhas = nomes.map(n => { const x = g[n]; return [n, { n: x.qtd }, reais(x.total), reais(x.com - x.rep), { n: x.usos }, reais(x.rep - x.sob), reais(x.sob), reais(x.vale), reais(x.com - x.vale)]; });
+  const T = k => nomes.reduce((t, n) => t + (k(g[n]) || 0), 0);
+  linhas.push(["TOTAL", { n: T(x => x.qtd) }, reais(T(x => x.total)), reais(T(x => x.com - x.rep)), { n: T(x => x.usos) }, reais(T(x => x.rep - x.sob)), reais(T(x => x.sob)), reais(T(x => x.vale)), reais(T(x => x.com - x.vale))]);
+  baixarCSV(`fechamento_${slug(meuSalao.nome) || meuSalao.id}_${ini === fim ? ini : ini + "_a_" + fim}.csv`, cab, linhas, `Fechamento de ${dBR(ini)}${ini === fim ? "" : " a " + dBR(fim)}, uma linha por barbeiro. Dica: no Caixa, escolha "Mês" antes de baixar para ter o mês inteiro.`);
+}
+
 /* ----- folhas: plano do clube, assinante, pagamento ----- */
 function folhaPlano(c) {
-  const servs = (meuSalao.servicos || []).map(x => x.nome), sel = c.servicos || [];
-  const v = txtParaCent(c.valor || "") || 0, perc = Number(String(c.perc || "").replace(",", ".")) || 0, n = parseInt(c.n, 10) || 0, k = contaPlano(v, perc, n);
+  const servs = (meuSalao.servicos || []).map(x => x.nome), sel = c.servicos || [], dias = c.diasSemana || [];
+  const per = c.periodo || "mensal", pac = per === "pacote", sem = !pac && c.tipoP === "semana", M = MESES_PER[per] || 1;
+  const v = txtParaCent(c.valor || "") || 0, perc = Number(String(c.perc || "").replace(",", ".")) || 0, n = sem ? 4 : parseInt(c.n, 10) || 0, k = contaPlano(v, perc, 1);
+  const porMes = Math.round(k.parte / M), por = n ? Math.round((pac ? k.parte : porMes) / n) : 0;
+  const prev = !(v && n) ? "Preencha valor e atendimentos para ver a divisão."
+    : `A casa fica com <b>${brlC(k.casa)}</b>. O saldo dos barbeiros é <b>${brlC(k.parte)}</b>${M > 1 ? `, ou <b>${brlC(porMes)}</b> por mês` : ""}. ${sem ? `Cada atendimento abate <b>${brlC(Math.round(porMes / 4))}</b> no mês de 4 semanas e <b>${brlC(Math.round(porMes / 5))}</b> no de 5.` : `Cada atendimento abate <b>${brlC(por)}</b> do saldo para quem atender.`} Se sobrar, ${txtSobra(c.sobra)}.`;
   return `<p class="tt" style="font-size:19px;font-weight:800">${c.id ? "Editar plano" : "Novo plano do clube"}</p>
-    <div><label class="lbl" for="plNome">Nome do plano</label><input id="plNome" data-campo="nome" class="field" placeholder="ex.: Corte mensal" value="${esc(c.nome || "")}"></div>
-    <div class="grid2"><div><label class="lbl" for="plValor">Valor por mês (R$)</label><input id="plValor" data-campo="valor" class="field" inputmode="decimal" placeholder="ex.: 120" value="${esc(c.valor || "")}"></div>
-      <div><label class="lbl" for="plN">Atendimentos por mês</label><input id="plN" data-campo="n" class="field" inputmode="numeric" placeholder="ex.: 4" value="${esc(c.n || "")}"></div></div>
+    <div class="stack" style="gap:8px"><p class="lbl">Tipo</p><div class="row" style="flex-wrap:wrap;gap:8px">${chips(PERIODOS, per, "fpper")}</div>
+      <p class="xs muted">${pac ? "Pacote: uma quantidade de atendimentos com prazo. Não renova sozinho." : M > 1 ? `Paga ${M} meses de uma vez. O uso continua contado mês a mês.` : "Paga todo mês."}</p></div>
+    ${pac ? "" : `<div class="stack" style="gap:8px"><p class="lbl">Como o cliente usa</p><div class="grid2">${chips([["mes", "Quantidade por mês"], ["semana", "1 por semana"]], sem ? "semana" : "mes", "fptipo")}</div></div>`}
+    <div><label class="lbl" for="plNome">Nome do plano</label><input id="plNome" data-campo="nome" class="field" placeholder="${pac ? "ex.: Pacote 10 cortes" : "ex.: Corte mensal"}" value="${esc(c.nome || "")}"></div>
+    <div class="grid2"><div><label class="lbl" for="plValor">${pac ? "Valor do pacote" : M > 1 ? `Valor dos ${M} meses` : "Valor por mês"} (R$)</label><input id="plValor" data-campo="valor" class="field" inputmode="decimal" placeholder="ex.: 120" value="${esc(c.valor || "")}"></div>
+      ${sem ? `<div><p class="lbl">Atendimentos</p><p class="sm" style="padding-top:12px">4 ou 5 por mês, um por semana</p></div>` : `<div><label class="lbl" for="plN">${pac ? "Atendimentos no pacote" : "Atendimentos por mês"}</label><input id="plN" data-campo="n" class="field" inputmode="numeric" placeholder="ex.: 4" value="${esc(c.n || "")}"></div>`}</div>
+    ${pac ? `<div><label class="lbl" for="plVal">Vale por quantos dias</label><input id="plVal" data-campo="validade" class="field" inputmode="numeric" value="${esc(c.validade ?? "90")}"></div>`
+      : `<div><label class="lbl" for="plCar">Carência depois do vencimento (dias)</label><input id="plCar" data-campo="carencia" class="field" inputmode="numeric" value="${esc(c.carencia ?? "5")}"><p class="xs muted" style="margin-top:4px">Nesses dias o cliente ainda pode usar 1 vez enquanto não paga. Use 0 para não ter carência.</p></div>`}
     <div><label class="lbl" for="plPerc">Quanto fica com a casa (%)</label><input id="plPerc" data-campo="perc" class="field" inputmode="decimal" value="${esc(c.perc ?? "60")}"></div>
-    <div class="card cardp" style="background:var(--bg);border:none"><p id="plPrev" class="sm">${v && n ? `A casa fica com <b>${brlC(k.casa)}</b>. Cada atendimento repassa <b>${brlC(k.por)}</b> para quem atender.` : "Preencha valor e atendimentos para ver a divisão."}</p></div>
+    <div class="stack" style="gap:8px"><p class="lbl">Se sobrar saldo no fim ${pac ? "do pacote" : "do mês"}</p><div class="grid2">${chips([["casa", "Fica com a casa"], ["rateio", "Divide entre quem atendeu"]], c.sobra || "casa", "fpsobra")}</div></div>
+    <div class="card cardp" style="background:var(--bg);border:none"><p id="plPrev" class="sm">${prev}</p></div>
+    <div class="stack" style="gap:8px"><p class="lbl">Dias da semana em que vale (nenhum marcado = todos)</p><div class="row" style="flex-wrap:wrap;gap:6px">${DIAS_SEM.map((t, i) => `<button type="button" class="chip ${dias.includes(i) ? "on" : ""}" data-fpdia="${i}">${t}</button>`).join("")}</div></div>
     <div class="stack" style="gap:8px"><p class="lbl">Serviços incluídos (nenhum marcado = todos)</p><div class="row" style="flex-wrap:wrap;gap:8px">${servs.map(x => `<button type="button" class="chip ${sel.includes(x) ? "on" : ""}" data-fpserv="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>
     ${c.id ? `<button type="button" class="btn3" data-act="removerPlano">Tirar este plano da lista</button>` : ""}
     ${botoesFolha("salvarPlano", "Salvar plano")}`;
 }
 async function salvarPlano(btn) {
   const c = folhaCtx; lerFolha();
-  const nome = (c.nome || "").trim(), valorCent = txtParaCent(c.valor || ""), n = parseInt(c.n, 10), perc = Number(String(c.perc || "").replace(",", "."));
+  const periodo = c.periodo || "mensal", pac = periodo === "pacote", sem = !pac && c.tipoP === "semana";
+  const nome = (c.nome || "").trim(), valorCent = txtParaCent(c.valor || ""), n = sem ? 5 : parseInt(c.n, 10), perc = Number(String(c.perc || "").replace(",", "."));
+  const validade = parseInt(c.validade ?? "90", 10), carencia = parseInt(c.carencia ?? "5", 10);
   if (!nome) return aviso("Dê um nome ao plano.");
   if (!valorCent) return aviso("Confira o valor do plano (ex.: 120 ou 120,50).");
-  if (!(n >= 1 && n <= 31)) return aviso("Atendimentos por mês: um número de 1 a 31.");
+  if (!(n >= 1 && n <= (pac ? 100 : 31))) return aviso(pac ? "Atendimentos no pacote: um número de 1 a 100." : "Atendimentos por mês: um número de 1 a 31.");
   if (!(perc >= 0 && perc <= 100)) return aviso("A parte da casa precisa ser de 0 a 100%.");
+  if (pac && !(validade >= 1 && validade <= 730)) return aviso("Validade do pacote: de 1 a 730 dias.");
+  if (!pac && !(carencia >= 0 && carencia <= 15)) return aviso("Carência: de 0 a 15 dias.");
   btn.disabled = true;
-  try { await F.setDoc(c.id ? F.doc(fire, "saloes", espacoId, "planos", c.id) : F.doc(cPlanos(espacoId)), { nome, valorCent, atendimentosPorCiclo: n, percBarbearia: perc, servicos: c.servicos || [], ativo: true, atualizadoEm: F.serverTimestamp() }, { merge: true }); fecharFolha(); }
+  try { await F.setDoc(c.id ? F.doc(fire, "saloes", espacoId, "planos", c.id) : F.doc(cPlanos(espacoId)), { nome, valorCent, periodo, tipo: sem ? "semana" : "mes", atendimentosPorCiclo: n, percBarbearia: perc,
+      validadeDias: pac ? validade : null, carenciaDias: pac ? 0 : carencia, sobra: c.sobra === "rateio" ? "rateio" : "casa", diasSemana: (c.diasSemana || []).length === 7 ? [] : (c.diasSemana || []),
+      servicos: c.servicos || [], ativo: true, atualizadoEm: F.serverTimestamp() }, { merge: true }); fecharFolha(); }
   catch (err) { console.error(err); btn.disabled = false; aviso("Não foi possível salvar o plano. Verifique a internet."); }
 }
 function folhaAssin(c) {
@@ -1403,7 +1685,8 @@ function folhaAssin(c) {
     <div><label class="lbl" for="asFone">WhatsApp com DDD</label><input id="asFone" data-campo="fone" class="field" inputmode="tel" value="${esc(c.fone || "")}"></div>
     <div class="stack" style="gap:8px"><p class="lbl">Plano</p><div class="row" style="flex-wrap:wrap;gap:8px">${plClube.map(p => `<button type="button" class="chip ${c.plano === p.id ? "on" : ""}" data-fplano="${esc(p.id)}">${esc(p.nome)} · ${brlC(p.valorCent)}</button>`).join("")}</div></div>
     <div><label class="lbl" for="asProprio">Preço diferente para este cliente (opcional, R$)</label><input id="asProprio" data-campo="proprio" class="field" inputmode="decimal" placeholder="deixe vazio para usar o preço do plano" value="${esc(c.proprio || "")}"></div>
-    ${c.id ? `<button type="button" class="btn3" data-act="pausarAssin">${c.ativo === false ? "Reativar assinatura" : "Pausar assinatura"}</button>` : `<p class="xs muted">Depois de salvar, toque em "Marcar pago" quando ele pagar. É aí que o dinheiro entra no Caixa.</p>`}
+    ${c.id ? `<button type="button" class="btn3" data-act="pausarAssin">${c.ativo === false ? "Retomar assinatura" : "Pausar assinatura"}</button>
+      <p class="xs muted">${c.ativo === false ? "Ao retomar, os dias parados são somados ao vencimento." : "Pausa para férias ou viagem: enquanto estiver pausado ninguém usa, e os dias parados são devolvidos no vencimento."}</p>` : `<p class="xs muted">Depois de salvar, toque em "Marcar pago" quando ele pagar. É aí que o dinheiro entra no Caixa.</p>`}
     ${botoesFolha("salvarAssin", "Salvar")}`;
 }
 async function salvarAssin(btn) {
@@ -1421,41 +1704,97 @@ async function salvarAssin(btn) {
     fecharFolha(); if (!c.id) { asFiltro = "renovar"; desenharAssin(); }
   } catch (err) { console.error(err); btn.disabled = false; aviso("Não foi possível salvar. Verifique a internet."); }
 }
+/* v2.5.8: pausar guarda o dia; retomar soma os dias parados ao fim do mês atual e ao "pago até" */
+async function pausarRetomar() {
+  const c = folhaCtx; if (!c?.id) return;
+  refazAs();
+  const a = asList.find(x => x.id === c.id); if (!a) return;
+  const hoje = hojeISO();
+  try {
+    if (a.ativo !== false) { await F.updateDoc(dAssin(espacoId, a.id), { ativo: false, pausadoEm: hoje, atualizadoEm: F.serverTimestamp() }); fecharFolha(); return aviso(`${a.nome} pausado. Os dias parados serão devolvidos quando você retomar.`); }
+    const d = a.pausadoEm ? Math.max(0, diasEntre(a.pausadoEm, hoje)) : 0;
+    if (!a.cicloAtualId || !d || !a.pagoAte || a.pausadoEm >= a.pagoAte) {
+      await F.updateDoc(dAssin(espacoId, a.id), { ativo: true, pausadoEm: null, atualizadoEm: F.serverTimestamp() }); fecharFolha(); return aviso(`${a.nome} retomado.`);
+    }
+    const venc = somaDias(a.vencimento, d), pagoAte = somaDias(a.pagoAte, d);
+    await F.updateDoc(dAssin(espacoId, a.id), { ativo: true, pausadoEm: null, cicloInicio: a.cicloInicio, vencimento: venc, pagoAte, mesBase: a.mesIdx, n: a.n, usados: a.usados || 0, mesUso: a.cicloInicio,
+      diaAdesao: a.tipoPlano === "pacote" ? a.diaAdesao || null : +venc.slice(8, 10), atualizadoEm: F.serverTimestamp() });
+    fecharFolha(); aviso(`${a.nome} retomado. Ficou parado ${d} dia${d === 1 ? "" : "s"}, então o vencimento passou de ${dBR(a.pagoAte)} para ${dBR(pagoAte)}.`);
+  } catch (err) { console.error(err); aviso("Não foi possível alterar."); }
+}
 function folhaPagar(c) {
+  refazAs();
   const a = asList.find(x => x.id === c.id), p = planoDoAs(a) || {};
-  const v = txtParaCent(c.valor || "") || 0, k = contaPlano(v, p.percBarbearia ?? 60, p.atendimentosPorCiclo || 0);
-  const sobra = a.cicloAtualId && a.vencimento >= hojeISO() ? Math.max(0, (a.n || 0) - (a.usados || 0)) : 0;
-  return `<p class="tt" style="font-size:19px;font-weight:800">${a.cicloAtualId ? "Renovar assinatura" : "Marcar pago"}</p>
+  const v = txtParaCent(c.valor || "") || 0, st = situacaoAs(a);
+  const sobra = a.cicloAtualId && (a.pagoAte || a.vencimento) > hojeISO() ? Math.max(0, (a.n || 0) - (a.usados || 0)) : 0;
+  const cic = cicloNovo(a, p), kk = contaPlano(v, p.percBarbearia ?? 60, 1), porMes = Math.round(kk.parte / (cic.M || 1));
+  const por = cic.n ? Math.round((cic.pac ? kk.parte : porMes) / cic.n) : 0;
+  const txt = cic.erro ? `<p class="sm" style="color:var(--bad);font-weight:600">${esc(cic.erro)}</p>`
+    : cic.pac ? `<p class="sm">Pacote de <b>${cic.n} atendimentos</b>, vale de <b>${dBR(cic.inicio).slice(0, 5)}</b> a <b>${dBR(cic.pagoAte)}</b>. A casa fica com ${brlC(kk.casa)}. Saldo dos barbeiros ${brlC(kk.parte)}: cada atendimento abate ${brlC(por)}.</p>`
+    : `<p class="sm">${cic.M > 1 ? `<b>${cic.M} meses</b>, de <b>${dBR(cic.inicio).slice(0, 5)}</b> a <b>${dBR(cic.pagoAte)}</b> (vence todo dia ${cic.dia}).` : `Mês de <b>${dBR(cic.inicio).slice(0, 5)}</b> a <b>${dBR(cic.venc).slice(0, 5)}</b> (vence todo dia ${cic.dia}).`} ${p.tipo === "semana" ? `1 atendimento por semana (${cic.n} semanas no primeiro mês).` : `<b>${cic.n}</b> atendimentos por mês.`} A casa fica com ${brlC(kk.casa)}. Saldo dos barbeiros ${brlC(porMes)} por mês: cada atendimento abate ${brlC(por)}.</p>`;
+  return `<p class="tt" style="font-size:19px;font-weight:800">${!a.cicloAtualId ? "Marcar pago" : cic.pac ? "Vender novo pacote" : "Renovar assinatura"}</p>
     <p class="sm muted">${esc(a.nome)} · ${esc(p.nome || a.planoNome || "")}</p>
     <div class="stack" style="gap:8px"><p class="lbl">Forma de pagamento</p><div class="grid3">${chips(FORMAS, c.forma, "fforma")}</div></div>
     <div><label class="lbl" for="pgValor">Valor pago (R$)</label><input id="pgValor" data-campo="valor" class="field" inputmode="decimal" value="${esc(c.valor || "")}"></div>
-    <div class="card cardp" style="background:var(--bg);border:none"><p class="sm">Vale até <b>${dBR(somaDias(hojeISO(), 30)).slice(0, 5)}</b> ou <b>${p.atendimentosPorCiclo || "?"}</b> atendimentos. A casa fica com ${brlC(k.casa)} e cada atendimento repassa ${brlC(k.por)}.</p>
-      ${sobra ? `<p class="sm" style="color:var(--warn);margin-top:6px">Ainda sobravam ${sobra} atendimento${sobra === 1 ? "" : "s"} do mês atual. Eles ficam com a casa.</p>` : ""}</div>
+    <div class="card cardp" style="background:var(--bg);border:none">${txt}
+      ${a.usosCarencia ? `<p class="sm" style="color:var(--warn);margin-top:6px">${a.usosCarencia} atendimento feito na carência entra neste novo mês.</p>` : ""}
+      ${sobra && st.k !== "fim" ? `<p class="sm" style="color:var(--warn);margin-top:6px">Ainda sobravam ${sobra} atendimento${sobra === 1 ? "" : "s"} do mês atual. O saldo deles ${txtSobra(a.destinoSobra)}.</p>` : ""}</div>
     ${botoesFolha("salvarPagar", "Confirmar pagamento", "ok")}`;
+}
+/* novo período do assinante. Mensal/trimestral/semestral/anual: começa no dia da adesão; renovação até 7 dias antes
+   do fim começa no fim; depois de vencido, no dia da adesão mais recente. Pacote: começa hoje e vale X dias. */
+function cicloNovo(a, p) {
+  const hoje = hojeISO(), fim = a.pagoAte || a.vencimento, st = situacaoAs(a);
+  if (ehPacote(p)) {
+    if (a.cicloAtualId && a.tipoPlano === "pacote" && st.k === "ok") return { erro: `O pacote atual ainda tem ${(a.n || 0) - (a.usados || 0)} atendimento(s) até ${dBR(fim).slice(0, 5)}. Venda o próximo quando este acabar.` };
+    if (a.cicloAtualId && a.tipoPlano !== "pacote" && fim > hoje) return { erro: `A assinatura atual vale até ${dBR(fim).slice(0, 5)}. Troque para o pacote depois dessa data.` };
+    const n = p.atendimentosPorCiclo, venc = somaDias(hoje, p.validadeDias || 90);
+    return { pac: true, inicio: hoje, venc, pagoAte: venc, dia: null, M: 1, n, nMes: n, nMax: n };
+  }
+  const dia = (a.tipoPlano !== "pacote" && a.diaAdesao) || +hoje.slice(8, 10);
+  let inicio;
+  if (a.cicloAtualId && fim && hoje < fim && a.tipoPlano !== "pacote") {
+    if (diasEntre(hoje, fim) > 7) return { erro: `${a.meses > 1 ? "O período pago" : "O mês atual"} ainda vale até ${dBR(fim).slice(0, 5)}. A renovação abre 7 dias antes do vencimento.` };
+    inicio = fim;
+  } else inicio = a.diaAdesao && a.tipoPlano !== "pacote" ? ancoraAte(hoje, dia) : hoje;
+  const M = mesesDe(p), venc = somaMes(inicio, 1, dia), pagoAte = somaMes(inicio, M, dia), nMes = p.atendimentosPorCiclo;
+  return { inicio, venc, pagoAte, dia, M, n: p.tipo === "semana" ? nSemanas(inicio, venc) : nMes, nMes, nMax: p.tipo === "semana" ? 5 : nMes };
 }
 async function salvarPagar(btn) {
   const c = folhaCtx; lerFolha();
-  const a = asList.find(x => x.id === c.id), p = planoDoAs(a);
+  refazAs();
+  const a = asList.find(x => x.id === c.id), r = asRaw.find(x => x.id === c.id), p = planoDoAs(a);
   if (!p) return aviso("O plano deste assinante não existe mais. Toque em Editar e escolha um plano.");
   if (!c.forma) return aviso("Escolha a forma de pagamento.");
   const valor = txtParaCent(c.valor || ""); if (!valor) return aviso("Confira o valor pago.");
-  const n = p.atendimentosPorCiclo, perc = p.percBarbearia ?? 60, k = contaPlano(valor, perc, n), hoje = hojeISO(), venc = somaDias(hoje, 30);
+  const cic = cicloNovo(a, p); if (cic.erro) return aviso(cic.erro);
+  const n = cic.n, M = cic.M, perc = p.percBarbearia ?? 60, k = contaPlano(valor, perc, 1), hoje = hojeISO(), venc = cic.venc;
+  const parteMes0 = parteDoMes(k.parte, M, 0), base = Math.round(parteMes0 / n);
   const cRef = F.doc(F.collection(fire, "saloes", espacoId, "assinantes", a.id, "ciclos")), b = F.writeBatch(fire);
-  b.set(cRef, { pagoEm: hoje, valorPagoCent: valor, forma: c.forma, percBarbearia: perc, parteBarbeariaCent: k.casa, parteAtendimentosCent: k.parte, n, porAtendimentoCent: k.por, usados: 0, vencimento: venc,
-    planoId: p.id, planoNome: p.nome, criadoPor: emailUser(), criadoEm: F.serverTimestamp() });
-  if (a.cicloAtualId) {   // o mês anterior fecha; o que não foi usado fica com a casa (bolsão)
-    const naoUsados = Math.max(0, (a.n || 0) - (a.usados || 0)), parte = a.parteAtendimentosCent || 0, base = Math.round(parte / (a.n || 1));
-    const bolsao = naoUsados ? parte - base * (a.usados || 0) : 0;
-    b.update(dCiclo(espacoId, a.id, a.cicloAtualId), { encerradoEm: hoje, bolsaoCent: bolsao, destinoBolsao: "casa" });
-  }
+  btn.disabled = true;
+  let carUsos = [];
+  try {
+    /* fecha o mês que está acabando: a sobra vai para a casa ou é dividida (regra do plano em que ele estava) */
+    if (r?.cicloAtualId) await sobrasDoAssinante(r, b, hoje, true);
+    /* usos feitos na carência entram no mês novo e ganham o valor abatido agora */
+    if (a.usosCarencia) carUsos = (await F.getDocs(F.query(cAt(espacoId), F.where("assinanteId", "==", a.id)))).docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(x => x.carencia && !x.cicloId && !x.estornado).sort((x, y) => (x.data + x.hora).localeCompare(y.data + y.hora)).slice(0, n);
+  } catch (err) { console.error(err); btn.disabled = false; return aviso("Não foi possível ler os atendimentos. Verifique a internet."); }
+  carUsos.forEach((x, i) => b.update(F.doc(fire, "saloes", espacoId, "atendimentos", x.id), { cicloId: cRef.id, mesInicio: cic.inicio, usoN: i + 1, usoDe: n, repasseCent: i + 1 < n ? base : parteMes0 - base * (n - 1) }));
+  b.set(cRef, { pagoEm: hoje, valorPagoCent: valor, forma: c.forma, percBarbearia: perc, parteBarbeariaCent: k.casa, parteAtendimentosCent: k.parte, n, nMax: cic.nMax * M, porAtendimentoCent: base, usados: 0, vencimento: cic.pagoAte,
+    meses: M, periodo: p.periodo || "mensal", destinoSobra: p.sobra || "casa", planoId: p.id, planoNome: p.nome, tipo: p.tipo || "mes", inicio: cic.inicio, criadoPor: emailUser(), criadoEm: F.serverTimestamp() });
+  if (a.cicloAtualId) b.update(dCiclo(espacoId, a.id, a.cicloAtualId), { encerradoEm: hoje, destinoBolsao: a.destinoSobra || "casa" });
   b.set(F.doc(cMov(espacoId)), { data: hoje, mes: hoje.slice(0, 7), hora: agoraHH(), tipo: "entrada", categoria: "assinatura", valorCent: valor, forma: c.forma, descricao: `${a.nome} · ${p.nome}`,
     assinanteId: a.id, cicloId: cRef.id, criadoPor: emailUser(), criadoEm: F.serverTimestamp(), estornado: false });
-  b.update(dAssin(espacoId, a.id), { cicloAtualId: cRef.id, usados: 0, n, vencimento: venc, porAtendimentoCent: k.por, parteAtendimentosCent: k.parte, planoNome: p.nome, atualizadoEm: F.serverTimestamp() });
-  btn.disabled = true;
+  b.update(dAssin(espacoId, a.id), { cicloAtualId: cRef.id, usados: carUsos.length, mesUso: cic.inicio, n, nMes: cic.nMes, nMax: cic.nMax, vencimento: venc, pagoAte: cic.pagoAte, meses: M, mesBase: 0,
+    cicloInicio: cic.inicio, diaAdesao: cic.dia, tipoLimite: cic.pac ? "mes" : p.tipo || "mes", tipoPlano: p.periodo || "mensal", destinoSobra: p.sobra || "casa", ultimoUso: carUsos.at(-1)?.data || null, usosCarencia: 0,
+    sobraAte: null, porAtendimentoCent: base, parteAtendimentosCent: k.parte, planoNome: p.nome, pausadoEm: null, atualizadoEm: F.serverTimestamp() });
   try { await b.commit(); } catch (err) { console.error(err); btn.disabled = false; return aviso("Não foi possível registrar o pagamento. Verifique a internet."); }
-  const tel = zapNum(a.telefone || ""), msg = `Pagamento recebido · ${meuSalao.nome}\n${a.nome}, sua assinatura ${p.nome} está ativa até ${dBR(venc)}.\nInclui ${n} atendimento${n === 1 ? "" : "s"}. Valor: ${brlC(valor)} (${nomeForma(c.forma)}).\nObrigado!`;
+  const fimTxt = dBR(cic.pagoAte), tel = zapNum(a.telefone || "");
+  const inclui = cic.pac ? `${n} atendimento${n === 1 ? "" : "s"}` : p.tipo === "semana" ? "1 atendimento por semana" : `${n} atendimento${n === 1 ? "" : "s"} por mês`;
+  const msg = `Pagamento recebido · ${meuSalao.nome}\n${a.nome}, ${cic.pac ? "seu pacote" : "sua assinatura"} ${p.nome} está ativ${cic.pac ? "o" : "a"} de ${dBR(cic.inicio).slice(0, 5)} a ${fimTxt}.\nInclui ${inclui}. Valor: ${brlC(valor)} (${nomeForma(c.forma)}).\nObrigado!`;
   abrirFolha({ tipo: "feito", html: `<div class="stack" style="align-items:center;text-align:center;gap:6px"><p class="tt" style="font-size:20px;font-weight:800;color:var(--ok)">Pagamento registrado</p>
-      <p style="font-size:16px">${esc(a.nome)} · <b>${brlC(valor)}</b> em ${esc(nomeForma(c.forma))}</p><p class="sm muted">Já entrou no Caixa de hoje. Vale até ${dBR(venc).slice(0, 5)}.</p></div>
+      <p style="font-size:16px">${esc(a.nome)} · <b>${brlC(valor)}</b> em ${esc(nomeForma(c.forma))}</p><p class="sm muted">Já entrou no Caixa de hoje. Vale de ${dBR(cic.inicio).slice(0, 5)} a ${fimTxt}.</p></div>
     ${tel.length >= 12 ? `<a class="btn ok" href="https://wa.me/${tel}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>` : ""}
     <button type="button" class="btn2" data-act="fecharFolha">Fechar</button>` });
 }
@@ -1471,7 +1810,7 @@ function baixarPlanilha(origem) {
   const num = c => ((Number(c) || 0) / 100).toFixed(2).replace(".", ",");
   const L = [];   // [chave para ordenar, linha]
   at.forEach(x => L.push([x.data + (x.hora || ""), [dBR(x.data), x.hora || "", x.origem === "balcao" ? "Atendimento sem horário" : "Atendimento", x.servico, x.clienteNome || "", x.profNome || "",
-    nomeForma(x.forma), num(x.valorCent), num(x.repasseCent), x.estornado ? "Desfeito" : x.forma === "assinatura" ? `Assinatura: uso ${x.usoN || "?"} de ${x.usoDe || "?"}` : "OK"]]));
+    nomeForma(x.forma), num(x.valorCent), num(x.repasseCent), x.estornado ? "Desfeito" : x.origem === "rateio" ? "Sobra de assinatura dividida" : x.carencia && !x.cicloId ? "Assinatura: uso na carência" : x.forma === "assinatura" ? `Assinatura: uso ${x.usoN || "?"} de ${x.usoDe || "?"}` : "OK"]]));
   mv.forEach(x => L.push([x.data + (x.hora || ""), [dBR(x.data), x.hora || "", x.tipo === "entrada" ? "Entrada" : "Saída", nomeCategoria(x.categoria) + (x.descricao ? " · " + x.descricao : ""), "", x.profNome || "",
     nomeForma(x.forma), (x.tipo === "saida" ? "-" : "") + num(x.valorCent), "", x.estornado ? "Desfeito" : "OK"]]));
   /* agenda: no Completo, o que já foi concluído já está como atendimento; aqui entram os horários que ainda não viraram dinheiro */
@@ -1479,7 +1818,7 @@ function baixarPlanilha(origem) {
     "", num(Math.round(Number(p.preco || 0) * 100)), "", p.status]]));
   if (!L.length) return aviso("Não há nada para baixar neste período.");
   L.sort((a, b) => a[0].localeCompare(b[0]));
-  const cab = ["Data", "Hora", "Tipo", "Serviço ou descrição", "Cliente", "Profissional", "Forma", "Valor (R$)", "Comissão ou repasse (R$)", "Situação"];
+  const cab = ["Data", "Hora", "Tipo", "Serviço ou descrição", "Cliente", "Profissional", "Forma", "Valor (R$)", "Comissão ou abatido do saldo (R$)", "Situação"];
   const cel = (v, i) => { let t = String(v ?? "");
     if (i !== 7 && /^[=+\-@]/.test(t)) t = "'" + t;   // texto que começa com = + - @ não vira fórmula
     return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
@@ -1525,7 +1864,9 @@ function desenharPainel() {
   if (cx) {
     $("#pnTit").textContent = "Entrou " + nomePer;
     $("#pnGrande").textContent = brlC(entrou);
-    $("#pnLinhas").innerHTML = lin("Comissão dos barbeiros", "− " + brlC(com)) + lin("Despesas", "− " + brlC(gastos))
+    const avul = soma(at.filter(x => x.forma !== "assinatura")), pagAs = soma(entMov.filter(x => x.categoria === "assinatura"));
+    $("#pnLinhas").innerHTML = (temAssin(meuSalao) ? `<div class="stack" style="gap:6px;opacity:.92;border-top:1px solid rgba(255,255,255,.25);padding-top:8px">${lin("Avulsos", brlC(avul))}${lin("Pagamentos de assinatura", brlC(pagAs))}${entrou - avul - pagAs ? lin("Outras entradas", brlC(entrou - avul - pagAs)) : ""}</div>` : "")
+      + lin("Comissão dos barbeiros", "− " + brlC(com)) + lin("Despesas", "− " + brlC(gastos))
       + `<div class="casa"><span style="font-weight:700">Fica para a casa</span><b>${brlC(entrou - com - gastos)}</b></div>`;
   } else {
     $("#pnTit").textContent = "Clientes marcados " + nomePer;
@@ -1534,7 +1875,7 @@ function desenharPainel() {
   }
   const k = (v, t, c) => `<div class="stat"><span class="xs muted">${t}</span><b ${c ? `style="color:${c}"` : ""}>${v}</b></div>`;
   $("#pnKpis").innerHTML = cx
-    ? k(at.length, "Atendimentos") + k(at.some(x => x.forma !== "assinatura") ? brlC(Math.round(soma(at) / at.filter(x => x.forma !== "assinatura").length)) : "—", "Ticket médio") + (ag ? k(brlC(aReceber), "A receber", "var(--pri)") : k(brlC(gastos), "Despesas"))
+    ? k(at.filter(x => x.origem !== "rateio").length, "Atendimentos") + k(at.some(x => x.forma !== "assinatura") ? brlC(Math.round(soma(at) / at.filter(x => x.forma !== "assinatura").length)) : "—", "Ticket médio") + (ag ? k(brlC(aReceber), "A receber", "var(--pri)") : k(brlC(gastos), "Despesas"))
     : k(marc.filter(p => p.status === "Concluído").length, "Concluídos") + k(pend.length, "Ainda vêm") + k(pnAg.filter(cancelado).length, "Cancelados", "var(--bad)");
   $("#pnFormasBox").classList.toggle("hidden", !cx);
   $("#pnAssin").classList.toggle("hidden", !temAssin(meuSalao));
@@ -1622,10 +1963,11 @@ async function estornar(col, id) {
     b.update(F.doc(fire, "saloes", espacoId, col, id), { estornado: true, estornadoPor: emailUser(), estornadoEm: F.serverTimestamp(), motivoEstorno: "" });
     /* v2.5.3: desfazer um uso de assinatura devolve o uso; desfazer o pagamento do clube volta o assinante para "aguardando pagamento" */
     const a = x.assinanteId && asList.find(i => i.id === x.assinanteId);
-    if (a && col === "atendimentos" && x.forma === "assinatura" && a.cicloAtualId === x.cicloId) {
-      b.update(dAssin(espacoId, a.id), { usados: Math.max(0, (a.usados || 0) - 1), atualizadoEm: F.serverTimestamp() });
-      b.update(dCiclo(espacoId, a.id, x.cicloId), { usados: Math.max(0, (a.usados || 0) - 1) });
-    }
+    const r = x.assinanteId && asRaw.find(i => i.id === x.assinanteId);
+    if (r && col === "atendimentos" && x.forma === "assinatura" && x.origem !== "rateio" && x.carencia && !x.cicloId)
+      b.update(dAssin(espacoId, r.id), { usosCarencia: Math.max(0, (r.usosCarencia || 0) - 1), ultimoUso: null, atualizadoEm: F.serverTimestamp() });
+    else if (r && col === "atendimentos" && x.forma === "assinatura" && x.origem !== "rateio" && r.cicloAtualId === x.cicloId && (r.mesUso || r.cicloInicio) === (x.mesInicio || r.cicloInicio))
+      b.update(dAssin(espacoId, r.id), { usados: Math.max(0, (r.usados || 0) - 1), ultimoUso: null, atualizadoEm: F.serverTimestamp() });
     if (a && col === "movimentos" && x.categoria === "assinatura" && a.cicloAtualId === x.cicloId) {
       b.update(dAssin(espacoId, a.id), { cicloAtualId: null, usados: 0, n: 0, vencimento: null, atualizadoEm: F.serverTimestamp() });
       b.update(dCiclo(espacoId, a.id, x.cicloId), { encerradoEm: hojeISO(), estornado: true });
@@ -1760,7 +2102,15 @@ function desenharNumeros() {
   const ok = numAt.filter(x => !x.estornado), hoje = ok.filter(x => x.data === hojeISO());
   const tot = l => l.reduce((t, x) => t + (x.valorCent || 0), 0), com = l => l.reduce((t, x) => t + (x.repasseCent || 0), 0);
   $("#nHojeQtd").textContent = hoje.length; $("#nHojeTot").textContent = brlC(tot(hoje)); $("#nHojeCom").textContent = brlC(com(hoje));
-  $("#nMesQtd").textContent = ok.length; $("#nMesTot").textContent = brlC(tot(ok)); $("#nMesCom").textContent = brlC(com(ok));
+  const sb = x => x.origem === "rateio";
+  $("#nHojeQtd").textContent = hoje.filter(x => !sb(x)).length;
+  $("#nMesQtd").textContent = ok.filter(x => !sb(x)).length; $("#nMesTot").textContent = brlC(tot(ok)); $("#nMesCom").textContent = brlC(com(ok));
+  /* v2.5.8: o barbeiro vê quanto ganhou das assinaturas no mês */
+  const usA = ok.filter(x => x.forma === "assinatura" && !sb(x)), sob = ok.filter(sb), car = usA.filter(x => x.carencia && !x.cicloId);
+  $("#nAssin").classList.toggle("hidden", !usA.length && !sob.length);
+  $("#nAssin").innerHTML = `<p class="cap">Assinaturas este mês</p>
+    <div class="grid3"><div class="stat"><span class="xs muted">Usos</span><b>${usA.length}</b></div><div class="stat"><span class="xs muted">Abatido do saldo</span><b class="ent">${brlC(com(usA))}</b></div><div class="stat"><span class="xs muted">Sobra dividida</span><b class="ent">${brlC(com(sob))}</b></div></div>
+    ${car.length ? `<p class="xs muted">${car.length} uso${car.length === 1 ? "" : "s"} na carência: o valor entra quando o cliente pagar.</p>` : ""}`;
   const l = numAt.filter(x => x.data === hojeISO()).sort((a, b) => String(a.hora).localeCompare(String(b.hora)));
   $("#nLista").innerHTML = l.length ? l.map(x => `<div class="mov ${x.estornado ? "est" : ""}"><div class="grow"><p style="font-weight:600;font-size:15px">${esc(x.hora)} · ${esc(x.servico)}</p><p class="xs muted">${esc([nomeForma(x.forma), x.clienteNome, x.estornado ? "ESTORNADO" : ""].filter(Boolean).join(" · "))}</p></div><div style="text-align:right"><p class="v">${brlC(x.valorCent)}</p><p class="xs ent" style="font-weight:700">${brlC(x.repasseCent)}</p></div></div>`).join("")
     : `<p class="pad muted" style="text-align:center">Nenhum atendimento hoje ainda.</p>`;
@@ -2184,7 +2534,7 @@ document.addEventListener("click", async e => {
   const cf = e.target.closest("[data-conf]");
   if (cf) { $("#confirmBox").classList.add("hidden"); if (resolverConf) resolverConf(cf.dataset.conf === "1"); resolverConf = null; return; }
   if (e.target.id === "folha") return fecharFolha();
-  const fs = e.target.closest("[data-fserv],[data-fprof],[data-fforma],[data-fcat],[data-fassin],[data-fplano],[data-fpserv]");
+  const fs = e.target.closest("[data-fserv],[data-fprof],[data-fforma],[data-fcat],[data-fassin],[data-fplano],[data-fpserv],[data-fptipo],[data-fpper],[data-fpsobra],[data-fpdia]");
   if (fs && folhaCtx) {
     const f = fs.dataset; lerFolha();
     if (f.fserv != null) { folhaCtx.serv = +f.fserv; const sv = (meuSalao.servicos || [])[+f.fserv]; if (sv) folhaCtx.valor = centParaTxt(Math.round(Number(sv.preco) * 100)); }
@@ -2192,6 +2542,10 @@ document.addEventListener("click", async e => {
     if (f.fforma != null) folhaCtx.forma = f.fforma;
     if (f.fassin != null) folhaCtx.assin = f.fassin;
     if (f.fplano != null) folhaCtx.plano = f.fplano;
+    if (f.fptipo != null) folhaCtx.tipoP = f.fptipo;
+    if (f.fpper != null) folhaCtx.periodo = f.fpper;
+    if (f.fpsobra != null) folhaCtx.sobra = f.fpsobra;
+    if (f.fpdia != null) { const l = folhaCtx.diasSemana ||= [], v = +f.fpdia, i = l.indexOf(v); i < 0 ? l.push(v) : l.splice(i, 1); }
     if (f.fpserv != null) { const l = folhaCtx.servicos ||= []; const i = l.indexOf(f.fpserv); i < 0 ? l.push(f.fpserv) : l.splice(i, 1); }
     if (f.fcat != null) folhaCtx.cat = f.fcat;
     return desenharFolha();
@@ -2273,8 +2627,9 @@ document.addEventListener("click", async e => {
     case "planilhaCaixa": baixarPlanilha("caixa"); break;
     case "planilhaPainel": baixarPlanilha("painel"); break;
     /* v2.5.3: assinantes */
-    case "novoPlanoClube": abrirFolha({ tipo: "plano", perc: "60", servicos: [] }); break;
-    case "editPlano": { const p = plClube.find(x => x.id === d.id); if (p) abrirFolha({ tipo: "plano", id: p.id, nome: p.nome, valor: centParaTxt(p.valorCent), n: String(p.atendimentosPorCiclo), perc: String(p.percBarbearia), servicos: [...(p.servicos || [])] }); break; }
+    case "novoPlanoClube": abrirFolha({ tipo: "plano", perc: "60", servicos: [], tipoP: "semana" }); break;
+    case "editPlano": { const p = plClube.find(x => x.id === d.id); if (p) abrirFolha({ tipo: "plano", id: p.id, nome: p.nome, valor: centParaTxt(p.valorCent), n: String(p.atendimentosPorCiclo), perc: String(p.percBarbearia), servicos: [...(p.servicos || [])], tipoP: p.tipo || "mes",
+      periodo: p.periodo || "mensal", sobra: p.sobra || "casa", diasSemana: [...(p.diasSemana || [])], validade: String(p.validadeDias || 90), carencia: String(p.carenciaDias ?? 5) }); break; }
     case "salvarPlano": salvarPlano(t); break;
     case "removerPlano": {
       const id = folhaCtx?.id; if (!id) break;
@@ -2287,13 +2642,14 @@ document.addEventListener("click", async e => {
       abrirFolha({ tipo: "assin", plano: plClube.length === 1 ? plClube[0].id : null }); break;
     case "editAssin": { const a = asList.find(x => x.id === d.id); if (a) abrirFolha({ tipo: "assin", id: a.id, nome: a.nome, fone: a.telefone || "", plano: a.planoId, proprio: a.valorProprioCent != null ? centParaTxt(a.valorProprioCent) : "", ativo: a.ativo }); break; }
     case "salvarAssin": salvarAssin(t); break;
-    case "pausarAssin": {
-      const c = folhaCtx; if (!c?.id) break;
-      try { await F.updateDoc(dAssin(espacoId, c.id), { ativo: c.ativo === false, atualizadoEm: F.serverTimestamp() }); fecharFolha(); } catch (err) { console.error(err); aviso("Não foi possível alterar."); }
-      break;
-    }
-    case "pagarAssin": { const a = asList.find(x => x.id === d.id); if (a) abrirFolha({ tipo: "pagar", id: a.id, forma: null, valor: centParaTxt(a.valorProprioCent ?? planoDoAs(a)?.valorCent ?? 0) }); break; }
+    case "pausarAssin": pausarRetomar(); break;
+    case "lembrei": if (d.id) F.updateDoc(dAssin(espacoId, d.id), { lembradoEm: hojeISO(), atualizadoEm: F.serverTimestamp() }).catch(err => console.error(err)); break;
+    case "pagarAssin": { refazAs(); const a = asList.find(x => x.id === d.id); if (a) abrirFolha({ tipo: "pagar", id: a.id, forma: null, valor: centParaTxt(a.valorProprioCent ?? planoDoAs(a)?.valorCent ?? 0) }); break; }
     case "salvarPagar": salvarPagar(t); break;
+    case "fichaAssin": abrirFicha(d.id); break;
+    case "tornarAssin": if (!plClube.length) { aviso("Crie primeiro um plano do clube."); break; } abrirFolha({ tipo: "assin", nome: d.nome, fone: d.fone, plano: plClube.length === 1 ? plClube[0].id : null }); break;
+    case "planilhaAssin": planilhaAssinantes(); break;
+    case "planilhaFech": planilhaFechamento(); break;
     case "darAcesso": abrirFolha({ tipo: "acesso", prof: d.pnome, email: "" }); break;
     case "salvarAcesso": salvarAcesso(t); break;
     case "pausarAcesso": pausarAcesso(d.email); break;
