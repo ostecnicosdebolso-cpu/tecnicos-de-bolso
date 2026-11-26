@@ -165,6 +165,65 @@
   .tPerg{font-size:26px;line-height:1.15;font-weight:800;letter-spacing:-.3px}
   .tAjuda{font-size:15px;line-height:1.5;color:#4B4970}
   #vTeste .field{font-size:17px;min-height:54px}
+  /* ===== v2.7.0: página do cliente ===== */
+  #vSalao{padding-bottom:84px}
+  #vSalao.semNav{padding-bottom:0}
+  .cCapa{height:150px;background:radial-gradient(120% 90% at 85% 0%,#5B8CFF 0%,rgba(91,140,255,0) 55%),linear-gradient(140deg,#4221EE,#2A139C);background-size:cover;background-position:center}
+  .cIn{padding:0 18px 24px;display:flex;flex-direction:column;gap:16px}
+  .cLogo{width:84px;height:84px;border-radius:50%;background:#fff;border:4px solid #fff;box-shadow:0 6px 18px rgba(26,26,46,.18);margin-top:-46px;display:flex;align-items:center;justify-content:center;color:var(--pri);font:800 26px Montserrat,sans-serif;background-size:cover;background-position:center;overflow:hidden}
+  .cNome{font-size:26px;font-weight:800;line-height:1.15}
+  .cAberto{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--txt)}
+  .cAberto .dot{width:9px;height:9px;border-radius:5px;flex-shrink:0}
+  .cBig{min-height:60px;font-size:18px;font-weight:800;border-radius:18px;box-shadow:0 8px 20px rgba(66,33,238,.28)}
+  .cProxCard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;background:var(--pri-l);border:1px solid #D9D3FF;border-radius:16px;padding:14px 16px;color:var(--ink);cursor:pointer}
+  .cSvc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;color:var(--ink);cursor:pointer;min-height:64px}
+  .cSvc .n{font-size:16px;font-weight:700;line-height:1.25}
+  .cSvc .d{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--muted);margin-top:2px}
+  .cSvc .p{margin-left:auto;font:800 16px Montserrat,sans-serif;white-space:nowrap}
+  .cSvc .ck{width:24px;height:24px;border-radius:8px;border:2px solid var(--line2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff}
+  .cSvc.on{border:2px solid var(--pri);background:var(--pri-l);padding:13px 15px}
+  .cSvc.on .ck{background:var(--pri);border-color:var(--pri)}
+  .cTopo{position:sticky;top:0;z-index:20;background:var(--bg)}
+  .cPassos{display:flex;gap:6px}.cPassos span{flex:1;height:5px;border-radius:9px;background:var(--line2)}.cPassos span.on{background:var(--pri)}
+  .cPassoTxt{font-size:12px;font-weight:700;color:var(--pri);letter-spacing:.5px;text-transform:uppercase;margin-top:8px}
+  .cPerg{font-size:19px;font-weight:800}
+  .cPergSub{font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:var(--muted)}
+  .cProfs{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:none}
+  .cProf{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;font:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;min-width:66px;padding:0}
+  .cAv{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font:800 22px Montserrat,sans-serif;background-size:cover;background-position:center;border:3px solid transparent;box-shadow:0 0 0 2px transparent}
+  .cProf.on{color:var(--pri)}.cProf.on .cAv{box-shadow:0 0 0 3px var(--pri);border-color:#fff}
+  .cPer{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+  .cNav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid var(--line);padding:6px 0 calc(8px + env(safe-area-inset-bottom))}
+  .cNav .wrap{display:grid;grid-template-columns:repeat(3,1fr)}
+  .cNav button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;font:inherit;font-size:12px;font-weight:600;color:var(--muted);min-height:50px;cursor:pointer}
+  .cNav button.on{color:var(--pri);font-weight:800}
+  .cBadge{position:absolute;top:0;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:var(--pri);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px}
+  #vSalao.semNav .cNav{display:none}
+  #agendar{padding-bottom:150px}
+  #agendar .sticky{position:fixed;left:0;right:0;bottom:0}
+  .cMeu{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+  .cMeu.canc{background:var(--bad-l);border-color:#FECACA;opacity:.9}
+  /* tema escuro (escolha do barbeiro chefe) */
+  #vSalao.escuro{--bg:#0F0E17;--card:#1A1926;--line:#2B2A3A;--line2:#3A3950;--ink:#F3F2FA;--txt:#D4D3E3;--muted:#A3A2B8;--pri-l:#241C4D;background:#0F0E17;color:#F3F2FA}
+  #vSalao.escuro .cSvc,#vSalao.escuro .cMeu,#vSalao.escuro .card,#vSalao.escuro .btn3,#vSalao.escuro .field,#vSalao.escuro .day,#vSalao.escuro .slot,#vSalao.escuro .btn2{background:#1A1926;color:#F3F2FA;border-color:#2B2A3A}
+  #vSalao.escuro .day.on,#vSalao.escuro .slot.on{background:var(--pri);border-color:var(--pri);color:#fff}
+  #vSalao.escuro .cSvc.on{background:#241C4D;border-color:#7C5CFF}
+  #vSalao.escuro .cProxCard{background:#241C4D;border-color:#3B2F7A;color:#F3F2FA}
+  #vSalao.escuro .cLogo{border-color:#0F0E17;background-color:#1A1926;color:#B9A6FF}
+  #vSalao.escuro .cNav,#vSalao.escuro .sticky{background:#14131F;border-color:#2B2A3A}
+  #vSalao.escuro .cNav button.on,#vSalao.escuro .cProf.on,#vSalao.escuro .cPassoTxt,#vSalao.escuro a{color:#B9A6FF}
+  #vSalao.escuro .listrow{border-color:#2B2A3A}
+  #vSalao.escuro .btn2{color:#B9A6FF;border-color:#7C5CFF}
+  #vSalao.escuro .cCapa{background:radial-gradient(120% 90% at 85% 0%,#3B5BDB 0%,rgba(59,91,219,0) 55%),linear-gradient(140deg,#2A139C,#0F0E17);background-size:cover;background-position:center}
+  #vSalao.escuro .cMeu.canc{background:#3A1418;border-color:#5B1F26}
+  #vSalao.escuro .iconbtn{background:#1A1926;color:#F3F2FA}
+  /* v2.7.0: fotos no Minha barbearia */
+  .fotoRow{display:flex;align-items:center;gap:12px}
+  .fotoPrev{width:56px;height:56px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font:800 18px Montserrat,sans-serif;background-size:cover;background-position:center;flex-shrink:0}
+  .fotoPrev.capa{width:92px;height:46px;border-radius:10px;background-image:linear-gradient(140deg,#4221EE,#2A139C)}
+  .temaSeg{display:flex;background:var(--bg);border-radius:12px;padding:4px;gap:4px}
+  .temaSeg button{flex:1;min-height:40px;border:none;border-radius:9px;background:none;font:inherit;font-weight:700;color:var(--muted);cursor:pointer}
+  .temaSeg button.on{background:#fff;color:var(--pri);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 </style>
 </head>
 <body>
@@ -214,7 +273,7 @@
         <div><label class="lbl" for="lSenha">Senha</label><input id="lSenha" type="password" class="field" autocomplete="current-password" placeholder="Sua senha"></div>
         <button data-act="entrar" class="btn2">Entrar</button>
         <button data-act="esqueci" class="link" style="align-self:center">Esqueci a senha</button>
-        <p class="xs muted" style="text-align:center">Dono, barbeiro ou administrador: todos entram por aqui.</p>
+        <p class="xs muted" style="text-align:center"><span data-termo-cap="chefe">Barbeiro chefe</span>, <span data-termo="profissional">barbeiro</span> ou administrador: todos entram por aqui.</p>
       </div>
       <div class="rodape"><a id="btnZapTdb" href="#" target="_blank" rel="noopener">Dúvidas? WhatsApp</a><span class="ver"></span></div>
     </div>
@@ -363,9 +422,9 @@
   <div id="bEquipe" class="wrap pad stack hidden">
     <div class="stack" style="gap:4px"><p class="tt" style="font-size:20px;font-weight:800">Equipe</p><p id="eSub" class="sm muted">Comissão dos atendimentos avulsos e acesso de cada barbeiro.</p></div>
     <div id="eDonoBox" class="card cardp stack" style="gap:8px">
-      <label class="lbl" for="eDono">Qual destes profissionais é você, o dono?</label>
+      <label class="lbl" for="eDono">Qual destes profissionais é você, o <span data-termo="chefe">barbeiro chefe</span>?</label>
       <select id="eDono" class="field"></select>
-      <p class="xs muted">O que o dono atende no avulso fica todo com a casa (comissão 0%).</p>
+      <p class="xs muted">O que o <span data-termo="chefe">barbeiro chefe</span> atende no avulso fica todo com a casa (comissão 0%).</p>
     </div>
     <div id="eLista" class="stack" style="gap:10px"></div>
     <button id="eSalvar" data-act="salvarEquipe" class="btn">Salvar comissões</button>
@@ -384,7 +443,7 @@
     </div>
     <div id="nAssin" class="card cardp stack hidden" style="gap:10px"></div>
     <div class="stack" style="gap:8px"><p class="cap" style="margin-left:2px">Atendimentos de hoje</p><div id="nLista" class="card" style="overflow:hidden"></div></div>
-    <p class="xs muted" style="text-align:center">Prévia calculada pelo sistema. O valor oficial é o do fechamento feito pelo dono.</p>
+    <p class="xs muted" style="text-align:center">Prévia calculada pelo sistema. O valor oficial é o do fechamento feito pelo barbeiro chefe.</p>
   </div>
 
 
@@ -419,6 +478,14 @@
         <div><label class="lbl" for="ajInsta">Instagram (sem @)</label><input id="ajInsta" class="field" autocapitalize="none"></div>
       </div>
       <div><label class="lbl" for="ajEnd">Endereço (opcional)</label><input id="ajEnd" class="field" placeholder="Rua, número - Bairro"></div>
+    </div>
+    <!-- v2.7.0: aparência da página do cliente (tudo opcional) -->
+    <div class="card cardp stack" style="gap:14px">
+      <div><p class="cap">5. Aparência da sua página</p><p class="xs muted" style="margin-top:4px">Tudo opcional. Sem foto, aparecem as iniciais no círculo.</p></div>
+      <div class="fotoRow"><div id="ajLogoPrev" class="fotoPrev"></div><div class="grow"><p style="font-weight:700">Logo</p><div class="row" style="gap:6px;margin-top:4px"><label class="btn3" style="min-height:38px">Escolher foto<input type="file" accept="image/*" data-foto="logo" class="hidden"></label><button type="button" class="link" data-act="tirarFoto" data-foto="logo" style="padding:4px">tirar</button></div></div></div>
+      <div class="fotoRow"><div id="ajCapaPrev" class="fotoPrev capa"></div><div class="grow"><p style="font-weight:700">Foto de capa</p><div class="row" style="gap:6px;margin-top:4px"><label class="btn3" style="min-height:38px">Escolher foto<input type="file" accept="image/*" data-foto="capa" class="hidden"></label><button type="button" class="link" data-act="tirarFoto" data-foto="capa" style="padding:4px">tirar</button></div></div></div>
+      <div><p style="font-weight:700;margin-bottom:6px">Cor da página</p><div class="temaSeg" role="group" aria-label="Cor da página"><button type="button" data-act="tema" data-tema="claro">Clara</button><button type="button" data-act="tema" data-tema="escuro">Escura</button></div></div>
+      <div><p style="font-weight:700">Fotos de quem atende</p><p class="xs muted">Ajuda o cliente a reconhecer pelo rosto.</p><div id="ajFotos" class="stack" style="gap:10px;margin-top:10px"></div></div>
     </div>
     <button id="ajSalvar" data-act="salvarAjustes" class="btn">Salvar</button>
   </div>
@@ -470,7 +537,7 @@
     <div><label class="lbl" for="fProfs">Profissionais (separe por vírgula)</label><input id="fProfs" class="field"></div>
     <div class="stack" style="gap:8px"><span class="lbl">Serviços</span><div id="fServList" class="stack" style="gap:8px"></div><button type="button" data-act="addServ" class="btn3" style="width:100%">+ Adicionar serviço</button></div>
     <div class="stack" style="gap:10px;border-top:1px solid var(--line);padding-top:12px">
-      <p style="font-weight:700;font-size:14px">Acesso do dono</p>
+      <p style="font-weight:700;font-size:14px">Acesso do <span data-termo="chefe">barbeiro chefe</span></p>
       <div><label class="lbl" for="fEmail">E-mail de acesso</label><input id="fEmail" type="email" class="field"></div>
       <div><label class="lbl" for="fSenha">Senha — preencha só para CRIAR o acesso (mínimo 6)</label><input id="fSenha" type="text" class="field" autocomplete="off"></div>
     </div>
@@ -487,78 +554,112 @@
   </div>
 </section>
 
-<!-- ================= PÁGINA DA BARBEARIA (CLIENTE) ================= -->
+<!-- ================= PÁGINA DO CLIENTE (v2.7.0: início com capa, agendar em 3 passos, meus horários) ================= -->
 <section id="vSalao" class="hidden">
   <!-- Início -->
-  <div id="home">
-    <div id="hero" style="background:linear-gradient(160deg,#5B3DF5 0%,#4221EE 55%,#2A139C 100%);color:#fff;padding:22px 22px 64px;border-radius:0 0 28px 28px">
-      <div class="wrap stack" style="gap:16px">
-        <span class="area cli"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Área do Cliente</span>
-        <div class="row" style="gap:14px;align-items:flex-start"><div id="sLogo" class="heroLogo" aria-hidden="true" style="display:flex;align-items:center;justify-content:center;color:var(--pri);font-family:Montserrat,sans-serif;font-weight:800;font-size:20px"></div><div class="stack grow" style="gap:6px"><h1 id="sNome" style="font-size:26px;font-weight:800;line-height:1.15"></h1><p id="sBairro" style="font-size:15px;color:#DDD6FE"></p></div></div>
-        <span id="sStatus" class="pill" style="align-self:flex-start;background:#fff"></span>
+  <div id="home" class="cTela">
+    <div id="cCapa" class="cCapa"></div>
+    <div class="wrap cIn">
+      <div id="sLogo" class="cLogo" aria-hidden="true"></div>
+      <div class="stack" style="gap:4px;margin-top:10px">
+        <h1 id="sNome" class="cNome"></h1>
+        <p id="sStatus" class="cAberto"></p>
+        <p id="sBairro" class="sm muted"></p>
       </div>
-    </div>
-    <div class="wrap" style="padding:0 16px 24px">
-      <div id="comprovante" class="card cardp stack hidden" style="margin:-44px 0 14px;gap:12px;border:2px solid var(--pri)"></div>
-      <div id="servCard" class="card" style="padding:6px 18px;margin-top:-44px">
-        <p class="tt" style="font-size:16px;font-weight:700;margin:12px 0 2px">Serviços</p>
-        <div id="sServicos"></div>
+      <button id="btnAgendar" data-act="agendar" class="btn cBig"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg><span>Agendar horário</span></button>
+      <div id="cProximo" class="hidden"></div>
+      <div id="servCard" class="stack" style="gap:8px">
+        <div class="row" style="justify-content:space-between"><p class="cap">Serviços</p><button id="cVerTodos" data-act="verTodosServ" class="link hidden" style="padding:4px 0">ver todos</button></div>
+        <div id="sServicos" class="stack" style="gap:8px"></div>
       </div>
-      <div class="stack" style="margin-top:18px;gap:12px">
-        <button id="btnAgendar" data-act="agendar" class="btn">Agendar horário</button>
-        <div id="sContatos" class="grid3"></div>
-        <p class="xs muted" style="text-align:center;margin-top:12px">Agenda por Técnicos de Bolso · <span class="ver"></span><br><a href="./" style="color:#5C5F75">Área da Empresa (entrar)</a></p>
-      </div>
+      <div id="sContatos" class="grid3"></div>
+      <p class="xs muted" style="text-align:center;margin-top:6px">Agenda por Técnicos de Bolso · <span class="ver"></span><br><a href="./" style="color:#5C5F75">Área da Empresa (entrar)</a></p>
     </div>
   </div>
 
-  <!-- Agendar -->
-  <div id="agendar" class="hidden">
-    <div class="topbar"><div class="wrap row" style="padding:14px 16px">
-      <button class="iconbtn" data-act="inicio" aria-label="Voltar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
-      <div class="grow"><p id="agTitulo" class="tt" style="font-size:18px;font-weight:700">Agendar horário</p><p id="agSub" class="sm muted"></p></div><span class="area cli2"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Cliente</span>
-    </div></div>
+  <!-- Agendar em 3 passos -->
+  <div id="agendar" class="hidden cTela">
+    <div class="cTopo"><div class="wrap row" style="padding:12px 16px 6px">
+      <button class="iconbtn" data-act="agVoltar" aria-label="Voltar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg></button>
+      <div class="grow"><p id="agTitulo" class="tt" style="font-size:17px;font-weight:800">Agendar horário</p><p id="agSub" class="xs muted"></p></div>
+    </div>
+    <div class="wrap" style="padding:0 16px 10px"><div class="cPassos"><span></span><span></span><span></span></div><p id="agPassoTxt" class="cPassoTxt"></p></div></div>
     <div id="avisoFechado" class="wrap hidden" style="padding:14px 16px 0"><p class="card cardp" style="background:var(--bad-l);border-color:#FECACA;color:#7F1D1D;text-align:center;font-size:14px"></p></div>
     <fieldset id="fs" style="border:none;margin:0;padding:0">
-      <div class="wrap pad stack" style="gap:24px;padding-bottom:28px">
-        <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span style="color:var(--pri)">1.</span> Serviço</p><div id="servicos" class="row" style="flex-wrap:wrap;gap:8px"></div></div>
-        <div id="boxProf" class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span style="color:var(--pri)">2.</span> Profissional</p><div id="profs" class="row" style="flex-wrap:wrap;gap:8px"></div></div>
-        <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nDia" style="color:var(--pri)">3.</span> Dia</p><div id="dias" class="days"></div></div>
-        <div class="stack" style="gap:10px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nHora" style="color:var(--pri)">4.</span> Horário <span id="diaTxt" style="font-family:Inter,sans-serif;font-size:14px;font-weight:500;color:var(--muted)"></span></p><div id="horas" class="grid4"></div><div id="semHoras" class="card cardp stack hidden" style="gap:10px;text-align:center;background:var(--warn-l);border-color:#FED7AA"><p id="semHorasTxt" style="font-weight:700;color:var(--warn)"></p><button type="button" id="btnProxDia" class="btn"></button></div><p id="legRiscados" class="xs muted">Horários riscados já passaram ou estão ocupados.</p></div>
-        <div id="boxDados" class="stack" style="gap:12px"><p class="tt" style="font-size:16px;font-weight:700"><span id="nDados" style="color:var(--pri)">5.</span> Seus dados</p>
-          <div><label class="lbl" for="nome">Nome</label><input id="nome" class="field" autocomplete="name" placeholder="Como podemos te chamar?"></div>
-          <div><label class="lbl" for="fone">WhatsApp com DDD</label><input id="fone" class="field" inputmode="tel" autocomplete="tel" placeholder="(11) 91234-5678"></div>
+      <!-- passo 1 -->
+      <div id="ag1" class="wrap pad stack" style="gap:10px">
+        <div><p class="tt cPerg">O que vamos fazer?</p><p class="sm muted">Pode marcar mais de um.</p></div>
+        <div id="servicos" class="stack" style="gap:8px"></div>
+      </div>
+      <!-- passo 2 -->
+      <div id="ag2" class="wrap pad stack hidden" style="gap:18px">
+        <div id="boxProf" class="stack" style="gap:10px"><p class="tt cPerg">Com quem?</p><div id="profs" class="cProfs"></div></div>
+        <div id="boxDia" class="stack hidden" style="gap:10px"><p class="tt cPerg">Que dia?</p><div id="dias" class="days"></div></div>
+        <div id="boxHora" class="stack hidden" style="gap:10px">
+          <p class="tt cPerg">Que horas? <span id="diaTxt" class="cPergSub"></span></p>
+          <div id="horas" class="stack" style="gap:10px"></div>
+          <div id="semHoras" class="card cardp stack hidden" style="gap:10px;text-align:center;background:var(--warn-l);border-color:#FED7AA">
+            <p id="semHorasTxt" style="font-weight:700;color:#7C2D12"></p>
+            <button id="btnProxDia" class="btn2" data-dia=""></button>
+          </div>
         </div>
+      </div>
+      <!-- passo 3 -->
+      <div id="ag3" class="wrap pad stack hidden" style="gap:14px">
+        <p class="tt cPerg">Quase lá!</p>
+        <div id="agResumo" class="card" style="padding:4px 16px"></div>
+        <div><label class="lbl" for="nome">Seu nome</label><input id="nome" class="field" autocomplete="name" placeholder="Como podemos te chamar?"></div>
+        <div><label class="lbl" for="fone">WhatsApp com DDD</label><input id="fone" class="field" inputmode="tel" autocomplete="tel" placeholder="(11) 91234-5678"></div>
+        <!-- reservado para o sinal no Pix (v2.8.0) -->
+        <div id="sinalBox" class="hidden"></div>
       </div>
     </fieldset>
     <div class="sticky"><div class="wrap stack" style="gap:10px">
-      <div class="row"><div class="grow"><p id="resumo1" style="font-size:15px;font-weight:700"></p><p id="resumo2" class="sm muted"></p></div><p id="resumoPreco" class="tt" style="font-size:18px;font-weight:800"></p></div>
-      <button id="btnConfirmar" data-act="confirmar" class="btn">Confirmar agendamento</button>
+      <div id="resumoLinha" class="row"><div class="grow"><p id="resumo1" style="font-size:14px;font-weight:700"></p><p id="resumo2" class="xs muted"></p></div><p id="resumoPreco" class="tt" style="font-size:18px;font-weight:800"></p></div>
+      <button id="btnConfirmar" data-act="agAvancar" class="btn">Continuar</button>
     </div></div>
   </div>
 
-  <!-- Sucesso -->
-  <div id="sucesso" class="hidden wrap" style="padding:20px 22px 28px">
-    <div class="stack" style="gap:22px">
-      <span class="area cli2"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Área do Cliente</span>
-      <div class="stack" style="align-items:center;gap:12px;text-align:center">
-        <div style="width:80px;height:80px;border-radius:40px;background:var(--ok-l);display:flex;align-items:center;justify-content:center;color:var(--ok)"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></div>
-        <h1 id="sucTit" style="font-size:28px;font-weight:800">Horário reservado!</h1>
-        <p class="muted">Falta só um toque para avisar a barbearia.</p>
+  <!-- Pronto -->
+  <div id="sucesso" class="hidden wrap cTela" style="padding:24px 20px 28px">
+    <div class="stack" style="gap:20px">
+      <div class="stack" style="align-items:center;gap:10px;text-align:center">
+        <div style="width:76px;height:76px;border-radius:38px;background:var(--ok-l);display:flex;align-items:center;justify-content:center;color:var(--ok)"><svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></div>
+        <h1 id="sucTit" style="font-size:26px;font-weight:800">Horário reservado!</h1>
+        <p id="sucSub" class="muted"></p>
       </div>
       <div class="card" style="padding:4px 18px">
         <div class="listrow"><span class="muted">Quando</span><b id="sucQuando" style="text-align:right"></b></div>
-        <div class="listrow"><span class="muted">Serviço</span><span id="sucServico" style="font-weight:600"></span></div>
+        <div class="listrow"><span class="muted">Serviço</span><span id="sucServico" style="font-weight:600;text-align:right"></span></div>
         <div class="listrow"><span class="muted">Com</span><span id="sucProf" style="font-weight:600"></span></div>
         <div class="listrow"><span class="muted">Protocolo</span><b id="sucProto" style="font-family:ui-monospace,monospace"></b></div>
       </div>
-      <div id="sucZap" class="stack" style="gap:8px">
-        <a id="sucBtnZap" class="btn ok" href="#" target="_blank" rel="noopener" style="min-height:60px">Avisar a barbearia no WhatsApp</a>
-        <p class="sm muted" style="text-align:center">Abre o WhatsApp com a mensagem pronta. É só tocar em enviar.</p>
+      <div class="stack" style="gap:10px">
+        <div id="sucZap" class="stack" style="gap:6px">
+          <a id="sucBtnZap" class="btn ok" href="#" target="_blank" rel="noopener" style="min-height:58px"></a>
+          <p class="xs muted" style="text-align:center">Abre o WhatsApp com a mensagem pronta. É só tocar em enviar.</p>
+        </div>
+        <button data-act="calendario" class="btn3" style="width:100%"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Pôr na agenda do celular</button>
+        <p id="sucEnd" class="sm muted" style="text-align:center"></p>
       </div>
-      <button data-act="inicio" class="link" style="align-self:center">Voltar ao início</button>
     </div>
   </div>
+
+  <!-- Meus horários -->
+  <div id="meus" class="hidden wrap cTela" style="padding:18px 16px 28px">
+    <div class="stack" style="gap:14px">
+      <p class="tt" style="font-size:22px;font-weight:800">Meus horários</p>
+      <div id="comprovante" class="stack" style="gap:10px"></div>
+      <div id="cHist" class="stack hidden" style="gap:8px"></div>
+      <p class="xs muted" style="text-align:center">Aparecem aqui os horários marcados neste celular. Sem conta e sem senha.</p>
+    </div>
+  </div>
+
+  <nav id="cNav" class="cNav"><div class="wrap">
+    <button data-ctab="home"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>Início</button>
+    <button data-ctab="agendar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"></path></svg>Agendar</button>
+    <button data-ctab="meus"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"></path></svg>Meus horários<span id="cNavQtd" class="cBadge hidden"></span></button>
+  </div></nav>
 </section>
 
 <!-- ================= ERRO ================= -->
@@ -569,7 +670,7 @@
 
 <script type="module">
 /* ================= CONFIGURAÇÃO ================= */
-const VERSAO = "v2.6.1";                         // sobe 0.1 a cada alteração publicada
+const VERSAO = "v2.7.0";                         // sobe 0.1 a cada alteração publicada
 const MASTER_EMAIL = "tecnicosdebolso@gmail.com";
 const ZAP_TDB = "5511991655249";               // WhatsApp da Técnicos de Bolso (botão Teste grátis)
 
@@ -658,10 +759,24 @@ async function copiar(t) {
   catch { aviso("Não consegui copiar sozinho. Segure o dedo no link para copiar:\n\n" + t); }
 }
 
+/* ================= v2.7.0: FICHA DO SEGMENTO (base do hub de serviços) =================
+   Os textos que mudam de um tipo de negócio para outro saem daqui. Sem "segmento" no cadastro, é barbearia.
+   Com o hub desligado (padrão), todo mundo é barbearia e nada muda na tela. */
+const SEGMENTOS = {
+  barbearia: { nome: "Barbearia", termos: { negocio: "barbearia", artigo: "a", profissional: "barbeiro", profissionais: "barbeiros", chefe: "barbeiro chefe", atendimento: "corte" } }
+};
+const SEG = () => SEGMENTOS[(meuSalao || salao)?.segmento] || SEGMENTOS.barbearia;
+const termo = k => SEG().termos[k] ?? SEGMENTOS.barbearia.termos[k];
+/* textos fixos do HTML marcados com data-termo="chefe" (ou data-termo-cap, com inicial maiúscula) */
+function aplicarTermos() {
+  document.querySelectorAll("[data-termo]").forEach(el => { el.textContent = termo(el.dataset.termo); });
+  document.querySelectorAll("[data-termo-cap]").forEach(el => { el.textContent = cap1(termo(el.dataset.termoCap)); });
+}
+
 /* ================= ESTADO ================= */
 let F = null, A = null, AppMod = null, fire = null, AU = null, user = null;
 let saloes = [], salao = null, travado = false, meuSalao = null;
-let diaSel = hojeISO(), horaSel = null, servSel = 0, profSel = null, ocupadosDia = new Set(), remarcando = null;
+let diaSel = hojeISO(), horaSel = null, servsSel = [], profSel = null, ocupadosDia = new Set(), remarcando = null;
 let verCanc = false, agendaDono = [], agBalcao = [];
 /* v2.4.1: espaço do dono e da equipe */
 let papel = null, eu = null, espacoId = null, config = {}, equipeDocs = [];
@@ -775,7 +890,7 @@ function montarDemo(B) {
   const ts = (data, hora) => new TsDemo(new Date(`${data}T${hora || "12:00"}:00`).getTime());
   const hoje = hojeISO(), agora = mm(agoraHH());
   const PROFS = ["Rafael", "Bruno", "Diego"];
-  const SERV = [{ nome: "Corte", preco: 45 }, { nome: "Barba", preco: 35 }, { nome: "Corte + Barba", preco: 70 }, { nome: "Pezinho", preco: 15 }, { nome: "Sobrancelha", preco: 20 }];
+  const SERV = [{ nome: "Corte", preco: 45, min: 30 }, { nome: "Barba", preco: 35, min: 30 }, { nome: "Corte + Barba", preco: 70, min: 60 }, { nome: "Pezinho", preco: 15, min: 15 }, { nome: "Sobrancelha", preco: 20, min: 15 }];
   const PESO = [0, 0, 0, 0, 1, 1, 2, 2, 2, 3, 4];
   const NOMES = ["Lucas Almeida", "Pedro Henrique", "Mateus Souza", "Gabriel Lima", "João Victor", "Thiago Rocha", "Felipe Martins", "André Costa", "Caio Ribeiro", "Vinícius Alves",
     "Leonardo Dias", "Gustavo Pereira", "Rodrigo Nunes", "Marcelo Fernandes", "Daniel Barros", "Eduardo Gomes", "Henrique Castro", "Samuel Moreira", "Igor Teixeira", "Renato Lopes",
@@ -800,14 +915,18 @@ function montarDemo(B) {
     const cheio = diaSemana(dia) >= 5 ? 0.2 : 0;
     const prob = k < 0 ? 0.42 + cheio : k === 0 ? 0.55 : Math.max(0.12, 0.42 - k * 0.06) + cheio / 2;
     PROFS.forEach((prof, pi) => {
+      let pula = null;   // v2.7.0: serviço de 60 min ocupa o horário seguinte também
       slots.forEach(h => {
+        if (h === pula) return;
         if (rnd() > prob) return;
         const sv = SERV[pega(PESO)], ci = Math.floor(rnd() * NOMES.length), passou = k < 0 || (k === 0 && mm(h) + 30 <= agora);
         let status = "Agendado";
         if (rnd() < 0.06) status = "Cancelado";
         else if (passou) status = k === 0 && mm(h) + 90 > agora && esperando < 1 ? (esperando++, "Agendado") : "Concluído";
         const chave = `${slug(prof)}_${dia}_${h.replace(":", "")}`, protocolo = "TDB-" + pad(++prot, 5), agId = `${chave}_${protocolo}`;
-        const ag = { chave, nome: NOMES[ci], telefone: fone(ci), profissional: prof, servico: sv.nome, preco: sv.preco, data: dia, horario: h, protocolo, token: "demo" + prot, status, criadoEm: ts(somaDias(dia, -2), "10:00") };
+        const h2 = sv.min > 30 && slots.includes(hh(mm(h) + 30)) ? hh(mm(h) + 30) : null, chave2 = h2 && `${slug(prof)}_${dia}_${h2.replace(":", "")}`;
+        if (h2) pula = h2;
+        const ag = { chave, chaves: h2 ? [chave, chave2] : [chave], nome: NOMES[ci], telefone: fone(ci), profissional: prof, servico: sv.nome, servicos: [{ ...sv }], preco: sv.preco, duracao: sv.min, data: dia, horario: h, protocolo, token: "demo" + prot, status, criadoEm: ts(somaDias(dia, -2), "10:00") };
         if (status === "Cancelado") Object.assign(ag, { canceladoEm: ts(somaDias(dia, -1)), canceladoPor: rnd() < 0.7 ? "cliente" : "barbearia" });
         if (status === "Concluído") {
           const pid = slug(prof), forma = pega(FORMA), pct = COM[pid], v = sv.preco * 100;
@@ -816,7 +935,10 @@ function montarDemo(B) {
           ag.concluidoEm = ts(dia, hh(mm(h) + 30));
         }
         put(P("agendamentos", agId), ag);
-        if (status !== "Cancelado" && dia >= hoje) put(P("ocupados", chave), { data: dia, horario: h, profissional: prof, protocolo, criadoEm: ag.criadoEm });
+        if (status !== "Cancelado" && dia >= hoje) {
+          put(P("ocupados", chave), { data: dia, horario: h, profissional: prof, protocolo, agendamentoId: agId, criadoEm: ag.criadoEm });
+          if (h2) put(P("ocupados", chave2), { data: dia, horario: h2, profissional: prof, protocolo, agendamentoId: agId, criadoEm: ag.criadoEm });
+        }
       });
     });
     if (k > 0) continue;
@@ -933,8 +1055,8 @@ async function rotear() {
   if (!user.emailVerified && !(await pedirConfirmacao())) return;
   let eq = null;
   try { const s = await F.getDoc(F.doc(fire, "saloes", ac.salaoId, "equipe", emailUser())); if (s.exists()) eq = s.data(); } catch (err) { console.error(err); }
-  if (!eq) { ver("landing"); aviso("Seu acesso ainda não foi liberado pelo dono da barbearia."); return A.signOut(AU); }
-  if (eq.ativo !== true) { ver("landing"); aviso("Seu acesso está pausado. Fale com o dono da barbearia."); return A.signOut(AU); }
+  if (!eq) { ver("landing"); aviso(`Seu acesso ainda não foi liberado pelo ${termo("chefe")}.`); return A.signOut(AU); }
+  if (eq.ativo !== true) { ver("landing"); aviso(`Seu acesso está pausado. Fale com o ${termo("chefe")}.`); return A.signOut(AU); }
   papel = "barbeiro"; eu = eq;
   abrirEspaco(ac.salaoId);
 }
@@ -1100,6 +1222,8 @@ function abrirAjustes(onb) {
   $("#ajDias").innerHTML = DIAS_SEM.map((d, i) => `<label class="chk"><input type="checkbox" value="${i}" ${(s.diasFechados || []).includes(i) ? "checked" : ""}>${d}</label>`).join("");
   $("#ajProfs").value = (s.profissionais || []).join(", ");
   $("#ajNome").value = s.nome || ""; $("#ajZap").value = s.whatsapp || ""; $("#ajInsta").value = s.instagram || ""; $("#ajEnd").value = s.endereco || "";
+  ajImg = { logo: s.logo || "", capa: s.capa || "", tema: s.tema === "escuro" ? "escuro" : "claro", fotos: { ...(s.fotos || {}) } };
+  desenharAparencia();
   navegar("bAjustes");
 }
 function lerServicos(box) {
@@ -1109,7 +1233,9 @@ function lerServicos(box) {
     if (!n && !p && !nota) continue;
     const preco = Number(p.replace(",", "."));
     if (!n || !p || !isFinite(preco) || preco < 0) { aviso(`Confira o serviço "${n || "sem nome"}": preencha o nome e o preço (ex.: 45 ou 45,50).`); return null; }
-    servicos.push(nota ? { nome: n, preco, nota } : { nome: n, preco });
+    const min = Number(r.querySelector(".sMin")?.value) || 0;   // v2.7.0: quanto tempo leva
+    const sv = { nome: n, preco }; if (min) sv.min = min; if (nota) sv.nota = nota;
+    servicos.push(sv);
   }
   if (!servicos.length) { aviso("Cadastre pelo menos um serviço."); return null; }
   return servicos;
@@ -1128,6 +1254,12 @@ async function salvarAjustes(btn) {
   const dados = { nome, whatsapp: zapNum($("#ajZap").value), instagram: $("#ajInsta").value.trim().replace(/^@/, ""), endereco: $("#ajEnd").value.trim(),
     inicio, fim, intervalo: Number($("#ajIntervalo").value), diasFechados: [...document.querySelectorAll("#ajDias input:checked")].map(x => +x.value),
     profissionais, servicos, agendaPronta: true };
+  /* v2.7.0: aparência (só grava o que mudou, para não reenviar fotos à toa) */
+  const fotos = {}; profissionais.forEach(p => { const f = ajImg.fotos[slug(p)]; if (f) fotos[slug(p)] = f; });
+  if (ajImg.logo !== (meuSalao.logo || "")) dados.logo = ajImg.logo;
+  if (ajImg.capa !== (meuSalao.capa || "")) dados.capa = ajImg.capa;
+  if (ajImg.tema !== (meuSalao.tema || "claro")) dados.tema = ajImg.tema;
+  if (JSON.stringify(fotos) !== JSON.stringify(meuSalao.fotos || {})) dados.fotos = fotos;
   const onb = btn.dataset.onb === "1";
   btn.disabled = true;
   try {
@@ -1139,6 +1271,43 @@ async function salvarAjustes(btn) {
     aviso(err.code === "permission-denied" ? "Sua conta ainda não pode mudar estes dados. Fale com a Técnicos de Bolso." : "Não foi possível salvar. Verifique a internet e tente de novo.");
   } finally { btn.disabled = false; }
 }
+/* v2.7.0: fotos da página do cliente. A foto é reduzida no próprio celular e guarda junto do cadastro (custo zero, sem Storage) */
+let ajImg = { logo: "", capa: "", tema: "claro", fotos: {} };
+function desenharAparencia() {
+  const bg = (el, u) => { el.style.backgroundImage = u ? `url("${u}")` : ""; };
+  bg($("#ajLogoPrev"), ajImg.logo); $("#ajLogoPrev").textContent = ajImg.logo ? "" : iniciais($("#ajNome").value || meuSalao?.nome);
+  bg($("#ajCapaPrev"), ajImg.capa);
+  document.querySelectorAll("#bAjustes [data-tema]").forEach(b => b.classList.toggle("on", b.dataset.tema === ajImg.tema));
+  const profs = [...new Set($("#ajProfs").value.split(",").map(x => x.trim()).filter(Boolean))];
+  $("#ajFotos").innerHTML = profs.map((p, i) => { const f = ajImg.fotos[slug(p)];
+    return `<div class="fotoRow"><div class="fotoPrev" style="background-color:${CORES_AV[i % CORES_AV.length]};${f ? `background-image:url('${f}')` : ""}">${f ? "" : esc(p[0].toUpperCase())}</div><div class="grow"><p style="font-weight:700">${esc(p)}</p><div class="row" style="gap:6px;margin-top:4px"><label class="btn3" style="min-height:38px">${f ? "Trocar foto" : "Pôr foto"}<input type="file" accept="image/*" data-foto="p:${esc(slug(p))}" class="hidden"></label>${f ? `<button type="button" class="link" data-act="tirarFoto" data-foto="p:${esc(slug(p))}" style="padding:4px">tirar</button>` : ""}</div></div></div>`; }).join("")
+    || `<p class="xs muted">Coloque os nomes em “Quem atende” primeiro.</p>`;
+}
+function reduzirFoto(file, w, h, q) {
+  return new Promise((ok, erro) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      const r = Math.max(w / img.width, h / img.height), sw = w / r, sh = h / r;
+      c.getContext("2d").drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, w, h);
+      URL.revokeObjectURL(url); ok(c.toDataURL("image/jpeg", q));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); erro(new Error("foto")); };
+    img.src = url;
+  });
+}
+document.addEventListener("change", async e => {
+  const inp = e.target.closest("input[data-foto]"); if (!inp || !inp.files?.[0]) return;
+  const k = inp.dataset.foto, f = inp.files[0]; inp.value = "";
+  try {
+    if (k === "logo") ajImg.logo = await reduzirFoto(f, 240, 240, 0.8);
+    else if (k === "capa") ajImg.capa = await reduzirFoto(f, 960, 400, 0.7);
+    else ajImg.fotos[k.slice(2)] = await reduzirFoto(f, 200, 200, 0.78);
+    desenharAparencia();
+  } catch (err) { console.error(err); aviso("Não consegui abrir essa foto. Tente outra (JPG ou PNG)."); }
+});
+document.addEventListener("input", e => { if (e.target.id === "ajProfs" || e.target.id === "ajNome") desenharAparencia(); });
+
 /* ----- tutorial curto no topo de cada tela ----- */
 const TUTORIAL = {
   bPainel: "Aqui fica o resumo da barbearia: quanto entrou, quantos clientes vieram e a agenda do dia. Toque em Hoje, Semana ou Mês para mudar o período. O botão de planilha baixa tudo para o Excel ou o Google Planilhas.",
@@ -1147,7 +1316,7 @@ const TUTORIAL = {
   bCaixa: "Mostra quanto entrou, a comissão dos barbeiros, as despesas e o que fica para a casa. Os cortes concluídos entram sozinhos. Use “Entrou dinheiro” para venda de produtos e “Saiu dinheiro” para contas e vales. No fim do dia, abra “Conferir a gaveta” para fechar o caixa.",
   bEquipe: "Diga qual profissional é você e a comissão de cada barbeiro nos atendimentos. Para o barbeiro ver a própria agenda no celular dele, toque em “Dar acesso” e informe o e-mail dele. Para incluir um nome novo, use a engrenagem lá em cima.",
   bAssin: "Clube mensal: primeiro crie um plano em “Planos do clube” (ex.: 4 cortes por R$ 120). Depois cadastre o assinante e registre o pagamento. A cada corte o uso é descontado, e a lista “A renovar” mostra quem precisa pagar de novo.",
-  bNumeros: "Seus atendimentos e quanto você tem a receber, hoje e no mês. É uma prévia: o valor oficial é o do fechamento feito pelo dono.",
+  bNumeros: "Seus atendimentos e quanto você tem a receber, hoje e no mês. É uma prévia: o valor oficial é o do fechamento feito pelo barbeiro chefe.",
   bAjustes: "Cadastre os serviços com preço, o horário em que a barbearia abre e o último horário de atendimento, os dias em que fecha e quem atende. Tudo aparece na hora no seu link de agendamento."
 };
 function montarTutoriais() {
@@ -2164,7 +2333,7 @@ function desenharDiaADia(k) {
   $("#cxListaBox").open = true;
 }
 const CAT_ENTRADA = [["produto", "Venda de produto"], ["outro_ent", "Outra entrada"]];
-const CAT_SAIDA = [["despesa", "Conta ou compra"], ["vale", "Vale para barbeiro"], ["retirada", "Retirada do dono"], ["outro_sai", "Outra saída"]];
+const CAT_SAIDA = [["despesa", "Conta ou compra"], ["vale", "Vale para barbeiro"], ["retirada", "Retirada do barbeiro chefe"], ["outro_sai", "Outra saída"]];
 const nomeCategoria = c => ([...CAT_ENTRADA, ...CAT_SAIDA, ["assinatura", "Pagamento de assinatura"]].find(x => x[0] === c) || [c, "Lançamento"])[1];
 function folhaMov(c) {
   const cats = c.mov === "entrada" ? CAT_ENTRADA : CAT_SAIDA, profs = meuSalao.profissionais || [];
@@ -2250,16 +2419,16 @@ function desenharEquipe(forcar, manter) {
   $("#eSub").textContent = cx ? "Comissão dos atendimentos avulsos e acesso de cada barbeiro." : "Acesso de cada barbeiro à agenda.";
   let donoId = config.donoProfId || "";
   if (manter) { donoId = $("#eDono").value; document.querySelectorAll("#eLista .eCom").forEach(el => { if (!el.disabled) com[el.dataset.pid] = el.value; }); }
-  $("#eDono").innerHTML = `<option value="">Nenhum (o dono não atende)</option>` + profs.map(p => `<option value="${esc(slug(p))}" ${donoId === slug(p) ? "selected" : ""}>${esc(p)}</option>`).join("");
+  $("#eDono").innerHTML = `<option value="">Nenhum (o ${termo("chefe")} não atende)</option>` + profs.map(p => `<option value="${esc(slug(p))}" ${donoId === slug(p) ? "selected" : ""}>${esc(p)}</option>`).join("");
   $("#eLista").innerHTML = profs.map(p => {
     const id = slug(p), eq = equipeDocs.find(x => x.profId === id), dono = donoId === id;
     const acesso = eq
       ? `<p class="sm">Acesso: <b style="word-break:break-all">${esc(eq.email)}</b> · ${eq.ativo ? `<span style="color:var(--ok);font-weight:700">ativo</span>` : `<span style="color:var(--bad);font-weight:700">pausado</span>`}</p>
          <div class="grid2"><button class="btn3" data-act="pausarAcesso" data-email="${esc(eq.email)}">${eq.ativo ? "Pausar acesso" : "Reativar acesso"}</button><button class="btn3" data-act="senhaBarbeiro" data-email="${esc(eq.email)}">Nova senha</button></div>`
-      : dono ? `<p class="sm muted">Você entra com o seu próprio e-mail de dono.</p>`
+      : dono ? `<p class="sm muted">Você entra com o seu próprio e-mail de ${termo("chefe")}.</p>`
       : `<p class="sm muted">Sem acesso: aparece só como nome.</p><button class="btn3" data-act="darAcesso" data-pnome="${esc(p)}">Dar acesso a ${esc(p)}</button>`;
     return `<div class="card cardp stack" style="gap:10px">
-      <div class="row"><p class="grow" style="font-weight:700;font-size:16px">${esc(p)}</p>${dono ? `<span class="pill" style="background:var(--pri-l);color:var(--pri-d)">Dono</span>` : ""}</div>
+      <div class="row"><p class="grow" style="font-weight:700;font-size:16px">${esc(p)}</p>${dono ? `<span class="pill" style="background:var(--pri-l);color:var(--pri-d)">${cap1(termo("chefe"))}</span>` : ""}</div>
       ${cx ? "" : "<!--"}<div class="row"><label class="grow sm" for="com_${id}" style="font-weight:600">Comissão no avulso</label><input id="com_${id}" class="field eCom" data-pid="${id}" inputmode="decimal" style="width:90px;text-align:right" value="${dono ? 0 : esc(com[id] ?? "")}" placeholder="0" ${dono ? "disabled" : ""}><span style="font-weight:700">%</span></div>${cx ? "" : "-->"}
       ${acesso}</div>`;
   }).join("") || `<p class="muted">Nenhum profissional cadastrado.</p>`;
@@ -2435,14 +2604,15 @@ function linhaServico(s = {}) {
   return `<div class="servRow">
     <div class="row"><input class="field sNome grow" placeholder="Nome do serviço (ex.: Corte)" value="${esc(s.nome || "")}" aria-label="Nome do serviço">
       <button type="button" class="iconbtn" data-act="rmServ" aria-label="Remover serviço" style="color:var(--bad);background:#fff;border:1px solid #FECACA"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></div>
-    <div class="row"><input class="field sPreco" style="width:110px" inputmode="decimal" placeholder="R$" value="${s.preco ?? ""}" aria-label="Preço">
-      <input class="field sNota grow" placeholder="Observação (opcional)" value="${esc(s.nota || "")}" aria-label="Observação"></div>
+    <div class="row" style="flex-wrap:wrap"><input class="field sPreco" style="width:96px" inputmode="decimal" placeholder="R$" value="${s.preco ?? ""}" aria-label="Preço">
+      <select class="field sMin" style="width:104px;padding:0 8px" aria-label="Quanto tempo leva">${[["", "Tempo"], ...[10, 15, 20, 30, 40, 45, 60, 75, 90, 120, 150, 180].map(m => [m, m < 60 ? m + " min" : Math.floor(m / 60) + " h" + (m % 60 ? " " + (m % 60) : "")])].map(([v, t]) => `<option value="${v}" ${String(s.min ?? "") === String(v) ? "selected" : ""}>${t}</option>`).join("")}</select>
+      <input class="field sNota" style="flex:1 1 100%" placeholder="Observação (opcional)" value="${esc(s.nota || "")}" aria-label="Observação"></div>
   </div>`;
 }
 function infoPlano() {
-  const p = $("#fPlano").value, txt = { agenda: "O dono vê Agenda, Equipe e Compartilhar. Os clientes marcam pelo link. Sem caixa.",
-    caixa: "O dono vê Caixa e Equipe, e registra os atendimentos no Caixa. Sem link de agendamento para clientes.",
-    completo: "O dono vê tudo: Agenda, Caixa, Equipe e Compartilhar. Concluir o atendimento lança o valor no caixa." };
+  const p = $("#fPlano").value, txt = { agenda: "O barbeiro chefe vê Agenda, Equipe e Compartilhar. Os clientes marcam pelo link. Sem caixa.",
+    caixa: "O barbeiro chefe vê Caixa e Equipe, e registra os atendimentos no Caixa. Sem link de agendamento para clientes.",
+    completo: "O barbeiro chefe vê tudo: Agenda, Caixa, Equipe e Compartilhar. Concluir o atendimento lança o valor no caixa." };
   $("#fAssinantes").disabled = p === "agenda"; if (p === "agenda") $("#fAssinantes").checked = false;
   $("#fAssinBox").style.opacity = p === "agenda" ? .5 : 1;
   $("#fPlanoInfo").textContent = txt[p] + (p === "agenda" ? " O adicional Assinantes precisa do Caixa." : " Assinantes: a tela do clube chega numa próxima versão; por enquanto a opção só fica guardada.");
@@ -2476,7 +2646,9 @@ async function salvarForm(e) {
     if (!n && !p && !nota) continue;
     const preco = Number(p.replace(",", "."));
     if (!n || !p || !isFinite(preco) || preco < 0) return aviso(`Confira o serviço "${n || "sem nome"}": preencha o nome e o preço (ex.: 45 ou 45,50).`);
-    servicos.push(nota ? { nome: n, preco, nota } : { nome: n, preco });
+    const min = Number(r.querySelector(".sMin")?.value) || 0;   // v2.7.0: quanto tempo leva
+    const sv = { nome: n, preco }; if (min) sv.min = min; if (nota) sv.nota = nota;
+    servicos.push(sv);
   }
   if (!servicos.length) return aviso("Cadastre pelo menos um serviço.");
   const profissionais = $("#fProfs").value.split(",").map(x => x.trim()).filter(Boolean);
@@ -2519,24 +2691,77 @@ async function criarAcesso(email, senha) {
 async function cancelarPeloDono(salaoId, id) {
   const aRef = F.doc(fire, "saloes", salaoId, "agendamentos", id);
   const a = (await F.getDoc(aRef)).data();
-  const oRef = F.doc(fire, "saloes", salaoId, "ocupados", a.chave || id.slice(0, id.length - String(a.protocolo).length - 1));
-  const o = await F.getDoc(oRef);
+  /* v2.7.0: um agendamento pode ocupar vários horários seguidos (a.chaves); libera todos */
+  const ks = a.chaves?.length ? a.chaves : [a.chave || id.slice(0, id.length - String(a.protocolo).length - 1)];
   const b = F.writeBatch(fire);
   b.update(aRef, { status: "Cancelado", canceladoEm: F.serverTimestamp(), canceladoPor: "barbearia" });
-  if (o.exists() && o.data().protocolo === a.protocolo) b.delete(oRef);
+  for (const k of ks) {
+    const oRef = F.doc(fire, "saloes", salaoId, "ocupados", k), o = await F.getDoc(oRef);
+    if (o.exists() && o.data().protocolo === a.protocolo) b.delete(oRef);
+  }
   await b.commit();
 }
 
-/* ================= PÁGINA DA BARBEARIA (CLIENTE) ================= */
+/* ================= PÁGINA DO CLIENTE (v2.7.0: início com capa, agendar em 3 passos, meus horários) ================= */
+const NEG = () => ({ n: termo("negocio"), a: termo("artigo") });
+const aNeg = () => NEG().a + " " + NEG().n;
+let agPasso = 1, cTab = "home", servTodos = false;
+const minServ = sv => Number(sv?.min) || intervaloDe(salao);
+const servsEscolhidos = () => (salao?.servicos || []).filter(s => servsSel.includes(s.nome));
+const totalMin = () => servsEscolhidos().reduce((t, s) => t + minServ(s), 0);
+const totalPreco = () => servsEscolhidos().reduce((t, s) => t + (Number(s.preco) || 0), 0);
+const nomeServs = l => l.map(s => s.nome).join(", ");
+const txtMin = m => m < 60 ? m + " min" : Math.floor(m / 60) + " h" + (m % 60 ? " " + pad(m % 60) : "");
+const profsDe = () => salao?.profissionais || [];
+const variosProfs = () => profsDe().length > 1;
+const iniciais = s => String(s || "").split(" - ").pop().split(/\s+/).filter(w => w.length > 2 || /^[A-ZÀ-Ú]/.test(w)).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+const fotoProf = p => (salao?.fotos || {})[slug(p)] || "";
+const CORES_AV = ["#7C3AED", "#2563EB", "#0EA5E9", "#4F46E5", "#9333EA", "#0891B2"];
+/* quantos horários seguidos o agendamento ocupa (ex.: 60 min com horários de 30 em 30 = 2) */
+const vagas = () => Math.max(1, Math.ceil(totalMin() / intervaloDe(salao)));
+function horariosDoAg(h) {
+  const p = intervaloDe(salao), r = [];
+  for (let i = 0; i < vagas(); i++) { const m = mm(h) + i * p; if (m >= 1440) return null; r.push(hh(m)); }
+  return r;
+}
+const profLivre = (p, h) => { const l = horariosDoAg(h); return !!l && l.every(x => !ocupadosDia.has(p + "|" + x)); };
+/* "Tanto faz": fica com quem está livre e tem menos clientes no dia */
+function quemAtende(h) {
+  const lista = profSel && profSel !== "*" ? [profSel] : profsDe().length ? profsDe() : [""];
+  const livres = lista.filter(p => profLivre(p, h));
+  if (livres.length < 2) return livres[0] ?? null;
+  const carga = p => [...ocupadosDia].filter(k => k.startsWith(p + "|")).length;
+  return livres.sort((a, b) => carga(a) - carga(b))[0];
+}
+function horaLivre(h) {
+  if (indisponivel() || fechadoNoDia(salao, diaSel)) return false;
+  if (diaSel === hojeISO()) { const d = new Date(); if (mm(h) <= d.getHours() * 60 + d.getMinutes()) return false; }
+  return quemAtende(h) != null;
+}
+function statusAgora() {
+  const s = salao, p = intervaloDe(s), ini = mm(s.inicio || "09:00"), fimU = mm(s.fim || "20:00"), fecha = (fimU + p) % 1440;
+  const d = new Date(), agora = d.getHours() * 60 + d.getMinutes();
+  if (fechadoNoDia(s, hojeISO())) return { cor: "#F59E0B", txt: "Fechado hoje · agende para outro dia" };
+  const dentro = fimU >= ini ? agora >= ini && agora < fimU + p : agora >= ini || agora < fecha;
+  if (dentro) return { cor: "#16A34A", txt: `Aberto agora · fecha às ${hh(fecha)}` };
+  if (fimU >= ini && agora < ini) return { cor: "#F59E0B", txt: `Fechado agora · abre às ${hh(ini)}` };
+  return { cor: "#94A3B8", txt: `Fechado agora · hoje foi das ${hh(ini)} às ${hh(fecha)}` };
+}
+
 function abrirSalao() {
   ver("salao"); mostrarTela("home");
   unsubs.salao = F.onSnapshot(dSalao(SALAO_ID), s => {
-    if (!s.exists() || !s.data().nome) { off("dia"); return ver("erro", "Barbearia não encontrada."); }
+    if (!s.exists() || !s.data().nome) { off("dia"); return ver("erro", "Página não encontrada."); }
     const primeira = !salao;
     if (!temAgenda(s.data())) { off("dia"); salao = null; return ver("erro", "Esta empresa ainda não tem agenda on-line. Fale direto com ela pelo WhatsApp."); }
     salao = { id: s.id, ...s.data() };
     document.title = salao.nome + " · Técnicos de Bolso";
-    if (!profSel || !(salao.profissionais || []).includes(profSel)) profSel = (salao.profissionais || [])[0] || "";
+    $("#vSalao").classList.toggle("escuro", salao.tema === "escuro");
+    aplicarTermos();
+    const nomes = (salao.servicos || []).map(x => x.nome);
+    servsSel = servsSel.filter(n => nomes.includes(n));
+    if (profSel && profSel !== "*" && !profsDe().includes(profSel)) profSel = null;
+    if (!variosProfs()) profSel = profsDe()[0] || "";
     if (primeira) { diaSel = proximoDiaAberto(hojeISO()); }
     desenharHome(); desenharServicos(); desenharProfs(); desenharDias(); desenharEstado();
     if (primeira) { ver("salao"); ouvirDia(); acompanharMeus(); }
@@ -2553,72 +2778,122 @@ function ouvirDia() {
 function desenharHome() {
   const s = salao;
   $("#sNome").textContent = s.nome;
-  /* v2.4.2: iniciais da barbearia no círculo do topo */
-  $("#sLogo").textContent = String(s.nome || "").split(" - ").pop().split(/\s+/).filter(w => w.length > 2 || /^[A-ZÀ-Ú]/.test(w)).slice(0, 2).map(w => w[0]).join("").toUpperCase();
-  $("#sBairro").textContent = s.endereco ? s.endereco.split(" - ").slice(1).join(" - ") || s.endereco : "";
-  const prof = (s.profissionais || []).length > 1;
-  $("#boxProf").classList.toggle("hidden", !prof);
-  $("#nDia").textContent = prof ? "3." : "2."; $("#nHora").textContent = prof ? "4." : "3."; $("#nDados").textContent = prof ? "5." : "4.";
-  $("#sServicos").innerHTML = (s.servicos || []).map(x => `<div class="listrow"><div><p style="font-size:16px;font-weight:600">${esc(x.nome)}</p>${x.nota ? `<p class="sm muted">${esc(x.nota)}</p>` : ""}</div><b>${brl(x.preco)}</b></div>`).join("");
-  const ico = p => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4338CA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  const logo = $("#sLogo");
+  logo.style.backgroundImage = s.logo ? `url("${s.logo}")` : ""; logo.textContent = s.logo ? "" : iniciais(s.nome);
+  $("#cCapa").style.backgroundImage = s.capa ? `linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.25)),url("${s.capa}")` : "";
+  $("#sBairro").textContent = s.endereco || "";
+  const l = s.servicos || [], mostra = servTodos ? l : l.slice(0, 5);
+  $("#sServicos").innerHTML = mostra.map(x => `<button type="button" class="cSvc" data-act="servHome" data-nome="${esc(x.nome)}"><div class="grow"><p class="n">${esc(x.nome)}</p>${x.min ? `<p class="d">${icoRel}${txtMin(+x.min)}</p>` : x.nota ? `<p class="d">${esc(x.nota)}</p>` : ""}</div><span class="p">${brl(x.preco)}</span></button>`).join("");
+  $("#cVerTodos").classList.toggle("hidden", servTodos || l.length <= 5);
+  const ico = p => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--pri)">${p}</svg>`;
   const cont = [];
-  if (s.whatsapp) cont.push(`<a class="btn3" style="flex-direction:column;min-height:64px" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${ico('<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"></path>')}WhatsApp</a>`);
-  if (s.instagram) cont.push(`<a class="btn3" style="flex-direction:column;min-height:64px" href="https://www.instagram.com/${esc(s.instagram)}/" target="_blank" rel="noopener">${ico('<rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle>')}Instagram</a>`);
-  if (s.endereco) cont.push(`<a class="btn3" style="flex-direction:column;min-height:64px" href="${esc(s.mapsUrl || "https://www.google.com/maps/search/" + encodeURIComponent(s.endereco))}" target="_blank" rel="noopener">${ico('<path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"></path><circle cx="12" cy="9" r="2.5"></circle>')}Como chegar</a>`);
+  if (s.whatsapp) cont.push(`<a class="btn3" style="flex-direction:column;min-height:68px" href="https://wa.me/${s.whatsapp}" target="_blank" rel="noopener">${ico('<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"></path>')}WhatsApp</a>`);
+  if (s.instagram) cont.push(`<a class="btn3" style="flex-direction:column;min-height:68px" href="https://www.instagram.com/${esc(s.instagram)}/" target="_blank" rel="noopener">${ico('<rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle>')}Instagram</a>`);
+  if (s.endereco) cont.push(`<a class="btn3" style="flex-direction:column;min-height:68px" href="${esc(linkMapa())}" target="_blank" rel="noopener">${ico('<path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"></path><circle cx="12" cy="9" r="2.5"></circle>')}Como chegar</a>`);
   $("#sContatos").innerHTML = cont.join("");
   $("#sContatos").style.gridTemplateColumns = `repeat(${cont.length || 1}, minmax(0,1fr))`;
+  $("#sContatos").classList.toggle("hidden", !cont.length);
 }
+const icoRel = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>`;
+const linkMapa = () => salao.mapsUrl || "https://www.google.com/maps/search/" + encodeURIComponent(salao.endereco || "");
 function desenharServicos() {
-  const l = salao?.servicos || []; if (servSel >= l.length) servSel = 0;
-  $("#servicos").innerHTML = l.map((s, i) => `<button type="button" class="chip ${i === servSel ? "on" : ""}" data-serv="${i}">${esc(s.nome)} · ${brl(s.preco)}</button>`).join("");
+  const l = salao?.servicos || [];
+  $("#servicos").innerHTML = l.map(s => { const on = servsSel.includes(s.nome);
+    return `<button type="button" class="cSvc ${on ? "on" : ""}" data-serv="${esc(s.nome)}" aria-pressed="${on}"><span class="ck">${on ? `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>` : ""}</span>
+      <div class="grow"><p class="n">${esc(s.nome)}</p><p class="d">${s.min ? txtMin(+s.min) : ""}${s.min && s.nota ? " · " : ""}${esc(s.nota || "")}</p></div><span class="p">${brl(s.preco)}</span></button>`; }).join("");
   resumo();
 }
 function desenharProfs() {
-  $("#profs").innerHTML = (salao.profissionais || []).map(p => `<button type="button" class="chip ${p === profSel ? "on" : ""}" data-prof="${esc(p)}">${esc(p)}</button>`).join("");
+  if (!variosProfs()) { $("#boxProf").classList.add("hidden"); return; }
+  $("#boxProf").classList.remove("hidden");
+  const av = (p, i) => { const f = fotoProf(p); return `<span class="cAv" style="background-color:${CORES_AV[i % CORES_AV.length]};${f ? `background-image:url('${f}')` : ""}">${f ? "" : esc(p.trim()[0] || "?").toUpperCase()}</span>`; };
+  $("#profs").innerHTML = `<button type="button" class="cProf ${profSel === "*" ? "on" : ""}" data-prof="*"><span class="cAv" style="background:#94A3B8">?</span>Tanto faz</button>`
+    + profsDe().map((p, i) => `<button type="button" class="cProf ${p === profSel ? "on" : ""}" data-prof="${esc(p)}">${av(p, i)}${esc(p)}</button>`).join("");
 }
 function desenharDias() {
   let h = "";
   for (let i = 0; i < MAX_DIAS; i++) {
-    const d = somaDias(hojeISO(), i), f = fechadoNoDia(salao, d), dn = diaSemana(d);
-    h += `<button type="button" class="day ${d === diaSel ? "on" : ""} ${f ? "off" : ""}" ${f ? "disabled" : `data-dia="${d}"`}><span>${i === 0 ? "Hoje" : DIAS_SEM[dn]}</span><span>${f ? "—" : +d.slice(8)}</span></button>`;
+    const d = somaDias(hojeISO(), i);
+    if (fechadoNoDia(salao, d)) continue;   // v2.7.0: dia fechado nem aparece
+    h += `<button type="button" class="day ${d === diaSel ? "on" : ""}" data-dia="${d}"><span>${i === 0 ? "Hoje" : i === 1 ? "Amanhã" : DIAS_SEM[diaSemana(d)]}</span><span>${+d.slice(8)}</span></button>`;
   }
   $("#dias").innerHTML = h;
   $("#diaTxt").textContent = "· " + dataLonga(diaSel);
+  $("#boxDia").classList.toggle("hidden", profSel == null);
+  $("#boxHora").classList.toggle("hidden", profSel == null);
 }
 function desenharHoras() {
   if (!salao) return;
-  const agora = new Date(), min = agora.getHours() * 60 + agora.getMinutes();
-  const livre = h => !indisponivel() && !fechadoNoDia(salao, diaSel) && !ocupadosDia.has(profSel + "|" + h) && !(diaSel === hojeISO() && mm(h) <= min);
-  const slots = slotsDe(salao);
-  if (horaSel && !livre(horaSel)) horaSel = null;
-  $("#horas").innerHTML = slots.map(h => livre(h) ? `<button type="button" class="slot ${h === horaSel ? "on" : ""}" data-hora="${h}">${h}</button>` : `<button type="button" class="slot off" disabled>${h}</button>`).join("");
-  /* v2.4.5: dia lotado → esconde a grade riscada e sugere o próximo dia aberto */
-  const lotado = !indisponivel() && !slots.some(livre);
+  const slots = slotsDe(salao), livres = slots.filter(horaLivre);
+  if (horaSel && !livres.includes(horaSel)) horaSel = null;
+  /* v2.7.0: só os horários livres, separados por período (nada riscado) */
+  const per = h => { const m = mm(h); return m < 300 ? "Madrugada" : m < 720 ? "Manhã" : m < 1080 ? "Tarde" : "Noite"; };
+  const grupos = [];
+  livres.forEach(h => { const g = per(h); let x = grupos.find(y => y.g === g); if (!x) grupos.push(x = { g, l: [] }); x.l.push(h); });
+  $("#horas").innerHTML = grupos.map(x => `<p class="cPer">${x.g}</p><div class="grid4">${x.l.map(h => `<button type="button" class="slot ${h === horaSel ? "on" : ""}" data-hora="${h}">${h}</button>`).join("")}</div>`).join("");
+  const lotado = !indisponivel() && !livres.length;
   $("#semHoras").classList.toggle("hidden", !lotado);
   $("#horas").classList.toggle("hidden", lotado);
-  $("#legRiscados").classList.toggle("hidden", lotado);
   if (lotado) {
     const prox = proximoDiaAberto(somaDias(diaSel, 1));
-    $("#semHorasTxt").textContent = (diaSel === hojeISO() ? "Hoje" : cap1(dataLonga(diaSel).split(",")[0])) + " não tem mais horário livre" + (profSel && (salao.profissionais || []).length > 1 ? " com " + profSel : "") + ".";
+    $("#semHorasTxt").textContent = (diaSel === hojeISO() ? "Hoje" : cap1(dataLonga(diaSel).split(",")[0])) + " não tem mais horário livre" + (profSel && profSel !== "*" && variosProfs() ? " com " + profSel : "") + (vagas() > 1 ? ` para ${txtMin(totalMin())} de serviço` : "") + ".";
     const b = $("#btnProxDia"); b.dataset.dia = prox;
     b.textContent = "Ver horários de " + (prox === somaDias(hojeISO(), 1) ? "amanhã" : DIAS_SEM[diaSemana(prox)].toLowerCase()) + ", " + dBR(prox).slice(0, 5);
   }
   resumo();
 }
+const PASSOS = ["Serviço", "Quem e quando", "Confirmar"];
+function passoAg(n) {
+  agPasso = n;
+  [1, 2, 3].forEach(i => $("#ag" + i).classList.toggle("hidden", i !== n));
+  document.querySelectorAll(".cPassos span").forEach((x, i) => x.classList.toggle("on", i < n));
+  $("#agPassoTxt").textContent = `Passo ${n} de 3 · ${PASSOS[n - 1]}`;
+  if (n === 2) { desenharProfs(); desenharDias(); desenharHoras(); }
+  if (n === 3) {
+    desenharResumoAg();
+    const ult = lerMeus().slice(-1)[0] || lerHist()[0];
+    if (ult && !$("#nome").value) $("#nome").value = ult.nome || "";
+    if (ult && !$("#fone").value) $("#fone").value = ult.telefone || "";
+  }
+  resumo(); window.scrollTo({ top: 0 });
+  if (n === 2) { const on = $("#dias .day.on"); if (on) on.scrollIntoView({ block: "nearest", inline: "center" }); }
+}
+function desenharResumoAg() {
+  const l = servsEscolhidos(), prof = quemAtende(horaSel) ?? "";
+  $("#agResumo").innerHTML = `<div class="listrow"><span class="muted">Quando</span><b style="text-align:right">${esc(cap1(dataLonga(diaSel)))} · ${esc(horaSel || "")}</b></div>
+    ${prof ? `<div class="listrow"><span class="muted">Com</span><b>${esc(prof)}${profSel === "*" ? ` <span class="xs muted" style="font-weight:500">(quem estiver livre)</span>` : ""}</b></div>` : ""}
+    <div class="listrow"><span class="muted">${l.length > 1 ? "Serviços" : "Serviço"}</span><span style="font-weight:600;text-align:right">${esc(nomeServs(l))}</span></div>
+    <div class="listrow"><span class="muted">Total</span><b class="tt" style="font-size:17px">${brl(totalPreco())}${totalMin() ? ` <span class="xs muted" style="font-family:Inter;font-weight:500">· ${txtMin(totalMin())}</span>` : ""}</b></div>`;
+}
 function resumo() {
   if (!salao) return;
-  const sv = (salao.servicos || [])[servSel];
-  $("#resumo1").textContent = sv ? `${sv.nome} · ${DIAS_SEM[diaSemana(diaSel)].toLowerCase()} ${dBR(diaSel).slice(0, 5)}${horaSel ? " · " + horaSel : ""}` : "";
-  $("#resumo2").textContent = horaSel ? (profSel ? "com " + profSel : "") : "Escolha um horário";
-  $("#resumoPreco").textContent = sv ? brl(sv.preco) : "";
-  /* v2.4.5: o botão só acende depois de escolher o horário */
-  const btn = $("#btnConfirmar");
-  if (btn.textContent !== "Salvando…") {
-    btn.disabled = indisponivel() || !horaSel;
-    btn.textContent = !horaSel && !indisponivel() ? "Escolha um horário acima" : remarcando ? "Confirmar remarcação" : "Confirmar agendamento";
+  const l = servsEscolhidos(), btn = $("#btnConfirmar");
+  let r1 = "", r2 = "", ok = false, txt = "Continuar";
+  if (agPasso === 1) { r1 = l.length ? `${l.length} ${l.length > 1 ? "serviços" : "serviço"} · ${txtMin(totalMin())}` : "Nenhum serviço marcado"; r2 = l.length ? nomeServs(l) : "Toque no que você quer fazer"; ok = l.length > 0; if (!ok) txt = "Escolha pelo menos um serviço"; }
+  if (agPasso === 2) {
+    const prof = horaSel ? quemAtende(horaSel) : null;
+    r1 = horaSel ? `${DIAS_SEM[diaSemana(diaSel)].toLowerCase()} ${dBR(diaSel).slice(0, 5)} · ${horaSel}` : nomeServs(l);
+    r2 = horaSel ? (prof ? "com " + prof : "") : profSel == null ? "Escolha com quem" : "Escolha o dia e o horário";
+    ok = !!horaSel; if (!ok) txt = profSel == null ? "Escolha com quem" : "Escolha um horário";
   }
+  if (agPasso === 3) { ok = true; txt = remarcando ? "Confirmar remarcação" : "Confirmar agendamento"; $("#resumoLinha").classList.add("hidden"); }
+  else $("#resumoLinha").classList.remove("hidden");
+  $("#resumo1").textContent = r1; $("#resumo2").textContent = r2;
+  $("#resumoPreco").textContent = l.length ? brl(totalPreco()) : "";
+  if (btn.textContent !== "Salvando…") { btn.disabled = indisponivel() || !ok; btn.textContent = indisponivel() ? "Agendamentos indisponíveis" : txt; }
 }
-function mostrarTela(v) { ["home", "agendar", "sucesso"].forEach(x => $("#" + x).classList.toggle("hidden", v !== x)); window.scrollTo({ top: 0 }); }
+function mostrarTela(v) {
+  ["home", "agendar", "sucesso", "meus"].forEach(x => $("#" + x).classList.toggle("hidden", v !== x));
+  $("#vSalao").classList.toggle("semNav", v === "agendar");
+  cTab = v === "sucesso" ? "" : v;
+  document.querySelectorAll("#cNav [data-ctab]").forEach(b => b.classList.toggle("on", b.dataset.ctab === cTab));
+  window.scrollTo({ top: 0 });
+}
+function abrirAgendar(passo, titulo, sub) {
+  if (indisponivel()) return aviso("Os agendamentos estão temporariamente indisponíveis.");
+  $("#agTitulo").textContent = titulo || "Agendar horário"; $("#agSub").textContent = sub || salao.nome;
+  mostrarTela("agendar"); passoAg(passo || 1);
+}
 function desenharEstado() {
   const t = $("#btnTrava");
   $("#ponto").style.background = travado ? "#DC2626" : "#16A34A";
@@ -2631,52 +2906,61 @@ function desenharEstado() {
     else { b.disabled = false; b.innerHTML = fech ? `<span class="dot" style="background:#DC2626"></span>Fechado · abrir` : `<span class="dot" style="background:#16A34A"></span>Aberto`; b.style.background = fech ? "var(--bad-l)" : "var(--ok-l)"; b.style.color = fech ? "#7F1D1D" : "#166534"; }
   }
   if (!salao) return;
-  const fechado = indisponivel(), fHoje = fechadoNoDia(salao, hojeISO());
-  const st = $("#sStatus");
-  st.innerHTML = fechado ? `<span class="dot" style="background:#DC2626"></span>Agendamentos indisponíveis` : fHoje ? `<span class="dot" style="background:#F59E0B"></span>Fechado hoje · agende para outro dia` : `<span class="dot" style="background:#16A34A"></span>Aberto hoje · ${esc(salao.inicio || "09:00")} às ${esc(salao.fim || "20:00")}`;
-  st.style.color = fechado ? "#7F1D1D" : fHoje ? "#92400E" : "#166534";
+  const fechado = indisponivel(), st = statusAgora();
+  $("#sStatus").innerHTML = fechado ? `<span class="dot" style="background:#DC2626"></span>Agendamentos indisponíveis no momento` : `<span class="dot" style="background:${st.cor}"></span>${esc(st.txt)}`;
   $("#btnAgendar").disabled = fechado;
-  $("#btnAgendar").textContent = fechado ? "Agendamentos indisponíveis" : lerMeus().some(c => (estadoMeu[c.protocolo] || "ativo") === "ativo") ? "Agendar outro horário" : "Agendar horário";
+  $("#btnAgendar").querySelector("span").textContent = fechado ? "Agendamentos indisponíveis" : "Agendar horário";
   $("#avisoFechado").classList.toggle("hidden", !fechado);
-  $("#avisoFechado p").textContent = travado ? "Os agendamentos estão temporariamente indisponíveis." : testeAcabou(salao) ? "A agenda on-line está pausada no momento. Fale com a barbearia pelo WhatsApp." : "A barbearia não está recebendo agendamentos no momento.";
-  $("#fs").disabled = fechado; $("#btnConfirmar").disabled = fechado;
+  $("#avisoFechado p").textContent = travado ? "Os agendamentos estão temporariamente indisponíveis." : testeAcabou(salao) ? `A agenda on-line está pausada no momento. Fale com ${aNeg()} pelo WhatsApp.` : `${cap1(aNeg())} não está recebendo agendamentos no momento.`;
+  $("#fs").disabled = fechado;
   desenharHoras();
 }
 
-/* ----- gravar: protocolo em sequência + trava do horário (+ cancela o antigo ao remarcar) ----- */
+/* ----- gravar: protocolo em sequência + trava de TODOS os horários que o serviço ocupa (+ cancela o antigo ao remarcar) ----- */
 async function gravar(o, tok, antigo) {
-  const ocRef = F.doc(fire, "saloes", salao.id, "ocupados", o.chave);
+  const refs = o.chaves.map(k => F.doc(fire, "saloes", salao.id, "ocupados", k));
   return F.runTransaction(fire, async tx => {
-    const g = await tx.get(dGeral()), s = await tx.get(dSalao(salao.id)), oc = await tx.get(ocRef), ct = await tx.get(dContador(salao.id));
+    const g = await tx.get(dGeral()), s = await tx.get(dSalao(salao.id)), ct = await tx.get(dContador(salao.id));
+    const ocs = []; for (const r of refs) ocs.push(await tx.get(r));
     if ((g.exists() && g.data().bloqueado) || s.data()?.barbeariaFechada || testeAcabou(s.data())) throw new Error("bloqueado");
-    if (oc.exists()) throw new Error("ocupado");
+    if (ocs.some(x => x.exists())) throw new Error("ocupado");
     const n = (ct.exists() ? ct.data().n : 0) + 1;
     const protocolo = "TDB-" + pad(n, 5);
-    const agRef = F.doc(fire, "saloes", salao.id, "agendamentos", `${o.chave}_${protocolo}`);
+    const agId = `${o.chave}_${protocolo}`, agRef = F.doc(fire, "saloes", salao.id, "agendamentos", agId);
     if (antigo) {
       tx.update(F.doc(fire, "saloes", salao.id, "agendamentos", antigo.agId), { status: "Cancelado", canceladoEm: F.serverTimestamp(), canceladoPor: "cliente", tokenUso: antigo.token });
-      tx.delete(F.doc(fire, "saloes", salao.id, "ocupados", antigo.chave));
+      (antigo.chaves || [antigo.chave]).forEach(k => tx.delete(F.doc(fire, "saloes", salao.id, "ocupados", k)));
     }
     tx.set(dContador(salao.id), { n });
-    tx.set(ocRef, { data: o.data, horario: o.horario, profissional: o.profissional, protocolo, criadoEm: F.serverTimestamp() });
     tx.set(agRef, { ...o, protocolo, token: tok, status: "Agendado", criadoEm: F.serverTimestamp() });
-    return { protocolo, agId: agRef.id };
+    o.chaves.forEach((k, i) => tx.set(refs[i], { data: o.data, horario: o.horarios[i], profissional: o.profissional, protocolo, agendamentoId: agId, criadoEm: F.serverTimestamp() }));
+    return { protocolo, agId };
   });
 }
 async function cancelarPeloCliente(c) {
   const b = F.writeBatch(fire);
   b.update(F.doc(fire, "saloes", salao.id, "agendamentos", c.agId), { status: "Cancelado", canceladoEm: F.serverTimestamp(), canceladoPor: "cliente", tokenUso: c.token });
-  b.delete(F.doc(fire, "saloes", salao.id, "ocupados", c.chave));
+  (c.chaves || [c.chave]).forEach(k => b.delete(F.doc(fire, "saloes", salao.id, "ocupados", k)));
   await b.commit();
 }
 
-/* v2.4.5: o aparelho guarda TODAS as reservas do cliente nesta barbearia (antes guardava só a última) */
+/* v2.4.5: o aparelho guarda TODAS as reservas do cliente neste negócio. v2.7.0: + histórico para "Agendar de novo" */
 const chaveComp = () => "tdb_comp_" + (salao?.id || SALAO_ID);
 const chaveComps = () => "tdb_comps_" + (salao?.id || SALAO_ID);
+const chaveHist = () => "tdb_hist_" + (salao?.id || SALAO_ID);
+function lerHist() { try { return JSON.parse(localStorage.getItem(chaveHist()) || "[]") || []; } catch { return []; } }
+function guardarHist(l) {
+  let h = lerHist();
+  l.filter(c => !c.canceladoPorMim).forEach(c => { h = h.filter(x => x.protocolo !== c.protocolo); h.unshift({ protocolo: c.protocolo, data: c.data, horario: c.horario, servico: c.servico, servicos: c.servicos, profissional: c.profissional, nome: c.nome, telefone: c.telefone }); });
+  h.sort((a, b) => (b.data + b.horario).localeCompare(a.data + a.horario));
+  try { localStorage.setItem(chaveHist(), JSON.stringify(h.slice(0, 3))); } catch {}
+}
 function lerMeus() {
   let l = [];
   try { l = JSON.parse(localStorage.getItem(chaveComps()) || "[]") || []; } catch {}
   try { const velho = JSON.parse(localStorage.getItem(chaveComp()) || "null"); if (velho?.protocolo && !l.some(x => x.protocolo === velho.protocolo)) l.push(velho); localStorage.removeItem(chaveComp()); } catch {}
+  const passados = l.filter(x => x && x.protocolo && x.data < hojeISO());
+  if (passados.length) guardarHist(passados);
   return l.filter(x => x && x.protocolo && x.data >= hojeISO());
 }
 const salvarMeus = l => { try { l.length ? localStorage.setItem(chaveComps(), JSON.stringify(l)) : localStorage.removeItem(chaveComps()); } catch {} };
@@ -2688,37 +2972,40 @@ function guardarMeu(c, protoAntigo) {
 function trocarMeu(c) { salvarMeus(lerMeus().map(x => x.protocolo === c.protocolo ? c : x)); }
 function tirarMeu(p) { salvarMeus(lerMeus().filter(x => x.protocolo !== p)); delete estadoMeu[p]; off("mc_" + p); }
 const estadoMeu = {};
+const ativoMeu = c => (estadoMeu[c.protocolo] || "ativo") === "ativo";
 function linkZap(c, remarcado) {
   const linhas = [`${remarcado ? "Agendamento remarcado" : "Novo agendamento"} (${c.protocolo})`, `Cliente: ${c.nome}`, `Telefone: ${c.telefone}`,
-    `Serviço: ${c.servico}`, `Data: ${dBR(c.data).slice(0, 5)} às ${c.horario}`, c.profissional && `Profissional: ${c.profissional}`].filter(Boolean);
+    `${c.servicos?.length > 1 ? "Serviços" : "Serviço"}: ${c.servico}`, `Data: ${dBR(c.data).slice(0, 5)} às ${c.horario}`, c.profissional && `Profissional: ${c.profissional}`, `Total: ${brl(c.preco)}`].filter(Boolean);
   return `https://wa.me/${salao.whatsapp}?text=${encodeURIComponent(linhas.join("\n"))}`;
 }
 function itemMeu(c) {
   const est = estadoMeu[c.protocolo] || "ativo", canc = est !== "ativo";
-  const txtCanc = est === "cliente" ? "Você cancelou este horário." : "Cancelado pela barbearia.";
+  const txtCanc = est === "cliente" ? "Você cancelou este horário." : `Cancelado por ${aNeg()}.`;
   const p = esc(c.protocolo);
-  return `<div class="stack" style="gap:8px;padding:12px;border-radius:14px;background:${canc ? "var(--bad-l)" : "var(--bg)"};${canc ? "opacity:.85" : ""}">
+  return `<div class="cMeu ${canc ? "canc" : ""}">
     <div class="row" style="justify-content:space-between;align-items:flex-start">
-      <div class="grow"><p style="font-size:16px;font-weight:800${canc ? ";text-decoration:line-through" : ""}">${esc(rotuloDia(c.data))} · ${esc(c.horario)}</p>
-      <p class="sm muted">${esc(c.servico)}${c.profissional ? " com " + esc(c.profissional) : ""}</p></div>
-      <span class="xs muted" style="font-family:ui-monospace,monospace;white-space:nowrap">${p}</span>
+      <div class="grow"><p style="font-size:17px;font-weight:800${canc ? ";text-decoration:line-through" : ""}">${esc(rotuloDia(c.data))} · ${esc(c.horario)}</p>
+      <p class="sm muted">${esc(c.servico)}${c.profissional ? " · " + esc(c.profissional) : ""}</p></div>
+      ${canc ? "" : `<span class="pill" style="background:var(--ok-l);color:#166534;padding:4px 10px;font-size:12px">marcado</span>`}
     </div>
     ${canc ? `<div class="row" style="justify-content:space-between"><span class="sm" style="font-weight:700;color:var(--bad)">${txtCanc}</span><button class="link" data-act="tirarMeu" data-proto="${p}" style="padding:4px">Tirar da lista</button></div>`
            : `<div class="grid2"><button class="btn3" data-act="remarcar" data-proto="${p}">Remarcar</button><button class="btn3" data-act="cancelarMeu" data-proto="${p}" style="color:var(--bad);border-color:#FECACA">Cancelar</button></div>`}
+    <p class="xs muted" style="font-family:ui-monospace,monospace">${p}</p>
   </div>`;
 }
 function desenharMeus() {
-  const box = $("#comprovante");
   const l = lerMeus().sort((a, b) => (a.data + a.horario).localeCompare(b.data + b.horario));
-  const ativos = l.filter(c => (estadoMeu[c.protocolo] || "ativo") === "ativo").length;
-  /* v2.4.6: quem já tem horário marcado vê só os horários dele; a lista de serviços aparece ao tocar em agendar */
-  $("#servCard").classList.toggle("hidden", ativos > 0);
-  if (!indisponivel()) $("#btnAgendar").textContent = ativos > 0 ? "Agendar outro horário" : "Agendar horário";
-  if (!l.length) { box.classList.add("hidden"); $("#servCard").style.marginTop = "-44px"; return; }
-  box.innerHTML = `<div class="row" style="justify-content:space-between"><p class="tt" style="font-size:17px;font-weight:800">${ativos === 1 ? "Seu horário marcado" : ativos > 1 ? `Seus ${ativos} horários marcados` : "Seus horários"}</p></div>
-    ${l.map(itemMeu).join("")}`;
-  box.classList.remove("hidden");
-  $("#servCard").style.marginTop = "0";
+  const ativos = l.filter(ativoMeu);
+  $("#comprovante").innerHTML = l.length ? l.map(itemMeu).join("")
+    : `<div class="cMeu" style="align-items:center;text-align:center;padding:24px 16px"><p style="font-weight:700">Nenhum horário marcado</p><p class="sm muted">Quando você agendar, ele aparece aqui.</p><button data-act="agendar" class="btn" style="margin-top:6px">Agendar horário</button></div>`;
+  const h = lerHist();
+  $("#cHist").innerHTML = h.length ? `<p class="cap" style="margin-top:6px">Da última vez</p>` + h.map((c, i) => `<div class="cMeu" style="flex-direction:row;align-items:center"><div class="grow"><p style="font-weight:700">${esc(c.servico)}</p><p class="xs muted">${dBR(c.data).slice(0, 5)}${c.profissional ? " · com " + esc(c.profissional) : ""}</p></div><button class="btn3" data-act="deNovo" data-i="${i}" style="color:var(--pri);border-color:#D9D3FF;white-space:nowrap">Agendar de novo</button></div>`).join("") : "";
+  $("#cHist").classList.toggle("hidden", !h.length);
+  const q = $("#cNavQtd"); q.textContent = ativos.length; q.classList.toggle("hidden", !ativos.length);
+  /* início: o próximo horário aparece logo abaixo do botão */
+  const prox = ativos[0], box = $("#cProximo");
+  box.classList.toggle("hidden", !prox);
+  box.innerHTML = prox ? `<button class="cProxCard" data-ctab="meus"><div class="grow"><p class="cap" style="color:var(--pri)">Seu próximo horário</p><p style="font-size:17px;font-weight:800;margin-top:2px">${esc(rotuloDia(prox.data))} · ${esc(prox.horario)}</p><p class="sm muted">${esc(prox.servico)}${prox.profissional ? " · com " + esc(prox.profissional) : ""}</p></div><span class="link" style="text-decoration:none;padding:0">ver ›</span></button>` : "";
 }
 function acompanharMeus() {
   Object.keys(unsubs).filter(k => k.startsWith("mc_")).forEach(off);
@@ -2734,37 +3021,62 @@ function acompanharMeus() {
   });
   desenharMeus();
 }
+let ultimoMeu = null;
 function mostrarSucesso(c, remarcado) {
+  ultimoMeu = c;
   $("#sucTit").textContent = remarcado ? "Horário remarcado!" : "Horário reservado!";
+  $("#sucSub").textContent = salao?.whatsapp ? `Falta só um toque para avisar ${aNeg()}.` : "Pronto! É só chegar no horário.";
   $("#sucQuando").textContent = `${cap1(dataLonga(c.data))} às ${c.horario}`;
   $("#sucServico").textContent = `${c.servico} · ${brl(c.preco)}`; $("#sucProf").textContent = c.profissional || "—"; $("#sucProto").textContent = c.protocolo;
   $("#sucZap").classList.toggle("hidden", !salao?.whatsapp);
+  $("#sucBtnZap").textContent = `Avisar ${aNeg()} no WhatsApp`;
   if (salao?.whatsapp) $("#sucBtnZap").href = linkZap(c, remarcado);
+  $("#sucEnd").innerHTML = salao?.endereco ? `${esc(salao.endereco)} · <a href="${esc(linkMapa())}" target="_blank" rel="noopener">Como chegar</a>` : "";
   mostrarTela("sucesso");
+}
+/* v2.7.0: arquivo de agenda (.ics) — o próprio celular lembra o cliente */
+function baixarCalendario(c) {
+  if (!c) return;
+  const ini = c.data.replace(/-/g, "") + "T" + c.horario.replace(":", "") + "00";
+  const f = mm(c.horario) + (Number(c.duracao) || intervaloDe(salao)), dFim = f >= 1440 ? somaDias(c.data, 1) : c.data;
+  const fim = dFim.replace(/-/g, "") + "T" + hh(f % 1440).replace(":", "") + "00";
+  const t = s => String(s || "").replace(/[\\,;]/g, m => "\\" + m).replace(/\n/g, "\\n");
+  const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tecnicos de Bolso//Agenda//PT", "BEGIN:VEVENT", "UID:" + c.protocolo + "@tecnicosdebolso",
+    "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z", "DTSTART:" + ini, "DTEND:" + fim,
+    "SUMMARY:" + t(`${c.servico} · ${salao.nome}`), "DESCRIPTION:" + t(`Protocolo ${c.protocolo}${c.profissional ? " · com " + c.profissional : ""}`),
+    salao.endereco ? "LOCATION:" + t(salao.endereco) : "", "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "DESCRIPTION:" + t(c.servico), "END:VALARM", "END:VEVENT", "END:VCALENDAR"].filter(Boolean).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+  a.download = "meu-horario.ics"; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
 }
 async function confirmarAgendamento() {
   if (!F || !salao) return aviso("Sem conexão. Tente novamente em instantes.");
   if (indisponivel()) return aviso("Os agendamentos estão temporariamente indisponíveis.");
-  if (!horaSel) return aviso("Escolha um horário disponível.");
+  if (!horaSel) { passoAg(2); return aviso("Escolha um horário disponível."); }
   const nome = $("#nome").value.trim(), fone = $("#fone").value.trim();
-  if (!nome) return aviso("Digite o seu nome.");
-  if (dig(fone).length < 10) return aviso("Digite o WhatsApp com DDD, por exemplo 11 91234-5678.");
-  const sv = salao.servicos[servSel], prof = profSel || "", btn = $("#btnConfirmar");
-  const chave = `${slug(prof) || "geral"}_${diaSel}_${horaSel.replace(":", "")}`;
-  const o = { chave, nome, telefone: fone, profissional: prof, servico: sv.nome, preco: sv.preco, data: diaSel, horario: horaSel };
+  if (!nome) { $("#nome").focus(); return aviso("Digite o seu nome."); }
+  if (dig(fone).length < 10) { $("#fone").focus(); return aviso("Digite o WhatsApp com DDD, por exemplo 11 91234-5678."); }
+  const l = servsEscolhidos(), prof = quemAtende(horaSel), btn = $("#btnConfirmar");
+  if (prof == null || !l.length) { horaSel = null; passoAg(2); return aviso("Esse horário acabou de ser ocupado. Escolha outro."); }
+  const horarios = horariosDoAg(horaSel), base = `${slug(prof) || "geral"}_${diaSel}_`;
+  const chaves = horarios.map(h => base + h.replace(":", ""));
+  const o = { chave: chaves[0], chaves, horarios, nome, telefone: fone, profissional: prof, servico: nomeServs(l), servicos: l.map(s => ({ nome: s.nome, preco: Number(s.preco) || 0, min: minServ(s) })),
+    preco: totalPreco(), duracao: totalMin(), data: diaSel, horario: horaSel, fim: hh((mm(horaSel) + totalMin()) % 1440) };
   const tok = token(), antigo = remarcando;
   btn.disabled = true; btn.textContent = "Salvando…";
   try {
     const r = await Promise.race([gravar(o, tok, antigo), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000))]);
     const c = { ...o, protocolo: r.protocolo, agId: r.agId, token: tok };
-    guardarMeu(c, antigo?.protocolo); remarcando = null; horaSel = null;
-    acompanharMeus(); desenharHoras(); mostrarSucesso(c, !!antigo);
+    delete c.horarios;
+    guardarMeu(c, antigo?.protocolo); remarcando = null; horaSel = null; servsSel = []; if (variosProfs()) profSel = null; $("#nome").value = c.nome; $("#fone").value = c.telefone;
+    acompanharMeus(); desenharHoras(); btn.textContent = ""; mostrarSucesso(c, !!antigo);
   } catch (err) {
     console.error(err);
-    aviso(err.message === "ocupado" ? "Esse horário acabou de ser ocupado. Escolha outro." : err.message === "bloqueado" ? "Os agendamentos estão temporariamente indisponíveis." : "Não foi possível salvar. Verifique a internet e tente novamente.");
-    horaSel = null; desenharHoras();
+    btn.textContent = "";
+    if (err.message === "ocupado") { horaSel = null; passoAg(2); aviso("Esse horário acabou de ser ocupado. Escolha outro."); }
+    else aviso(err.message === "bloqueado" ? "Os agendamentos estão temporariamente indisponíveis." : "Não foi possível salvar. Verifique a internet e tente novamente.");
   }
-  btn.disabled = false; btn.textContent = ""; resumo();
+  resumo();
 }
 
 /* ================= EVENTOS ================= */
@@ -2788,7 +3100,7 @@ document.addEventListener("click", async e => {
     if (f.fcat != null) folhaCtx.cat = f.fcat;
     return desenharFolha();
   }
-  const t = e.target.closest("[data-nav],[data-per],[data-pper],[data-asf],[data-mf],[data-cxdia],[data-dia],[data-hora],[data-serv],[data-prof],[data-act]"); if (!t) return;
+  const t = e.target.closest("[data-nav],[data-per],[data-pper],[data-asf],[data-mf],[data-cxdia],[data-dia],[data-hora],[data-serv],[data-prof],[data-ctab],[data-act]"); if (!t) return;
   const d = t.dataset;
   if (d.mf) { mFiltro = d.mf; return desenharMaster(); }
   if (d.nav) return navegar(d.nav);
@@ -2798,8 +3110,13 @@ document.addEventListener("click", async e => {
   if (d.cxdia) { $("#cxData").value = d.cxdia; return trocarPer("dia"); }
   if (d.dia) { diaSel = d.dia; horaSel = null; desenharDias(); ouvirDia(); desenharHoras(); if (t.id === "btnProxDia") { const on = $("#dias .day.on"); if (on) on.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }); } return; }
   if (d.hora) { horaSel = d.hora; desenharHoras(); return; }
-  if (d.serv) { servSel = +d.serv; desenharServicos(); return; }
-  if (d.prof) { profSel = d.prof; horaSel = null; desenharProfs(); desenharHoras(); return; }
+  if (d.serv != null) { const i = servsSel.indexOf(d.serv); i < 0 ? servsSel.push(d.serv) : servsSel.splice(i, 1); horaSel = null; desenharServicos(); return; }
+  if (d.prof) { const prim = profSel == null; profSel = d.prof; horaSel = null; desenharProfs(); desenharDias(); desenharHoras(); if (prim) { const on = $("#dias .day.on"); if (on) on.scrollIntoView({ block: "nearest", inline: "center" }); } return; }
+  if (d.ctab) {
+    if (d.ctab === "agendar") { remarcando = null; abrirAgendar(1); return; }
+    if (d.ctab === "meus") desenharMeus();
+    remarcando = null; return mostrarTela(d.ctab);
+  }
   switch (d.act) {
     case "fechar": $("#modal").classList.add("hidden"); break;
     case "entrar": entrar(); break;
@@ -2814,6 +3131,8 @@ document.addEventListener("click", async e => {
     case "ajustes": abrirAjustes(false); break;
     case "addServA": $("#ajServ").insertAdjacentHTML("beforeend", linhaServico()); $("#ajServ").lastElementChild.querySelector(".sNome").focus(); break;
     case "salvarAjustes": salvarAjustes(t); break;
+    case "tirarFoto": { const k = d.foto; if (k === "logo") ajImg.logo = ""; else if (k === "capa") ajImg.capa = ""; else delete ajImg.fotos[k.slice(2)]; desenharAparencia(); break; }
+    case "tema": ajImg.tema = d.tema; desenharAparencia(); break;
     case "ativarPlano": {
       const s = saloes.find(x => x.id === d.id); if (!s) return;
       if (!(await confirmar(`Ativar o plano da ${s.nome}? O teste grátis sai e a agenda volta a funcionar sem prazo. O plano fica como ${nomePlano(s)} (troque em Editar, se precisar).`, "Ativar"))) return;
@@ -2829,16 +3148,31 @@ document.addEventListener("click", async e => {
     case "esqueci": esqueci(); break;
     case "demoRecomecar": recomecarDemo(); break;
     case "sair": if (A) { await A.signOut(AU); } break;
-    case "agendar": if (!indisponivel()) { remarcando = null; resumo(); $("#agTitulo").textContent = "Agendar horário"; $("#agSub").textContent = salao.nome; mostrarTela("agendar"); } break;
+    case "agendar": remarcando = null; abrirAgendar(1); break;
+    case "servHome": remarcando = null; servsSel = [d.nome]; horaSel = null; desenharServicos(); abrirAgendar(2); break;
+    case "verTodosServ": servTodos = true; desenharHome(); break;
+    case "agVoltar": if (agPasso > 1) passoAg(agPasso - 1); else { remarcando = null; mostrarTela("home"); } break;
+    case "agAvancar": if (agPasso < 3) passoAg(agPasso + 1); else confirmarAgendamento(); break;
+    case "calendario": baixarCalendario(ultimoMeu); break;
+    case "deNovo": {
+      const h = lerHist()[+d.i]; if (!h) break;
+      const nomes = (salao.servicos || []).map(x => x.nome);
+      servsSel = (h.servicos?.length ? h.servicos.map(x => x.nome) : [h.servico]).filter(n => nomes.includes(n));
+      if (!servsSel.length) { abrirAgendar(1); break; }
+      if (variosProfs()) profSel = profsDe().includes(h.profissional) ? h.profissional : null;
+      remarcando = null; horaSel = null; desenharServicos(); abrirAgendar(2); break;
+    }
     case "inicio": remarcando = null; mostrarTela("home"); break;
-    case "confirmar": confirmarAgendamento(); break;
     case "tirarMeu": tirarMeu(d.proto); desenharMeus(); break;
     case "remarcar": {
       const c = acharMeu(d.proto); if (!c) return;
-      remarcando = { agId: c.agId, chave: c.chave, token: c.token, protocolo: c.protocolo };
+      remarcando = { agId: c.agId, chave: c.chave, chaves: c.chaves, token: c.token, protocolo: c.protocolo };
       $("#nome").value = c.nome || ""; $("#fone").value = c.telefone || "";
-      $("#agTitulo").textContent = "Remarcar horário"; $("#agSub").textContent = `Seu horário atual: ${dBR(c.data).slice(0, 5)} às ${c.horario}. Ele será liberado ao confirmar o novo.`;
-      resumo(); mostrarTela("agendar"); break;
+      const nomes = (salao.servicos || []).map(x => x.nome);
+      servsSel = (c.servicos?.length ? c.servicos.map(x => x.nome) : [c.servico]).filter(n => nomes.includes(n));
+      if (variosProfs()) profSel = profsDe().includes(c.profissional) ? c.profissional : null;
+      horaSel = null; desenharServicos();
+      abrirAgendar(servsSel.length ? 2 : 1, "Remarcar horário", `Hoje: ${dBR(c.data).slice(0, 5)} às ${c.horario}. Ele é liberado quando você confirmar o novo.`); break;
     }
     case "cancelarMeu": {
       const c = acharMeu(d.proto); if (!c) return;
@@ -2920,7 +3254,7 @@ document.addEventListener("click", async e => {
     case "copiar": copiar(linkCliente(d.id)); break;
     case "enviarAcesso": {
       const s = saloes.find(x => x.id === d.id); if (!s) return;
-      if (!emailDe(s)) return aviso("Cadastre o e-mail do dono antes de enviar o acesso.");
+      if (!emailDe(s)) return aviso("Cadastre o e-mail do barbeiro chefe antes de enviar o acesso.");
       const url = (s.whatsapp ? `https://wa.me/${s.whatsapp}` : "https://wa.me/") + "?text=" + encodeURIComponent(msgAcesso(s));
       window.open(url, "_blank", "noopener"); break;
     }
