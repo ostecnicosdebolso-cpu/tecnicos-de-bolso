@@ -725,7 +725,7 @@ async function rotear() {
   papel = null; eu = null; espacoId = null; config = {}; equipeDocs = [];
   document.body.classList.remove("pc");
   onbFeito = false; tutAberto = false;
-  if (!user) { meuSalao = null; fecharFolha(); if (TESTE_URL) return verTeste(); abrirLogin(jaEntrou()); return ver("landing"); }
+  if (!user) { meuSalao = null; fecharFolha(); if (TESTE_URL) return verTeste(); abrirLogin(false); return ver("landing"); }
   try { localStorage.setItem("tdbJaEntrou", "1"); } catch {}
   if (isMaster()) { ouvirSaloes(); return ver("master"); }
   /* v2.5.6: primeiro procura em donos/{email}; barbearia antiga ainda tem o e-mail no próprio cadastro */
@@ -760,7 +760,7 @@ async function pedirConfirmacao() {
 }
 const msgErroLogin = err => ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-login-credentials", "auth/invalid-email"].includes(err.code)
   ? "E-mail ou senha incorretos. Tente novamente." : err.code === "auth/too-many-requests" ? "Muitas tentativas. Aguarde alguns minutos." : "Não foi possível entrar. Verifique a internet.";
-/* v2.6.0: o login fica escondido em "Já tenho conta" (abre sozinho para quem já entrou neste aparelho) */
+/* v2.6.0: o login fica sempre escondido em "Já tenho conta" */
 const jaEntrou = () => { try { return localStorage.getItem("tdbJaEntrou") === "1"; } catch { return false; } };
 function abrirLogin(abrir) {
   $("#lBox").classList.toggle("hidden", !abrir);
